@@ -1,12 +1,14 @@
 "use client"
 
 import { useCart } from "@/components/cart-context"
+import { useLang, formatEur } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import { X, Plus, Minus, ShoppingBag } from "lucide-react"
 import Image from "next/image"
 
 export function CartDrawer() {
   const { items, removeFromCart, updateQuantity, totalPrice, isCartOpen, setIsCartOpen } = useCart()
+  const { t } = useLang()
 
   if (!isCartOpen) return null
 
@@ -19,7 +21,7 @@ export function CartDrawer() {
       <div className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-card shadow-2xl">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h2 className="text-lg font-semibold text-card-foreground">
-            Shopping Cart
+            {t("shoppingCart")}
           </h2>
           <button
             onClick={() => setIsCartOpen(false)}
@@ -33,12 +35,9 @@ export function CartDrawer() {
         {items.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 text-muted-foreground">
             <ShoppingBag className="h-16 w-16 opacity-30" />
-            <p className="text-lg">Your cart is empty</p>
-            <Button
-              variant="outline"
-              onClick={() => setIsCartOpen(false)}
-            >
-              Continue Shopping
+            <p className="text-lg">{t("cartEmpty")}</p>
+            <Button variant="outline" onClick={() => setIsCartOpen(false)}>
+              {t("continueShopping")}
             </Button>
           </div>
         ) : (
@@ -68,12 +67,7 @@ export function CartDrawer() {
                       <div className="mt-auto flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() =>
-                              updateQuantity(
-                                item.product.id,
-                                item.quantity - 1
-                              )
-                            }
+                            onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
                             className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-muted"
                             aria-label="Decrease quantity"
                           >
@@ -83,12 +77,7 @@ export function CartDrawer() {
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() =>
-                              updateQuantity(
-                                item.product.id,
-                                item.quantity + 1
-                              )
-                            }
+                            onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                             className="flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-muted"
                             aria-label="Increase quantity"
                           >
@@ -97,7 +86,7 @@ export function CartDrawer() {
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-semibold text-primary">
-                            ${(item.product.price * item.quantity).toFixed(2)}
+                            {formatEur(item.product.price * item.quantity)}
                           </span>
                           <button
                             onClick={() => removeFromCart(item.product.id)}
@@ -116,16 +105,16 @@ export function CartDrawer() {
 
             <div className="border-t border-border px-6 py-4">
               <div className="mb-4 flex items-center justify-between">
-                <span className="text-base font-semibold text-card-foreground">Total</span>
+                <span className="text-base font-semibold text-card-foreground">{t("total")}</span>
                 <span className="text-xl font-bold text-primary">
-                  ${totalPrice.toFixed(2)}
+                  {formatEur(totalPrice)}
                 </span>
               </div>
               <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90" size="lg">
-                Checkout
+                {t("checkout")}
               </Button>
               <p className="mt-2 text-center text-xs text-muted-foreground">
-                Free shipping on orders over $30
+                {t("freeShippingCart")}
               </p>
             </div>
           </>

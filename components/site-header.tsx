@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useCart } from "@/components/cart-context"
+import { useLang } from "@/lib/i18n"
 import { categories } from "@/lib/data"
 import {
   Search,
@@ -17,28 +18,58 @@ import { Button } from "@/components/ui/button"
 
 export function SiteHeader() {
   const { totalItems, setIsCartOpen } = useCart()
+  const { lang, setLang, t } = useLang()
   const [searchValue, setSearchValue] = useState("")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+
+  // Map category id to translation key
+  const getCategoryName = (id: string) => {
+    const key = id as Parameters<typeof t>[0]
+    try { return t(key) } catch { return id }
+  }
 
   return (
     <header className="sticky top-0 z-30 bg-card shadow-sm">
       {/* Top bar */}
       <div className="border-b border-border">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
-          <div className="hidden items-center gap-4 text-xs text-muted-foreground md:flex">
-            <span>Deliver to: US</span>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="font-medium text-foreground">{t("deliverTo")}</span>
             <span className="text-border">|</span>
-            <span>EN</span>
+            {/* Language switcher */}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setLang("ru")}
+                className={`rounded px-1.5 py-0.5 text-xs font-semibold transition-colors ${
+                  lang === "ru"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                RU
+              </button>
+              <span className="text-border">|</span>
+              <button
+                onClick={() => setLang("lv")}
+                className={`rounded px-1.5 py-0.5 text-xs font-semibold transition-colors ${
+                  lang === "lv"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                LV
+              </button>
+            </div>
             <span className="text-border">|</span>
-            <span>USD</span>
+            <span className="font-medium text-foreground">EUR</span>
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <a href="#" className="transition-colors hover:text-primary">
-              Help Center
+              {t("help")}
             </a>
             <a href="#" className="transition-colors hover:text-primary">
-              Track Order
+              {t("trackOrder")}
             </a>
           </div>
         </div>
@@ -76,7 +107,7 @@ export function SiteHeader() {
               <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Поиск по косметике, брендам или проблемам кожи..."
+                placeholder={t("searchPlaceholder")}
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 className="h-10 w-full rounded-full border border-border bg-background pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -92,13 +123,13 @@ export function SiteHeader() {
             <button className="hidden md:flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-foreground transition-colors hover:bg-muted" aria-label="Account">
               <User className="h-5 w-5" />
               <span className="text-[10px] text-muted-foreground">
-                Sign In
+                {t("signIn")}
               </span>
             </button>
             <button className="hidden md:flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-foreground transition-colors hover:bg-muted" aria-label="Wishlist">
               <Heart className="h-5 w-5" />
               <span className="text-[10px] text-muted-foreground">
-                Lists
+                {t("wishlist")}
               </span>
             </button>
             <button
@@ -113,7 +144,7 @@ export function SiteHeader() {
                 </span>
               )}
               <span className="text-[10px] text-muted-foreground">
-                Cart
+                {t("cart")}
               </span>
             </button>
           </div>
@@ -132,7 +163,7 @@ export function SiteHeader() {
                 onMouseLeave={() => setActiveDropdown(null)}
               >
                 <button className="flex items-center gap-1 px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:text-primary">
-                  {category.name}
+                  {getCategoryName(category.id)}
                   <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                 </button>
 
@@ -157,7 +188,7 @@ export function SiteHeader() {
                 size="sm"
                 className="text-sm font-medium text-destructive hover:text-destructive"
               >
-                Specials
+                {t("specials")}
               </Button>
             </li>
             <li>
@@ -166,7 +197,7 @@ export function SiteHeader() {
                 size="sm"
                 className="text-sm font-medium text-primary hover:text-primary"
               >
-                Best Sellers
+                {t("bestSellers")}
               </Button>
             </li>
           </ul>
@@ -181,7 +212,7 @@ export function SiteHeader() {
               <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder={t("mobileSearchPlaceholder")}
                 className="h-10 w-full rounded-full border border-border bg-background pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
@@ -192,11 +223,11 @@ export function SiteHeader() {
                   href="#"
                   className="border-b border-border/50 py-3 text-sm font-medium text-foreground transition-colors hover:text-primary"
                 >
-                  {category.name}
+                  {getCategoryName(category.id)}
                 </a>
               ))}
               <a href="#" className="py-3 text-sm font-medium text-destructive">
-                Specials
+                {t("specials")}
               </a>
             </div>
           </div>

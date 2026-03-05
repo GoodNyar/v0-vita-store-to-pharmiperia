@@ -319,8 +319,15 @@ export const products: Product[] = [
   },
 ]
 
-export const promoBarItems = [
-  "Бесплатная доставка по Латвии при заказе от 40€",
-  "Скидка 15% на первый заказ с кодом PHARMIPERIA15",
-  "Новинки Bioderma, Vichy и Avène уже в наличии",
-]
+export const promoBarItems: Record<"ru" | "lv", string[]> = {
+  ru: [
+    "Бесплатная доставка по Латвии при заказе от 40€",
+    "Скидка 15% на первый заказ с кодом PHARMIPERIA15",
+    "Новинки Bioderma, Vichy и Avène уже в наличии",
+  ],
+  lv: [
+    "Bezmaksas piegāde Latvijā pasūtot no 40€",
+    "15% atlaide pirmajam pasūtījumam ar kodu PHARMIPERIA15",
+    "Jauni Bioderma, Vichy un Avène produkti jau pieejami",
+  ],
+}

@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { categories } from "@/lib/data"
+import { useLang } from "@/lib/i18n"
 import {
   Sparkles,
   Droplets,
@@ -26,16 +27,19 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 }
 
 export function CategorySidebar() {
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(
-    "skincare"
-  )
+  const { t } = useLang()
+  const [expandedCategory, setExpandedCategory] = useState<string | null>("skincare")
+
+  const getCategoryName = (id: string) => {
+    try { return t(id as Parameters<typeof t>[0]) } catch { return id }
+  }
 
   return (
     <aside className="hidden w-56 flex-shrink-0 lg:block">
       <div className="rounded-lg border border-border bg-card">
         <div className="border-b border-border px-4 py-3">
           <h3 className="text-sm font-semibold text-card-foreground">
-            Categories
+            {t("categories")}
           </h3>
         </div>
         <nav className="py-1">
@@ -46,9 +50,7 @@ export function CategorySidebar() {
             return (
               <div key={category.id}>
                 <button
-                  onClick={() =>
-                    setExpandedCategory(isExpanded ? null : category.id)
-                  }
+                  onClick={() => setExpandedCategory(isExpanded ? null : category.id)}
                   className={`flex w-full items-center gap-2.5 px-4 py-2.5 text-sm transition-colors hover:bg-secondary ${
                     isExpanded
                       ? "bg-secondary font-medium text-primary"
@@ -62,7 +64,7 @@ export function CategorySidebar() {
                       }`}
                     />
                   )}
-                  <span className="flex-1 text-left">{category.name}</span>
+                  <span className="flex-1 text-left">{getCategoryName(category.id)}</span>
                   <ChevronRight
                     className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${
                       isExpanded ? "rotate-90" : ""

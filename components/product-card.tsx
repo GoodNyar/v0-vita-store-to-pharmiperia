@@ -4,10 +4,12 @@ import Image from "next/image"
 import { Star, ShoppingCart, Heart } from "lucide-react"
 import type { Product } from "@/lib/data"
 import { useCart } from "@/components/cart-context"
+import { useLang, formatEur } from "@/lib/i18n"
 import { useState } from "react"
 
 export function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart()
+  const { t } = useLang()
   const [isWished, setIsWished] = useState(false)
 
   const discount = product.originalPrice
@@ -80,11 +82,11 @@ export function ProductCard({ product }: { product: Product }) {
         {/* Price */}
         <div className="mt-2 flex items-baseline gap-2">
           <span className="text-lg font-bold text-card-foreground">
-            ${product.price.toFixed(2)}
+            {formatEur(product.price)}
           </span>
           {product.originalPrice && (
             <span className="text-sm text-muted-foreground line-through">
-              ${product.originalPrice.toFixed(2)}
+              {formatEur(product.originalPrice)}
             </span>
           )}
           {discount && (
@@ -100,7 +102,7 @@ export function ProductCard({ product }: { product: Product }) {
           className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
         >
           <ShoppingCart className="h-4 w-4" />
-          Add to Cart
+          {t("addToCart")}
         </button>
       </div>
     </div>

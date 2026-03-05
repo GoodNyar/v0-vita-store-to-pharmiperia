@@ -1,38 +1,43 @@
-import { Leaf } from "lucide-react"
+"use client"
 
-const footerLinks = {
-  "Shop": [
-    "Skincare",
-    "Haircare",
-    "Body Care",
-    "Sun Protection",
-    "Makeup",
-    "Baby & Mom",
-  ],
-  "Help": [
-    "Help Center",
-    "Track Order",
-    "Shipping Info",
-    "Returns & Refunds",
-    "Contact Us",
-  ],
-  "Company": [
-    "About Us",
-    "Blog",
-    "Careers",
-    "Press",
-    "Affiliate Program",
-  ],
-  "Account": [
-    "Sign In",
-    "Create Account",
-    "My Orders",
-    "My Lists",
-    "Rewards",
-  ],
-}
+import { Leaf } from "lucide-react"
+import { useLang } from "@/lib/i18n"
 
 export function SiteFooter() {
+  const { t } = useLang()
+
+  const footerLinks = {
+    [t("footerShop")]: [
+      t("skincare"),
+      t("haircare"),
+      t("bodycare"),
+      t("sunprotection"),
+      t("makeup"),
+      t("babymom"),
+    ],
+    [t("footerHelp")]: [
+      t("helpCenter"),
+      t("trackOrder"),
+      t("shippingInfo"),
+      t("returns"),
+      t("contactUs"),
+    ],
+    [t("footerCompany")]: [
+      t("aboutUs"),
+      t("blog"),
+      t("careers"),
+      t("press"),
+      t("affiliate"),
+    ],
+    [t("footerAccount")]: [
+      t("signIn"),
+      t("createAccount"),
+      t("myOrders"),
+      t("myLists"),
+      t("rewards"),
+    ],
+  }
+
   return (
     <footer className="border-t border-border bg-card">
       <div className="mx-auto max-w-7xl px-4 py-10">
@@ -48,7 +53,7 @@ export function SiteFooter() {
               </span>
             </a>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Pharmiperia – магазин французской аптечной дерматологической косметики для клиентов в Латвии.
+              {t("footerDesc")}
             </p>
           </div>
 
@@ -74,17 +79,17 @@ export function SiteFooter() {
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 md:flex-row">
           <p className="text-xs text-muted-foreground">
-            2026 Pharmiperia. All rights reserved.
+            &copy; 2026 Pharmiperia. {t("allRightsReserved")}
           </p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <a href="#" className="transition-colors hover:text-primary">
-              Privacy Policy
+              {t("privacy")}
             </a>
             <a href="#" className="transition-colors hover:text-primary">
-              Terms of Service
+              {t("terms")}
             </a>
             <a href="#" className="transition-colors hover:text-primary">
-              Cookie Policy
+              {t("cookies")}
             </a>
           </div>
         </div>
