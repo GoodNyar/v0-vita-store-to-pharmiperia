@@ -37,7 +37,7 @@ export function ProductCard({ product }: { product: Product }) {
       </button>
 
       {/* Image */}
-      <a href="#" className="relative aspect-square overflow-hidden bg-muted">
+      <a href="#" className="relative block aspect-square overflow-hidden bg-muted">
         <Image
           src={product.image}
           alt={product.name}
