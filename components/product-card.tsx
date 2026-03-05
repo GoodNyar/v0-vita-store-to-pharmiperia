@@ -71,7 +71,7 @@ export function ProductCard({ product }: { product: Product }) {
             ))}
           </div>
           <span className="text-xs text-muted-foreground">
-            ({product.reviewCount.toLocaleString()})
+            ({product.reviewCount.toLocaleString("en-US")})
           </span>
         </div>
 
