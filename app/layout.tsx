@@ -7,8 +7,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'VitaStore - Vitamins, Supplements & Natural Health Products',
-  description: 'Shop premium vitamins, supplements, and natural health products at the best prices. Free shipping on orders over $30.',
+  title: 'Pharmiperia',
+  description: 'Французская дерматологическую косметика и уход за кожей от европейских аптечных брендов.',
   generator: 'v0.app',
   icons: {
     icon: [

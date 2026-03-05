@@ -6,17 +6,17 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 
 const slides = [
   {
-    image: "/images/banner-wellness.jpg",
-    title: "Wellness Week Sale",
-    subtitle: "Up to 20% off on Vitamins & Supplements",
-    cta: "Shop Now",
+    image: "/images/banner-skincare.jpg",
+    title: "Французская аптечная косметика",
+    subtitle: "Проверенные дерматологические бренды для здоровья кожи",
+    cta: "Смотреть каталог",
     color: "from-primary/80 to-primary/40",
   },
   {
-    image: "/images/banner-sports.jpg",
-    title: "Sports Nutrition",
-    subtitle: "Fuel your workout with premium protein & creatine",
-    cta: "Explore Sports",
+    image: "/images/banner-derma.jpg",
+    title: "Лучшие дерматологические средства",
+    subtitle: "Уход за кожей, рекомендованный европейскими аптеками",
+    cta: "Все бренды",
     color: "from-foreground/70 to-foreground/30",
   },
 ]

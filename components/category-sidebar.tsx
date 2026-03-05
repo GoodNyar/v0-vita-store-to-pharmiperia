@@ -3,31 +3,31 @@
 import { useState } from "react"
 import { categories } from "@/lib/data"
 import {
-  Pill,
-  Dumbbell,
   Sparkles,
-  Apple,
   Droplets,
+  Heart,
+  Sun,
+  Paintbrush,
+  User,
   Baby,
-  PawPrint,
-  Home,
+  Tag,
   ChevronRight,
 } from "lucide-react"
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  pill: Pill,
-  dumbbell: Dumbbell,
   sparkles: Sparkles,
-  apple: Apple,
   droplets: Droplets,
+  heart: Heart,
+  sun: Sun,
+  paintbrush: Paintbrush,
+  user: User,
   baby: Baby,
-  pawprint: PawPrint,
-  home: Home,
+  tag: Tag,
 }
 
 export function CategorySidebar() {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(
-    "supplements"
+    "skincare"
   )
 
   return (

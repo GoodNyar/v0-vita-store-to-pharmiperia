@@ -2,12 +2,12 @@ import { Leaf } from "lucide-react"
 
 const footerLinks = {
   "Shop": [
-    "Supplements",
-    "Sports Nutrition",
-    "Beauty",
-    "Grocery",
-    "Bath & Personal Care",
-    "Baby & Kids",
+    "Skincare",
+    "Haircare",
+    "Body Care",
+    "Sun Protection",
+    "Makeup",
+    "Baby & Mom",
   ],
   "Help": [
     "Help Center",
@@ -44,12 +44,11 @@ export function SiteFooter() {
                 <Leaf className="h-4 w-4 text-primary-foreground" />
               </div>
               <span className="text-lg font-bold text-foreground">
-                VitaStore
+                Pharmiperia
               </span>
             </a>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Your trusted source for vitamins, supplements, and natural health
-              products. Shipped worldwide.
+              Pharmiperia – магазин французской аптечной дерматологической косметики для клиентов в Латвии.
             </p>
           </div>
 
@@ -75,7 +74,7 @@ export function SiteFooter() {
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 md:flex-row">
           <p className="text-xs text-muted-foreground">
-            2026 VitaStore. All rights reserved.
+            2026 Pharmiperia. All rights reserved.
           </p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <a href="#" className="transition-colors hover:text-primary">

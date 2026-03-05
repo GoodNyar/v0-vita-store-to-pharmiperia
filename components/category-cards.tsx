@@ -1,23 +1,23 @@
 import {
-  Pill,
-  Dumbbell,
   Sparkles,
-  Apple,
   Droplets,
+  Heart,
+  Sun,
+  Paintbrush,
+  User,
   Baby,
-  PawPrint,
-  Home,
+  Tag,
 } from "lucide-react"
 
 const quickCategories = [
-  { name: "Supplements", icon: Pill, color: "bg-primary/10 text-primary" },
-  { name: "Sports", icon: Dumbbell, color: "bg-accent/10 text-accent" },
-  { name: "Beauty", icon: Sparkles, color: "bg-destructive/10 text-destructive" },
-  { name: "Grocery", icon: Apple, color: "bg-primary/10 text-primary" },
-  { name: "Bath", icon: Droplets, color: "bg-accent/10 text-accent" },
-  { name: "Baby", icon: Baby, color: "bg-primary/10 text-primary" },
-  { name: "Pets", icon: PawPrint, color: "bg-accent/10 text-accent" },
-  { name: "Home", icon: Home, color: "bg-primary/10 text-primary" },
+  { name: "Skincare", icon: Sparkles, color: "bg-primary/10 text-primary" },
+  { name: "Haircare", icon: Droplets, color: "bg-accent/10 text-accent" },
+  { name: "Body Care", icon: Heart, color: "bg-destructive/10 text-destructive" },
+  { name: "Sun Protection", icon: Sun, color: "bg-accent/10 text-accent" },
+  { name: "Makeup", icon: Paintbrush, color: "bg-primary/10 text-primary" },
+  { name: "Men Care", icon: User, color: "bg-accent/10 text-accent" },
+  { name: "Baby & Mom", icon: Baby, color: "bg-primary/10 text-primary" },
+  { name: "Brands", icon: Tag, color: "bg-destructive/10 text-destructive" },
 ]
 
 export function CategoryCards() {
@@ -36,7 +36,7 @@ export function CategoryCards() {
             >
               <Icon className="h-5 w-5" />
             </div>
-            <span className="text-xs font-medium text-card-foreground">
+            <span className="text-xs font-medium text-card-foreground text-center">
               {cat.name}
             </span>
           </a>
