@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useCart } from "@/components/cart-context"
-import { useLang } from "@/lib/i18n"
+import { useLang, type TranslationKey } from "@/lib/i18n"
 import { categories } from "@/lib/data"
 import {
   Search,
@@ -14,6 +14,9 @@ import {
   Leaf,
   X,
 } from "lucide-react"
+
+const isBrandName = (sub: string) =>
+  ["Bioderma", "Vichy", "Avène", "Nuxe", "Biotherm", "Clinique", "Evian"].includes(sub)
 import { Button } from "@/components/ui/button"
 
 export function SiteHeader() {
@@ -167,7 +170,7 @@ export function SiteHeader() {
                   <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                 </button>
 
-                {activeDropdown === category.id && (
+                {activeDropdown === category.id && category.subcategories.length > 0 && (
                   <div className="absolute left-0 top-full z-50 min-w-[200px] rounded-lg border border-border bg-card py-2 shadow-lg">
                     {category.subcategories.map((sub) => (
                       <a
@@ -175,7 +178,7 @@ export function SiteHeader() {
                         href="#"
                         className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
                       >
-                        {sub}
+                        {isBrandName(sub) ? sub : t(sub as TranslationKey)}
                       </a>
                     ))}
                   </div>

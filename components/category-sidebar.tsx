@@ -10,9 +10,8 @@ import {
   Sun,
   Paintbrush,
   User,
+  UserRound,
   Tag,
-  Percent,
-  Flame,
   ChevronRight,
 } from "lucide-react"
 
@@ -23,9 +22,8 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   sun: Sun,
   paintbrush: Paintbrush,
   user: User,
+  userRound: UserRound,
   tag: Tag,
-  percent: Percent,
-  flame: Flame,
 }
 
 // Brand names are not translated — render as-is
@@ -34,7 +32,7 @@ const isBrandName = (sub: string) =>
 
 export function CategorySidebar() {
   const { t } = useLang()
-  const [expandedCategory, setExpandedCategory] = useState<string | null>("skincare")
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
 
   const getSubcategoryLabel = (sub: string): string => {
     if (isBrandName(sub)) return sub

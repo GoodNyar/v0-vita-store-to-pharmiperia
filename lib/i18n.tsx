@@ -29,8 +29,8 @@ export const translations = {
     bodycare: "Тело",
     sunprotection: "Солнцезащита",
     makeup: "Макияж",
-    mencare: "Для мужчин",
-    womencare: "Для женщин",
+    mencare: "Мужчинам",
+    womencare: "Женщинам",
     brands: "Бренды",
     bestsellers: "Хиты продаж",
     // Subcategories — skincare
@@ -71,6 +71,12 @@ export const translations = {
     moisturizersM: "Увлажнение",
     afterShave: "После бритья",
     bodyCareM: "Уход за телом",
+    // Subcategories — women
+    antiAgeing: "Антивозрастной уход",
+    brightening: "Осветление кожи",
+    sensitiveSkin: "Чувствительная кожа",
+    perfume: "Парфюмерия",
+    giftSets: "Подарочные наборы",
     // Product badges
     bestSeller: "Хит продаж",
     popular: "Популярно",
@@ -160,6 +166,7 @@ export const translations = {
     makeup: "Dekoratīvā kosmētika",
     mencare: "Vīriešiem",
     womencare: "Sievietēm",
+
     brands: "Zīmoli",
     bestsellers: "Hīti",
     // Subcategories — skincare
@@ -200,6 +207,12 @@ export const translations = {
     moisturizersM: "Mitrinošie līdzekļi",
     afterShave: "Pēc skūšanās",
     bodyCareM: "Ķermeņa kopšana",
+    // Subcategories — women
+    antiAgeing: "Pretnovecošanās kopšana",
+    brightening: "Ādas izlīdzināšana",
+    sensitiveSkin: "Jutīga āda",
+    perfume: "Smaržas",
+    giftSets: "Dāvanu komplekti",
     // Product badges
     bestSeller: "Pārdotākais",
     popular: "Populārs",

@@ -83,7 +83,7 @@ export const categories: Category[] = [
   },
   {
     id: "mencare",
-    name: "Для мужчин",
+    name: "Мужчинам",
     icon: "user",
     subcategories: [
       "faceWash",
@@ -91,6 +91,18 @@ export const categories: Category[] = [
       "moisturizersM",
       "afterShave",
       "bodyCareM",
+    ],
+  },
+  {
+    id: "womencare",
+    name: "Женщинам",
+    icon: "userRound",
+    subcategories: [
+      "antiAgeing",
+      "brightening",
+      "sensitiveSkin",
+      "perfume",
+      "giftSets",
     ],
   },
   {
@@ -106,18 +118,6 @@ export const categories: Category[] = [
       "Clinique",
       "Evian",
     ],
-  },
-  {
-    id: "specials",
-    name: "Акции",
-    icon: "percent",
-    subcategories: [],
-  },
-  {
-    id: "bestsellers",
-    name: "Хиты продаж",
-    icon: "flame",
-    subcategories: [],
   },
 ]
 
