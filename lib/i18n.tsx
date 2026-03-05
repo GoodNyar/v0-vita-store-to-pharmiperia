@@ -20,7 +20,7 @@ export const translations = {
     searchPlaceholder: "Поиск по косметике, брендам или проблемам кожи...",
     mobileSearchPlaceholder: "Поиск...",
     specials: "Акции",
-    bestSellers: "Хиты продаж",
+    bestSellers: "Популярное",
     // Sidebar
     categories: "Категории",
     // Category names
@@ -32,7 +32,7 @@ export const translations = {
     mencare: "Мужчинам",
     womencare: "Женщинам",
     brands: "Бренды",
-    bestsellers: "Хиты продаж",
+    bestsellers: "Популярное",
     // Subcategories — skincare
     cleansers: "Очищение",
     toners: "Тоники",
@@ -85,7 +85,7 @@ export const translations = {
     // Page
     shopByCategory: "Категории",
     trendingProducts: "Популярные товары",
-    bestSellersSection: "Хиты продаж",
+    bestSellersSection: "Популярное",
     loadMore: "Загрузить ещё",
     sortLabel: "Сортировка",
     sortBestSelling: "По популярности",
@@ -155,7 +155,7 @@ export const translations = {
     searchPlaceholder: "Meklēt kosmētiku, zīmolus vai ādas problēmas...",
     mobileSearchPlaceholder: "Meklēt...",
     specials: "Atlaides",
-    bestSellers: "Hīti",
+    bestSellers: "Populārais",
     // Sidebar
     categories: "Kategorijas",
     // Category names
@@ -168,7 +168,7 @@ export const translations = {
     womencare: "Sievietēm",
 
     brands: "Zīmoli",
-    bestsellers: "Hīti",
+    bestsellers: "Populārais",
     // Subcategories — skincare
     cleansers: "Tīrīšana",
     toners: "Toneri",
@@ -221,7 +221,7 @@ export const translations = {
     // Page
     shopByCategory: "Kategorijas",
     trendingProducts: "Populārākie produkti",
-    bestSellersSection: "Bestselleri",
+    bestSellersSection: "Populārais",
     loadMore: "Ielādēt vairāk",
     sortLabel: "Kārtošana",
     sortBestSelling: "Pēc popularitātes",

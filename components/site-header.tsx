@@ -157,7 +157,7 @@ export function SiteHeader() {
       {/* Category Navigation */}
       <nav className="hidden border-t border-border lg:block">
         <div className="mx-auto max-w-7xl px-4">
-          <ul className="flex items-center gap-0">
+          <ul className="flex items-center justify-center gap-0">
             {categories.map((category) => (
               <li
                 key={category.id}
@@ -229,8 +229,11 @@ export function SiteHeader() {
                   {getCategoryName(category.id)}
                 </a>
               ))}
-              <a href="#" className="py-3 text-sm font-medium text-destructive">
+              <a href="#" className="border-b border-border/50 py-3 text-sm font-medium text-destructive">
                 {t("specials")}
+              </a>
+              <a href="#" className="py-3 text-sm font-medium text-primary">
+                {t("bestSellers")}
               </a>
             </div>
           </div>
