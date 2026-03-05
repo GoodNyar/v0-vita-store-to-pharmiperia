@@ -37,13 +37,15 @@ export function ProductCard({ product }: { product: Product }) {
       </button>
 
       {/* Image */}
-      <a href="#" className="relative block aspect-square overflow-hidden bg-muted">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+      <a href="#" className="block overflow-hidden bg-muted">
+        <div className="relative w-full" style={{ paddingBottom: "100%" }}>
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
       </a>
 
       {/* Content */}
