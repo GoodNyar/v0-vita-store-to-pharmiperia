@@ -23,7 +23,9 @@ export function ProductCard({ product }: { product: Product }) {
       {/* Badge */}
       {product.badge && (
         <span className="absolute left-2.5 top-2.5 z-10 rounded-md bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">
-          {product.badge}
+          {product.badge === "discount" && discount
+            ? `−${discount}%`
+            : t(product.badge as Parameters<typeof t>[0])}
         </span>
       )}
 

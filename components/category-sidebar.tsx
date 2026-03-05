@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { categories } from "@/lib/data"
-import { useLang } from "@/lib/i18n"
+import { useLang, type TranslationKey } from "@/lib/i18n"
 import {
   Sparkles,
   Droplets,
@@ -10,8 +10,9 @@ import {
   Sun,
   Paintbrush,
   User,
-  Baby,
   Tag,
+  Percent,
+  Flame,
   ChevronRight,
 } from "lucide-react"
 
@@ -22,16 +23,26 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   sun: Sun,
   paintbrush: Paintbrush,
   user: User,
-  baby: Baby,
   tag: Tag,
+  percent: Percent,
+  flame: Flame,
 }
+
+// Brand names are not translated — render as-is
+const isBrandName = (sub: string) =>
+  ["Bioderma", "Vichy", "Avène", "Nuxe", "Biotherm", "Clinique", "Evian"].includes(sub)
 
 export function CategorySidebar() {
   const { t } = useLang()
   const [expandedCategory, setExpandedCategory] = useState<string | null>("skincare")
 
-  const getCategoryName = (id: string) => {
-    try { return t(id as Parameters<typeof t>[0]) } catch { return id }
+  const getSubcategoryLabel = (sub: string): string => {
+    if (isBrandName(sub)) return sub
+    try {
+      return t(sub as TranslationKey)
+    } catch {
+      return sub
+    }
   }
 
   return (
@@ -50,7 +61,9 @@ export function CategorySidebar() {
             return (
               <div key={category.id}>
                 <button
-                  onClick={() => setExpandedCategory(isExpanded ? null : category.id)}
+                  onClick={() =>
+                    setExpandedCategory(isExpanded ? null : category.id)
+                  }
                   className={`flex w-full items-center gap-2.5 px-4 py-2.5 text-sm transition-colors hover:bg-secondary ${
                     isExpanded
                       ? "bg-secondary font-medium text-primary"
@@ -64,14 +77,18 @@ export function CategorySidebar() {
                       }`}
                     />
                   )}
-                  <span className="flex-1 text-left">{getCategoryName(category.id)}</span>
-                  <ChevronRight
-                    className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${
-                      isExpanded ? "rotate-90" : ""
-                    }`}
-                  />
+                  <span className="flex-1 text-left">
+                    {t(category.id as TranslationKey)}
+                  </span>
+                  {category.subcategories.length > 0 && (
+                    <ChevronRight
+                      className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${
+                        isExpanded ? "rotate-90" : ""
+                      }`}
+                    />
+                  )}
                 </button>
-                {isExpanded && (
+                {isExpanded && category.subcategories.length > 0 && (
                   <div className="bg-secondary/50 py-1">
                     {category.subcategories.map((sub) => (
                       <a
@@ -79,7 +96,7 @@ export function CategorySidebar() {
                         href="#"
                         className="block py-1.5 pl-11 pr-4 text-[13px] text-muted-foreground transition-colors hover:text-primary"
                       >
-                        {sub}
+                        {getSubcategoryLabel(sub)}
                       </a>
                     ))}
                   </div>
