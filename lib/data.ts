@@ -10,6 +10,8 @@ export const BRANDS_ORDERED = [
   "Caudalie",
   "La Roche-Posay",
 ]
+
+export interface Product {
   id: number
   name: string
   brand: string
