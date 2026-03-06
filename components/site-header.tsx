@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useCart } from "@/components/cart-context"
 import { useLang, type TranslationKey } from "@/lib/i18n"
-import { categories } from "@/lib/data"
+import { categories, BRANDS_ORDERED } from "@/lib/data"
 import {
   Search,
   ShoppingCart,
@@ -15,8 +15,7 @@ import {
   X,
 } from "lucide-react"
 
-const isBrandName = (sub: string) =>
-  ["Bioderma", "Vichy", "Avène", "Nuxe", "Biotherm", "Clinique", "Evian"].includes(sub)
+const isBrandName = (sub: string) => BRANDS_ORDERED.includes(sub)
 import { Button } from "@/components/ui/button"
 
 export function SiteHeader() {

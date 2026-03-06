@@ -1,4 +1,15 @@
-export interface Product {
+export const BRANDS_ORDERED = [
+  "Bioderma",
+  "Vichy",
+  "Biotherm",
+  "Evian",
+  "Clinique",
+  "Nuxe",
+  "Avène",
+  "Uriage",
+  "Caudalie",
+  "La Roche-Posay",
+]
   id: number
   name: string
   brand: string
@@ -109,15 +120,7 @@ export const categories: Category[] = [
     id: "brands",
     name: "Бренды",
     icon: "tag",
-    subcategories: [
-      "Bioderma",
-      "Vichy",
-      "Avène",
-      "Nuxe",
-      "Biotherm",
-      "Clinique",
-      "Evian",
-    ],
+    subcategories: BRANDS_ORDERED,
   },
 ]
 
