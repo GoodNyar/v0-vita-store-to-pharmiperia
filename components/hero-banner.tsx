@@ -19,24 +19,24 @@ const slides = [
     brand: "Vichy",
     subtitle: "Уход на основе вулканической воды",
     image: "/images/banner-vichy.jpg",
-    bg: "bg-[#d6eaf7]",
-    accent: "text-[#0b5c9e]",
+    bg: "bg-[#e6f4ef]",
+    accent: "text-[#1a7a5e]",
   },
   {
     id: 3,
     brand: "Biotherm",
     subtitle: "Уход с технологиями чистой воды",
     image: "/images/banner-biotherm.jpg",
-    bg: "bg-[#cce8f5]",
-    accent: "text-[#0a4f8c]",
+    bg: "bg-[#e2f3f8]",
+    accent: "text-[#1470a0]",
   },
   {
     id: 4,
     brand: "Caudalie",
     subtitle: "Натуральная косметика с полифенолами",
     image: "/images/banner-caudalie.jpg",
-    bg: "bg-[#dde8f4]",
-    accent: "text-[#2a4a8c]",
+    bg: "bg-[#f0eaf6]",
+    accent: "text-[#6b3fa0]",
   },
 ]
 
@@ -119,7 +119,7 @@ export function HeroBanner() {
         {/* Previous Button */}
         <button
           onClick={goToPrevious}
-          className="absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full p-2 text-foreground/20 transition-all hover:text-foreground/50 md:left-3"
+          className="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm transition-all hover:bg-white/40 md:left-4 md:p-3"
           aria-label="Previous slide"
         >
           <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" />
@@ -128,7 +128,7 @@ export function HeroBanner() {
         {/* Next Button */}
         <button
           onClick={goToNext}
-          className="absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full p-2 text-foreground/20 transition-all hover:text-foreground/50 md:right-3"
+          className="absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm transition-all hover:bg-white/40 md:right-4 md:p-3"
           aria-label="Next slide"
         >
           <ChevronRight className="h-5 w-5 md:h-6 md:w-6" />
