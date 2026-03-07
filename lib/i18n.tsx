@@ -21,6 +21,7 @@ export const translations = {
     mobileSearchPlaceholder: "Поиск...",
     specials: "Акции",
     bestSellers: "Популярное",
+    viewCatalog: "Смотреть каталог",
     // Sidebar
     categories: "Категории",
     // Category names
@@ -156,6 +157,7 @@ export const translations = {
     mobileSearchPlaceholder: "Meklēt...",
     specials: "Atlaides",
     bestSellers: "Populārais",
+    viewCatalog: "Skatīt katalogu",
     // Sidebar
     categories: "Kategorijas",
     // Category names
