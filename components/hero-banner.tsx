@@ -9,30 +9,34 @@ const slides = [
   {
     id: 1,
     brand: "Bioderma",
-    subtitle: "Чувствительная кожа",
+    subtitle: "Аптечная косметика для чувствительной кожи",
     image: "/images/banner-bioderma.jpg",
-    gradient: "from-blue-600/70 via-blue-500/50 to-transparent",
+    bg: "bg-[#ddeef7]",
+    accent: "text-[#1a6ea8]",
   },
   {
     id: 2,
     brand: "Vichy",
-    subtitle: "Вулканическая вода",
+    subtitle: "Уход на основе вулканической воды",
     image: "/images/banner-vichy.jpg",
-    gradient: "from-teal-600/70 via-teal-500/50 to-transparent",
+    bg: "bg-[#e6f4ef]",
+    accent: "text-[#1a7a5e]",
   },
   {
     id: 3,
     brand: "Biotherm",
-    subtitle: "Биотехнология воды",
+    subtitle: "Уход с технологиями чистой воды",
     image: "/images/banner-biotherm.jpg",
-    gradient: "from-cyan-600/70 via-cyan-500/50 to-transparent",
+    bg: "bg-[#e2f3f8]",
+    accent: "text-[#1470a0]",
   },
   {
     id: 4,
     brand: "Caudalie",
-    subtitle: "Виноградные полифенолы",
+    subtitle: "Натуральная косметика с полифенолами",
     image: "/images/banner-caudalie.jpg",
-    gradient: "from-purple-600/70 via-purple-500/50 to-transparent",
+    bg: "bg-[#f0eaf6]",
+    accent: "text-[#6b3fa0]",
   },
 ]
 
@@ -74,60 +78,41 @@ export function HeroBanner() {
   return (
     <div className="relative w-full overflow-hidden rounded-lg">
       {/* Main Slider Container */}
-      <div className="relative h-80 w-full md:h-96 lg:h-[420px]">
+      <div className="relative h-64 w-full sm:h-72 md:h-96 lg:h-[420px]">
         {/* Slide Wrapper */}
         <div
-          className="absolute inset-0 flex transition-opacity duration-500"
+          className={`absolute inset-0 flex transition-opacity duration-500 ${slide.bg}`}
           key={`slide-${current}`}
         >
-          {/* Left Section: Text Content (40%) */}
-          <div className="flex w-full flex-col justify-center px-4 py-6 sm:px-6 md:w-2/5 md:px-8 lg:px-12">
+          {/* Left Section: Text Content — solid bg, always readable */}
+          <div className="relative z-10 flex w-[55%] flex-col justify-center px-5 py-6 sm:px-7 md:w-2/5 md:px-10 lg:px-14">
             {/* Brand Name */}
-            <h2 className="text-3xl font-bold text-foreground sm:text-4xl md:text-4xl lg:text-5xl">
+            <h2 className={`text-2xl font-bold sm:text-3xl md:text-4xl lg:text-5xl ${slide.accent}`}>
               {slide.brand}
             </h2>
 
             {/* Subtitle */}
-            <p className="mt-2 text-sm text-muted-foreground sm:text-base md:text-base">
+            <p className="mt-2 max-w-[22ch] text-xs leading-relaxed text-foreground/70 sm:text-sm md:mt-3 md:text-base">
               {slide.subtitle}
             </p>
 
             {/* CTA Button */}
-            <button className="mt-6 w-fit rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:scale-105 hover:bg-primary/90 hover:shadow-lg active:scale-95 md:px-8 md:py-3 md:text-base">
+            <button className="mt-5 w-fit rounded-lg bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground transition-all duration-200 hover:scale-105 hover:bg-primary/90 hover:shadow-lg active:scale-95 sm:text-sm md:mt-6 md:px-7 md:py-2.5 md:text-sm">
               {t("viewCatalog")}
             </button>
           </div>
 
-          {/* Right Section: Product Image (60%) - Desktop Only */}
-          <div className="hidden w-3/5 md:block">
-            <div className="relative h-full w-full">
-              <Image
-                src={slide.image}
-                alt={slide.brand}
-                fill
-                className="object-cover object-center transition-transform duration-700 hover:scale-105"
-                priority={current === 0}
-              />
-              {/* Soft Gradient Overlay */}
-              <div
-                className={`absolute inset-0 bg-gradient-to-r ${slide.gradient}`}
-              />
-            </div>
-          </div>
-
-          {/* Mobile: Image Background */}
-          <div className="absolute inset-0 md:hidden">
+          {/* Right Section: Product Image (60%) */}
+          <div className="relative w-[45%] md:w-3/5">
             <Image
               src={slide.image}
               alt={slide.brand}
               fill
-              className="object-cover object-center"
+              className="object-cover object-center transition-transform duration-700 hover:scale-105"
               priority={current === 0}
             />
-            {/* Mobile Gradient Overlay */}
-            <div
-              className={`absolute inset-0 bg-gradient-to-t ${slide.gradient}`}
-            />
+            {/* Left-edge soft fade */}
+            <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white/30 to-transparent" />
           </div>
         </div>
 
