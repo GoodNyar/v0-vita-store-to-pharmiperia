@@ -6,10 +6,6 @@ export type Lang = "ru" | "lv"
 
 export const translations = {
   ru: {
-    // Hero
-    heroTitle: "Бренды, которым доверяют",
-    heroSubtitle: "Аутентичная французская аптечная косметика",
-    heroCta: "Смотреть каталог",
     // Trust strip
     trustStrip:
       "Аутентичная французская аптечная косметика • Оригинал • Доставка по Латвии 1–2 дня • EUR",
@@ -145,10 +141,6 @@ export const translations = {
     allRightsReserved: "Все права защищены.",
   },
   lv: {
-    // Hero
-    heroTitle: "Zīmoli, kuriem uzticas",
-    heroSubtitle: "Autentiska franču aptiekas kosmētika",
-    heroCta: "Skatīt katalogu",
     // Trust strip
     trustStrip:
       "Autentiska franču aptiekas kosmētika • Oriģināls • Piegāde Latvijā 1–2 dienās • EUR",
