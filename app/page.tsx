@@ -13,7 +13,7 @@ import { PromoCards } from "@/components/promo-cards"
 import { WhyBuyUs } from "@/components/why-buy-us"
 import { LangProvider, useLang, formatEur } from "@/lib/i18n"
 import { products } from "@/lib/data"
-import { Truck, Shield, RotateCcw } from "lucide-react"
+import { Truck, Shield, RotateCcw, Flame } from "lucide-react"
 
 function HomeContent() {
   const { t } = useLang()
