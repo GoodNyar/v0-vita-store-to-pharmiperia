@@ -13,7 +13,7 @@ import { PromoCards } from "@/components/promo-cards"
 import { WhyBuyUs } from "@/components/why-buy-us"
 import { LangProvider, useLang, formatEur } from "@/lib/i18n"
 import { products } from "@/lib/data"
-import { Truck, Shield, RotateCcw, Flame } from "lucide-react"
+import { Truck, Shield, RotateCcw, Flame, Leaf } from "lucide-react"
 
 function HomeContent() {
   const { t } = useLang()
@@ -22,6 +22,7 @@ function HomeContent() {
     { icon: Truck, label: t("freeShipping"), desc: t("freeShippingDesc") },
     { icon: Shield, label: t("authentic"), desc: t("authenticDesc") },
     { icon: RotateCcw, label: t("easyReturns"), desc: t("easyReturnsDesc") },
+    { icon: Leaf, label: t("pharmacyBadge"), desc: t("pharmacyBadgeDesc") },
   ]
 
   return (
@@ -31,43 +32,46 @@ function HomeContent() {
       <CartDrawer />
 
       <main className="flex-1">
-        {/* Trust strip */}
-        <div className="border-b border-border bg-secondary/60 px-4 py-2 text-center text-xs font-medium text-secondary-foreground">
-          {t("trustStrip")}
-        </div>
-
-        {/* Trust badges */}
-        <section className="border-b border-border bg-card">
-          <div className="mx-auto flex max-w-7xl items-center justify-center gap-6 px-4 py-3 sm:gap-10">
-            {trustBadges.map((badge) => {
-              const Icon = badge.icon
-              return (
-                <div key={badge.label} className="flex items-center gap-2">
-                  <Icon className="h-5 w-5 flex-shrink-0 text-primary" />
-                  <div className="hidden sm:block">
-                    <p className="text-xs font-semibold text-foreground">
-                      {badge.label}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">
-                      {badge.desc}
-                    </p>
-                  </div>
-                  <span className="text-xs font-medium text-foreground sm:hidden">
-                    {badge.label}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-        </section>
-
         <div className="mx-auto max-w-7xl px-4 py-6">
           {/* Hero Banner */}
           <HeroBanner />
 
+          {/* Pharmacy tagline — shown below hero on mobile, hidden on desktop (desktop has trust badges bar) */}
+          <div className="mt-3 text-center text-xs font-medium text-muted-foreground sm:hidden">
+            {t("pharmacyTagline")}
+          </div>
+
+          {/* Trust badges — 2×2 grid on mobile, single row on desktop */}
+          <section className="mt-4 border-y border-border bg-card sm:mt-0">
+            <div className="mx-auto grid max-w-7xl grid-cols-2 gap-0 sm:flex sm:items-center sm:justify-center sm:gap-10 sm:px-4 sm:py-3">
+              {trustBadges.map((badge, i) => {
+                const Icon = badge.icon
+                return (
+                  <div
+                    key={badge.label}
+                    className={`flex items-center gap-2 px-4 py-3 sm:px-0 sm:py-0
+                      ${i % 2 === 0 ? "border-r border-border sm:border-r-0" : ""}
+                      ${i < 2 ? "border-b border-border sm:border-b-0" : ""}
+                    `}
+                  >
+                    <Icon className="h-5 w-5 flex-shrink-0 text-primary" />
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">
+                        {badge.label}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {badge.desc}
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+
           {/* Quick Categories */}
-          <section className="mt-8">
-            <h2 className="mb-4 text-lg font-semibold text-foreground">
+          <section className="mt-6 sm:mt-8">
+            <h2 className="mb-3 text-lg font-semibold text-foreground sm:mb-4">
               {t("shopByCategory")}
             </h2>
             <CategoryCards />

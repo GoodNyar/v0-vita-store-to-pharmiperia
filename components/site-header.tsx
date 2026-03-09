@@ -33,8 +33,8 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-30 bg-card shadow-sm">
-      {/* Top bar */}
-      <div className="border-b border-border">
+      {/* Top bar — hidden on mobile */}
+      <div className="hidden border-b border-border md:block">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="font-medium text-foreground">{t("deliverTo")}</span>
@@ -78,32 +78,32 @@ export function SiteHeader() {
       </div>
 
       {/* Main header */}
-      <div className="mx-auto max-w-7xl px-4 py-3">
-        <div className="flex items-center gap-4 lg:gap-6">
+      <div className="mx-auto max-w-7xl px-4 py-2.5 lg:py-3">
+        <div className="flex items-center gap-3 lg:gap-6">
           {/* Mobile menu button */}
           <button
-            className="lg:hidden rounded-lg p-2 text-foreground hover:bg-muted"
+            className="lg:hidden rounded-lg p-1.5 text-foreground hover:bg-muted"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
+              <X className="h-5 w-5" />
             ) : (
-              <Menu className="h-6 w-6" />
+              <Menu className="h-5 w-5" />
             )}
           </button>
 
           {/* Logo */}
-          <a href="#" className="flex items-center gap-2 flex-shrink-0">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-              <Leaf className="h-5 w-5 text-primary-foreground" />
+          <a href="#" className="flex items-center gap-1.5 flex-shrink-0">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary lg:h-9 lg:w-9">
+              <Leaf className="h-4 w-4 text-primary-foreground lg:h-5 lg:w-5" />
             </div>
-            <span className="text-xl font-bold text-foreground">
+            <span className="text-lg font-bold text-foreground lg:text-xl">
               Pharmiperia
             </span>
           </a>
 
-          {/* Search Bar */}
+          {/* Search Bar — desktop only; mobile has its own row below */}
           <div className="hidden flex-1 md:block">
             <div className="relative">
               <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -118,10 +118,7 @@ export function SiteHeader() {
           </div>
 
           {/* Right icons */}
-          <div className="flex items-center gap-1 lg:gap-2">
-            <button className="flex flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 text-foreground transition-colors hover:bg-muted md:hidden" aria-label="Search">
-              <Search className="h-5 w-5" />
-            </button>
+          <div className="ml-auto flex items-center gap-1 md:ml-0 lg:gap-2">
             <button className="hidden md:flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-foreground transition-colors hover:bg-muted" aria-label="Account">
               <User className="h-5 w-5" />
               <span className="text-[10px] text-muted-foreground">
@@ -136,7 +133,7 @@ export function SiteHeader() {
             </button>
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-foreground transition-colors hover:bg-muted"
+              className="relative flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-foreground transition-colors hover:bg-muted md:flex-col md:gap-0.5 md:px-3"
               aria-label="Shopping cart"
             >
               <ShoppingCart className="h-5 w-5" />
@@ -145,10 +142,24 @@ export function SiteHeader() {
                   {totalItems}
                 </span>
               )}
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-[10px] text-muted-foreground hidden md:block">
                 {t("cart")}
               </span>
             </button>
+          </div>
+        </div>
+
+        {/* Mobile search bar — full width below logo/icons row */}
+        <div className="mt-2 md:hidden">
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder={t("searchPlaceholder")}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              className="h-11 w-full rounded-full border border-border bg-background pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
           </div>
         </div>
       </div>
@@ -210,14 +221,6 @@ export function SiteHeader() {
       {mobileMenuOpen && (
         <div className="border-t border-border bg-card lg:hidden">
           <div className="px-4 py-3">
-            <div className="relative mb-3">
-              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder={t("mobileSearchPlaceholder")}
-                className="h-10 w-full rounded-full border border-border bg-background pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
             <div className="flex flex-col">
               {categories.map((category) => (
                 <a

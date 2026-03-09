@@ -7,8 +7,8 @@ export type Lang = "ru" | "lv"
 export const translations = {
   ru: {
     // Trust strip
-    trustStrip:
-      "Аутентичная французская аптечная косметика • Оригинал • Доставка по Латвии 1–2 дня • EUR",
+    trustStrip: "Аптечный уход за кожей из Франции",
+    pharmacyTagline: "Аптечный уход за кожей из Франции",
     // Header top bar
     deliverTo: "Доставка: Латвия",
     // Header nav
@@ -119,6 +119,8 @@ export const translations = {
     authenticDesc: "100% гарантия",
     easyReturns: "Лёгкий возврат",
     easyReturnsDesc: "30 дней",
+    pharmacyBadge: "Аптечный уход",
+    pharmacyBadgeDesc: "Из Франции",
     // Newsletter
     joinNewsletter: "Получайте лучшие предложения",
     newsletterDesc:
@@ -162,8 +164,8 @@ export const translations = {
   },
   lv: {
     // Trust strip
-    trustStrip:
-      "Autentiska franču aptiekas kosmētika • Oriģināls • Piegāde Latvijā 1–2 dienās • EUR",
+    trustStrip: "Farmācijas ādas kopšana no Francijas",
+    pharmacyTagline: "Farmācijas ādas kopšana no Francijas",
     // Header top bar
     deliverTo: "Piegāde: Latvija",
     // Header nav
@@ -275,6 +277,8 @@ export const translations = {
     authenticDesc: "100% garantija",
     easyReturns: "Vienkārša atgriešana",
     easyReturnsDesc: "30 dienas",
+    pharmacyBadge: "Aptiekas kopšana",
+    pharmacyBadgeDesc: "No Francijas",
     // Newsletter
     joinNewsletter: "Saņemiet labākos piedāvājumus",
     newsletterDesc:
