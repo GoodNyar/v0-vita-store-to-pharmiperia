@@ -9,6 +9,7 @@ export function WhyBuyUs() {
 
   const paymentMethods = [
     { name: "Visa", src: "/images/payment-logos/visa.svg" },
+    { name: "Mastercard", src: "/images/payment-logos/mastercard.svg" },
     { name: "Apple Pay", src: "/images/payment-logos/apple-pay.png" },
     { name: "Google Pay", src: "/images/payment-logos/google-pay.png" },
     { name: "Swedbank", src: "/images/payment-logos/swedbank.png" },
