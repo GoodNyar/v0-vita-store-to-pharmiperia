@@ -9,14 +9,13 @@ export function WhyBuyUs() {
 
   const paymentMethods = [
     { name: "VISA", src: "/images/payment-logos/visa.svg" },
-    { name: "Mastercard", src: "/images/payment-logos/mastercard.svg" },
-    { name: "Apple Pay", src: "/images/payment-logos/apple-pay.svg" },
+    { name: "Apple Pay", src: "/images/payment-logos/apple-pay.png" },
     { name: "Google Pay", src: "/images/payment-logos/google-pay.svg" },
-    { name: "Swedbank", src: "/images/payment-logos/swedbank.svg" },
-    { name: "SEB", src: "/images/payment-logos/seb.svg" },
-    { name: "Citadele", src: "/images/payment-logos/citadele.svg" },
-    { name: "Luminor", src: "/images/payment-logos/luminor.svg" },
-    { name: "Revolut", src: "/images/payment-logos/revolut.svg" },
+    { name: "Swedbank", src: "/images/payment-logos/swedbank.png" },
+    { name: "SEB", src: "/images/payment-logos/seb.jpg" },
+    { name: "Citadele", src: "/images/payment-logos/citadele.png" },
+    { name: "Luminor", src: "/images/payment-logos/luminor.jpg" },
+    { name: "Revolut", src: "/images/payment-logos/revolut.png" },
   ]
 
   const features = [
@@ -82,19 +81,15 @@ export function WhyBuyUs() {
 
               {/* Payment logos for secure payment card */}
               {feature.showPaymentLogos ? (
-                <div className="mt-2 flex flex-wrap justify-center gap-3">
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
                   {paymentMethods.map((method) => (
-                    <div
+                    <img
                       key={method.name}
-                      className="h-6 w-auto transition-opacity duration-200 opacity-80 hover:opacity-100"
+                      src={method.src}
+                      alt={method.name}
                       title={method.name}
-                    >
-                      <img
-                        src={method.src}
-                        alt={method.name}
-                        className="h-full object-contain"
-                      />
-                    </div>
+                      className="h-[22px] w-auto object-contain opacity-80 transition-opacity duration-200 hover:opacity-100"
+                    />
                   ))}
                 </div>
               ) : (
