@@ -8,9 +8,9 @@ export function WhyBuyUs() {
   const { t } = useLang()
 
   const paymentMethods = [
-    { name: "VISA", src: "/images/payment-logos/visa.svg" },
+    { name: "Visa", src: "/images/payment-logos/visa.svg" },
     { name: "Apple Pay", src: "/images/payment-logos/apple-pay.png" },
-    { name: "Google Pay", src: "/images/payment-logos/google-pay.svg" },
+    { name: "Google Pay", src: "/images/payment-logos/google-pay.png" },
     { name: "Swedbank", src: "/images/payment-logos/swedbank.png" },
     { name: "SEB", src: "/images/payment-logos/seb.jpg" },
     { name: "Citadele", src: "/images/payment-logos/citadele.png" },
@@ -81,14 +81,14 @@ export function WhyBuyUs() {
 
               {/* Payment logos for secure payment card */}
               {feature.showPaymentLogos ? (
-                <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-x-[10px] gap-y-[8px]">
                   {paymentMethods.map((method) => (
                     <img
                       key={method.name}
                       src={method.src}
                       alt={method.name}
                       title={method.name}
-                      className="h-[22px] w-auto object-contain opacity-80 transition-opacity duration-200 hover:opacity-100"
+                      className="h-[16px] max-h-[16px] w-auto object-contain opacity-80 transition-opacity duration-200 hover:opacity-100"
                     />
                   ))}
                 </div>
