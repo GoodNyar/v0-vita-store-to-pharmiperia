@@ -86,7 +86,10 @@ export function HeroBanner() {
   const handleTouchMove = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return
     const diff = Math.abs(e.touches[0].clientX - touchStartX.current)
-    if (diff > 10) isDragging.current = true
+    if (diff > 10) {
+      isDragging.current = true
+      e.preventDefault() // Prevent page scroll when swiping horizontally
+    }
   }
 
   const handleTouchEnd = (e: React.TouchEvent) => {
@@ -97,6 +100,7 @@ export function HeroBanner() {
     if (Math.abs(diff) > 50) {
       if (diff > 0) goToNext()
       else goToPrevious()
+      e.preventDefault() // Prevent any default browser behavior
     }
 
     touchStartX.current = null
@@ -113,7 +117,7 @@ export function HeroBanner() {
   return (
     <div
       className="relative w-full overflow-hidden rounded-lg cursor-pointer select-none"
-      style={{ backgroundColor: slide.bg }}
+      style={{ backgroundColor: slide.bg, touchAction: "pan-y" }}
       onClick={handleBannerClick}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
