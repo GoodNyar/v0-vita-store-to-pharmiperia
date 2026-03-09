@@ -125,6 +125,7 @@ export const translations = {
       "Скидки, новинки и рекомендации по аптечному уходу за кожей.",
     emailPlaceholder: "Ваш email",
     subscribe: "Подписаться",
+    newsletterBonus: "−10% на первый заказ после подписки",
     // Cart
     shoppingCart: "Корзина",
     cartEmpty: "Корзина пуста",
@@ -277,9 +278,10 @@ export const translations = {
     // Newsletter
     joinNewsletter: "Saņemiet labākos piedāvājumus",
     newsletterDesc:
-      "Atlaides, jaunumi un ieteikumi aptiekas kosmētikas kopšanai.",
+      "Atlaides, jaunumi un ieteikumi ādas kopšanai.",
     emailPlaceholder: "Jūsu e-pasts",
     subscribe: "Pieteikties",
+    newsletterBonus: "−10% pirmajam pasūtījumam",
     // Cart
     shoppingCart: "Grozs",
     cartEmpty: "Grozs ir tukšs",

@@ -149,7 +149,7 @@ function HomeContent() {
                 </button>
               </form>
               <p className="mt-2 text-[10px] text-primary-foreground/60 leading-none">
-                −10% на первый заказ после подписки
+                {t("newsletterBonus")}
               </p>
             </div>
           </section>
