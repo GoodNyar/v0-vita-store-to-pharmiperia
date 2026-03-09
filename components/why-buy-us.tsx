@@ -7,16 +7,17 @@ import Image from "next/image"
 export function WhyBuyUs() {
   const { t } = useLang()
 
+  // maxW controls the visible width of each logo within its fixed-height container
   const paymentMethods = [
-    { name: "Visa", src: "/images/payment-logos/visa.png" },
-    { name: "Mastercard", src: "/images/payment-logos/mastercard.svg" },
-    { name: "Apple Pay", src: "/images/payment-logos/apple-pay.png" },
-    { name: "Google Pay", src: "/images/payment-logos/google-pay.png" },
-    { name: "Revolut", src: "/images/payment-logos/revolut.png" },
-    { name: "Swedbank", src: "/images/payment-logos/swedbank.png" },
-    { name: "SEB", src: "/images/payment-logos/seb.jpg" },
-    { name: "Citadele", src: "/images/payment-logos/citadele.png" },
-    { name: "Luminor", src: "/images/payment-logos/luminor.jpg" },
+    { name: "Visa", src: "/images/payment-logos/visa.png", maxW: "32px" },
+    { name: "Mastercard", src: "/images/payment-logos/mastercard.svg", maxW: "28px" },
+    { name: "Apple Pay", src: "/images/payment-logos/apple-pay.png", maxW: "44px" },
+    { name: "Google Pay", src: "/images/payment-logos/google-pay.png", maxW: "44px" },
+    { name: "Revolut", src: "/images/payment-logos/revolut.png", maxW: "44px" },
+    { name: "Swedbank", src: "/images/payment-logos/swedbank.png", maxW: "52px" },
+    { name: "SEB", src: "/images/payment-logos/seb.jpg", maxW: "28px" },
+    { name: "Citadele", src: "/images/payment-logos/citadele.png", maxW: "44px" },
+    { name: "Luminor", src: "/images/payment-logos/luminor.jpg", maxW: "44px" },
   ]
 
   const features = [
@@ -82,15 +83,20 @@ export function WhyBuyUs() {
 
               {/* Payment logos for secure payment card */}
               {feature.showPaymentLogos ? (
-                <div className="mt-3 flex flex-wrap items-center justify-center gap-x-[10px] gap-y-[8px]">
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[8px]">
                   {paymentMethods.map((method) => (
-                    <img
+                    <div
                       key={method.name}
-                      src={method.src}
-                      alt={method.name}
+                      className="flex h-[18px] items-center justify-center opacity-80 transition-opacity duration-200 hover:opacity-100"
+                      style={{ width: method.maxW }}
                       title={method.name}
-                      className="h-[16px] max-h-[16px] w-auto object-contain opacity-80 transition-opacity duration-200 hover:opacity-100"
-                    />
+                    >
+                      <img
+                        src={method.src}
+                        alt={method.name}
+                        className="h-full w-full object-contain"
+                      />
+                    </div>
                   ))}
                 </div>
               ) : (
