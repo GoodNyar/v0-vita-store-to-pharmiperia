@@ -126,24 +126,24 @@ function HomeContent() {
           <WhyBuyUs />
 
           {/* Newsletter */}
-          <section className="mt-12 mb-8 rounded-xl bg-primary px-4 py-6 sm:px-8 sm:py-5">
+          <section className="mt-12 mb-8 rounded-xl bg-primary px-4 py-4 sm:px-6 sm:py-3.5">
             <div className="flex flex-col items-center text-center">
-              <h2 className="text-lg font-bold text-primary-foreground sm:text-xl">
+              <h2 className="text-base font-bold text-primary-foreground sm:text-lg">
                 {t("joinNewsletter")}
               </h2>
-              <p className="mt-1.5 max-w-md text-xs sm:text-sm text-primary-foreground/85">
+              <p className="mt-1 max-w-md text-xs text-primary-foreground/85 sm:text-xs">
                 {t("newsletterDesc")}
               </p>
-              <form className="mt-4 w-full sm:flex sm:max-w-md sm:gap-2">
+              <form className="mt-3 flex w-full flex-col gap-2.5 sm:max-w-md sm:flex-row sm:gap-2">
                 <input
                   type="email"
                   placeholder={t("emailPlaceholder")}
-                  className="h-10 w-full rounded-full bg-primary-foreground px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
+                  className="h-10 w-full flex-1 rounded-full bg-primary-foreground px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
                   required
                 />
                 <button
                   type="submit"
-                  className="mt-3 w-full rounded-full bg-accent px-6 py-2 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90 sm:mt-0 sm:w-auto"
+                  className="h-10 w-full rounded-full bg-accent px-6 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90 sm:w-auto"
                 >
                   {t("subscribe")}
                 </button>
