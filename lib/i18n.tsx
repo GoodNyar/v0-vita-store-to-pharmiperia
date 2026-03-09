@@ -120,9 +120,9 @@ export const translations = {
     easyReturns: "Лёгкий возврат",
     easyReturnsDesc: "30 дней",
     // Newsletter
-    joinNewsletter: "Подпишитесь на рассылку",
+    joinNewsletter: "Получайте лучшие предложения",
     newsletterDesc:
-      "Получайте эксклюзивные предложения, новинки и советы по уходу за кожей.",
+      "Скидки, новинки и рекомендации по аптечному уходу за кожей.",
     emailPlaceholder: "Ваш email",
     subscribe: "Подписаться",
     // Cart
@@ -275,8 +275,9 @@ export const translations = {
     easyReturns: "Vienkārša atgriešana",
     easyReturnsDesc: "30 dienas",
     // Newsletter
-    joinNewsletter: "Piesakieties jaunumiem",
+    joinNewsletter: "Saņemiet labākos piedāvājumus",
     newsletterDesc:
+      "Atlaides, jaunumi un ieteikumi aptiekas kosmētikas kopšanai.",
       "Saņemiet ekskluzīvus piedāvājumus, jaunumus un padomus ādas kopšanā.",
     emailPlaceholder: "Jūsu e-pasts",
     subscribe: "Pieteikties",
