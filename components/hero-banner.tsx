@@ -115,19 +115,19 @@ export function HeroBanner() {
 
   return (
     <div 
-      className="relative w-full overflow-hidden rounded-lg cursor-pointer group"
+      className="relative w-full overflow-hidden rounded-lg cursor-pointer"
       onClick={navigateToBrand}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
       {/* Main Slider Container */}
-      <div className="relative h-80 w-full md:h-[420px]">
+      <div className="relative h-64 w-full sm:h-72 md:h-96 lg:h-[480px] bg-white">
         {/* Background Image — 100% width, contain to show full composition */}
         <Image
           src={slide.image}
           alt={slide.brand}
           fill
-          className="object-contain object-center transition-opacity duration-500 bg-white"
+          className="object-contain object-center transition-opacity duration-500"
           priority={current === 0}
           key={`slide-image-${current}`}
         />
@@ -190,30 +190,28 @@ export function HeroBanner() {
           </button>
         )}
 
-        {/* Dot Navigation — Desktop Only */}
-        {!isMobile && (
-          <div 
-            className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-1.5 md:bottom-5 md:gap-2"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {slides.map((_, index) => (
-              <button
-                key={index}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  goToSlide(index)
-                }}
-                className={`transition-all duration-300 ${
-                  index === current
-                    ? "h-2 w-7 rounded-full bg-white md:h-2.5 md:w-8"
-                    : "h-2 w-2 rounded-full bg-white/50 hover:bg-white/70 md:h-2.5 md:w-2.5"
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-                aria-current={index === current}
-              />
-            ))}
-          </div>
-        )}
+        {/* Dot Navigation — All Devices */}
+        <div 
+          className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 gap-1.5 md:bottom-4 md:gap-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={(e) => {
+                e.stopPropagation()
+                goToSlide(index)
+              }}
+              className={`transition-all duration-300 ${
+                index === current
+                  ? "h-1.5 w-6 rounded-full bg-white md:h-2 md:w-8"
+                  : "h-1.5 w-1.5 rounded-full bg-white/50 hover:bg-white/70 md:h-2 md:w-2"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+              aria-current={index === current}
+            />
+          ))}
+        </div>
 
         {/* Slide Counter */}
         <div 
