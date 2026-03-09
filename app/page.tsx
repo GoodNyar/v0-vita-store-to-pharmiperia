@@ -9,6 +9,7 @@ import { ProductCard } from "@/components/product-card"
 import { CartDrawer } from "@/components/cart-drawer"
 import { CartProvider } from "@/components/cart-context"
 import { SiteFooter } from "@/components/site-footer"
+import { PromoCards } from "@/components/promo-cards"
 import { LangProvider, useLang, formatEur } from "@/lib/i18n"
 import { products } from "@/lib/data"
 import { TrendingUp, Truck, Shield, RotateCcw, Flame } from "lucide-react"
@@ -116,6 +117,9 @@ function HomeContent() {
               </div>
             </div>
           </section>
+
+          {/* Promo Cards */}
+          <PromoCards />
 
           {/* Best Sellers section */}
           <section className="mt-12">
