@@ -10,9 +10,10 @@ import { CartDrawer } from "@/components/cart-drawer"
 import { CartProvider } from "@/components/cart-context"
 import { SiteFooter } from "@/components/site-footer"
 import { PromoCards } from "@/components/promo-cards"
+import { WhyBuyUs } from "@/components/why-buy-us"
 import { LangProvider, useLang, formatEur } from "@/lib/i18n"
 import { products } from "@/lib/data"
-import { TrendingUp, Truck, Shield, RotateCcw, Flame } from "lucide-react"
+import { Truck, Shield, RotateCcw } from "lucide-react"
 
 function HomeContent() {
   const { t } = useLang()
@@ -121,37 +122,8 @@ function HomeContent() {
           {/* Promo Cards */}
           <PromoCards />
 
-          {/* Best Sellers section */}
-          <section className="mt-12">
-            <div className="mb-4 flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold text-foreground">
-                {t("bestSellersSection")}
-              </h2>
-            </div>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-6">
-              {products.slice(0, 6).map((product) => (
-                <div
-                  key={product.id}
-                  className="flex flex-col items-center gap-2 rounded-lg border border-border bg-card p-3 transition-shadow hover:shadow-md"
-                >
-                  <div className="relative h-24 w-24 overflow-hidden rounded-md">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <p className="line-clamp-2 text-center text-xs font-medium text-card-foreground">
-                    {product.name}
-                  </p>
-                  <p className="text-sm font-bold text-primary">
-                    {formatEur(product.price)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
+          {/* Why Buy Us section */}
+          <WhyBuyUs />
 
           {/* Newsletter */}
           <section className="mt-12 mb-8 rounded-xl bg-primary px-6 py-8 sm:px-10">
