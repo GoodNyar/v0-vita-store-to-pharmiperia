@@ -8,15 +8,15 @@ export function WhyBuyUs() {
   const { t } = useLang()
 
   const paymentMethods = [
-    { name: "Visa", src: "/images/payment-logos/visa.svg" },
+    { name: "Visa", src: "/images/payment-logos/visa.png" },
     { name: "Mastercard", src: "/images/payment-logos/mastercard.svg" },
     { name: "Apple Pay", src: "/images/payment-logos/apple-pay.png" },
     { name: "Google Pay", src: "/images/payment-logos/google-pay.png" },
+    { name: "Revolut", src: "/images/payment-logos/revolut.png" },
     { name: "Swedbank", src: "/images/payment-logos/swedbank.png" },
     { name: "SEB", src: "/images/payment-logos/seb.jpg" },
     { name: "Citadele", src: "/images/payment-logos/citadele.png" },
     { name: "Luminor", src: "/images/payment-logos/luminor.jpg" },
-    { name: "Revolut", src: "/images/payment-logos/revolut.png" },
   ]
 
   const features = [
