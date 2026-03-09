@@ -18,6 +18,8 @@ export function ProductCard({ product }: { product: Product }) {
       )
     : null
 
+  const productHref = `/products/${product.id}`
+
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-lg">
       {/* Badge */}
@@ -29,9 +31,9 @@ export function ProductCard({ product }: { product: Product }) {
         </span>
       )}
 
-      {/* Wishlist */}
+      {/* Wishlist — stop propagation so clicking it doesn't navigate */}
       <button
-        onClick={() => setIsWished(!isWished)}
+        onClick={(e) => { e.preventDefault(); setIsWished(!isWished) }}
         className="absolute right-2.5 top-2.5 z-10 rounded-full bg-card/80 p-1.5 text-muted-foreground opacity-0 shadow-sm backdrop-blur-sm transition-all hover:text-destructive group-hover:opacity-100"
         aria-label="Add to wishlist"
       >
@@ -40,68 +42,70 @@ export function ProductCard({ product }: { product: Product }) {
         />
       </button>
 
-      {/* Image */}
-      <a href="#" className="block overflow-hidden bg-muted">
-        <div className="relative w-full" style={{ paddingBottom: "100%" }}>
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
+      {/* Full-card clickable link */}
+      <a href={productHref} className="flex flex-1 flex-col">
+        {/* Image */}
+        <div className="block overflow-hidden bg-muted">
+          <div className="relative w-full" style={{ paddingBottom: "100%" }}>
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex flex-1 flex-col p-3 sm:p-4">
+          <p className="text-xs text-muted-foreground">{product.brand}</p>
+          <p className="mt-0.5 line-clamp-2 text-sm font-medium text-card-foreground transition-colors group-hover:text-primary">
+            {product.name}
+          </p>
+
+          {/* Rating */}
+          <div className="mt-2 flex items-center gap-1.5">
+            <div className="flex items-center gap-0.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star
+                  key={i}
+                  className={`h-3.5 w-3.5 ${
+                    i < Math.floor(product.rating)
+                      ? "fill-accent text-accent"
+                      : "fill-muted text-muted"
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-xs text-muted-foreground">
+              ({product.reviewCount.toLocaleString("en-US")})
+            </span>
+          </div>
+
+          {/* Price */}
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-lg font-bold text-card-foreground">
+              {formatEur(product.price)}
+            </span>
+            {product.originalPrice && (
+              <span className="text-sm text-muted-foreground line-through">
+                {formatEur(product.originalPrice)}
+              </span>
+            )}
+            {discount && (
+              <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-xs font-semibold text-destructive">
+                -{discount}%
+              </span>
+            )}
+          </div>
         </div>
       </a>
 
-      {/* Content */}
-      <div className="flex flex-1 flex-col p-3 sm:p-4">
-        <p className="text-xs text-muted-foreground">{product.brand}</p>
-        <a
-          href="#"
-          className="mt-0.5 line-clamp-2 text-sm font-medium text-card-foreground transition-colors hover:text-primary"
-        >
-          {product.name}
-        </a>
-
-        {/* Rating */}
-        <div className="mt-2 flex items-center gap-1.5">
-          <div className="flex items-center gap-0.5">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star
-                key={i}
-                className={`h-3.5 w-3.5 ${
-                  i < Math.floor(product.rating)
-                    ? "fill-accent text-accent"
-                    : "fill-muted text-muted"
-                }`}
-              />
-            ))}
-          </div>
-          <span className="text-xs text-muted-foreground">
-            ({product.reviewCount.toLocaleString("en-US")})
-          </span>
-        </div>
-
-        {/* Price */}
-        <div className="mt-2 flex items-baseline gap-2">
-          <span className="text-lg font-bold text-card-foreground">
-            {formatEur(product.price)}
-          </span>
-          {product.originalPrice && (
-            <span className="text-sm text-muted-foreground line-through">
-              {formatEur(product.originalPrice)}
-            </span>
-          )}
-          {discount && (
-            <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-xs font-semibold text-destructive">
-              -{discount}%
-            </span>
-          )}
-        </div>
-
-        {/* Add to Cart */}
+      {/* Add to Cart — outside the link to avoid nested interactive elements */}
+      <div className="px-3 pb-3 sm:px-4 sm:pb-4">
         <button
           onClick={() => addToCart(product)}
-          className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          className="mt-auto flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
         >
           <ShoppingCart className="h-4 w-4" />
           {t("addToCart")}

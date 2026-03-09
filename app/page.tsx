@@ -98,18 +98,21 @@ function HomeContent() {
                 </div>
               </div>
 
-              {/* Product Grid */}
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
-                {products.map((product) => (
+              {/* Product Grid — max 8, 4 per row desktop, 2 per row mobile */}
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+                {products.slice(0, 8).map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
 
-              {/* Load more */}
-              <div className="mt-8 flex justify-center">
-                <button className="rounded-full border border-border bg-card px-8 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted">
-                  {t("loadMore")}
-                </button>
+              {/* View all popular */}
+              <div className="mt-6 flex justify-center">
+                <a
+                  href="/popular"
+                  className="rounded-full border border-border bg-card px-8 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                >
+                  {t("viewAllPopular")}
+                </a>
               </div>
             </div>
           </section>
