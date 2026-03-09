@@ -10,7 +10,6 @@ interface PromoCard {
   descKey: "promo1Desc" | "promo2Desc"
   image: string
   href: string
-  accent: string
   bg: string
 }
 
@@ -21,7 +20,6 @@ const promos: PromoCard[] = [
     descKey: "promo1Desc",
     image: "/images/banner-vichy.jpg",
     href: "/specials/vichy",
-    accent: "bg-[#0b5c9e]",
     bg: "bg-[#d6eaf7]",
   },
   {
@@ -30,7 +28,6 @@ const promos: PromoCard[] = [
     descKey: "promo2Desc",
     image: "/images/banner-bioderma.jpg",
     href: "/specials/bioderma",
-    accent: "bg-[#1a6ea8]",
     bg: "bg-[#ddeef7]",
   },
 ]
@@ -50,7 +47,7 @@ export function PromoCards() {
             href={promo.href}
             className={`group relative flex h-48 overflow-hidden rounded-xl sm:h-56 md:h-64 ${promo.bg} transition-shadow hover:shadow-xl`}
           >
-            {/* Product image — right side */}
+            {/* Product image */}
             <div className="absolute inset-0">
               <Image
                 src={promo.image}
@@ -58,8 +55,10 @@ export function PromoCards() {
                 fill
                 className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
               />
-              {/* Dark overlay on left for text readability */}
+              {/* Base gradient for text readability */}
               <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/40 to-transparent" />
+              {/* Extra darkening layer on hover */}
+              <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/20" />
             </div>
 
             {/* Text content */}
@@ -74,7 +73,7 @@ export function PromoCards() {
                 {t(promo.descKey)}
               </p>
               <span
-                className={`mt-4 inline-flex w-fit items-center gap-1.5 rounded-full ${promo.accent} px-5 py-2 text-xs font-semibold text-white transition-opacity group-hover:opacity-90`}
+                className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground transition-colors duration-200 group-hover:bg-primary/80"
               >
                 {t("viewOffer")}
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
