@@ -250,7 +250,7 @@ export const translations = {
     promo1Title: "20% atlaide Vichy",
     promo1Desc: "Visa Mineral 89 un Liftactiv kolekcija — tikai līdz mēneša beigām.",
     promo2Title: "Bioderma komplekts dāvanā",
-    promo2Desc: "Pērkot no 60€, saņemiet Sensibio ceļojumu komplektu dāvanā.",
+    promo2Desc: "Pērkot no 60€, sa��emiet Sensibio ceļojumu komplektu dāvanā.",
     // Why buy us section
     whyBuyUs: "Kāpēc pirkt mums",
     fastDelivery: "Ātra piegāde",
@@ -278,7 +278,6 @@ export const translations = {
     joinNewsletter: "Saņemiet labākos piedāvājumus",
     newsletterDesc:
       "Atlaides, jaunumi un ieteikumi aptiekas kosmētikas kopšanai.",
-      "Saņemiet ekskluzīvus piedāvājumus, jaunumus un padomus ādas kopšanā.",
     emailPlaceholder: "Jūsu e-pasts",
     subscribe: "Pieteikties",
     // Cart
