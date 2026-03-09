@@ -25,19 +25,19 @@ export function WhyBuyUs() {
       icon: Truck,
       titleKey: "fastDelivery",
       descKey: "fastDeliveryDesc",
-      href: null,
+      href: "/delivery",
     },
     {
       icon: Shield,
       titleKey: "originalCosmetics",
       descKey: "originalCosmeticsDesc",
-      href: null,
+      href: "/authenticity",
     },
     {
       icon: CreditCard,
       titleKey: "securePayment",
       descKey: "securePaymentDesc",
-      href: null,
+      href: "/payment",
       showPaymentLogos: true,
     },
     {
@@ -57,15 +57,12 @@ export function WhyBuyUs() {
       <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
         {features.map((feature) => {
           const Icon = feature.icon
-          const Component = feature.href ? "a" : "div"
 
           return (
-            <Component
+            <a
               key={feature.titleKey}
-              href={feature.href || undefined}
-              className={`flex flex-col rounded-xl border border-border bg-white p-5 shadow-sm transition-all duration-200 ${
-                feature.href ? "cursor-pointer" : ""
-              } hover:-translate-y-1 hover:shadow-md`}
+              href={feature.href}
+              className="flex flex-col rounded-xl border border-border bg-white p-5 shadow-sm transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-lg"
             >
               {/* Icon container */}
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
@@ -100,7 +97,7 @@ export function WhyBuyUs() {
                   ))}
                 </div>
               ) : (
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground whitespace-pre-line">
                   {t(
                     feature.descKey as
                       | "fastDeliveryDesc"
@@ -110,7 +107,7 @@ export function WhyBuyUs() {
                   )}
                 </p>
               )}
-            </Component>
+            </a>
           )
         })}
       </div>

@@ -99,9 +99,9 @@ export const translations = {
     // Why buy us section
     whyBuyUs: "Почему покупать у нас",
     fastDelivery: "Быстрая доставка",
-    fastDeliveryDesc: "Доставка по Латвии за 1–2 дня",
+    fastDeliveryDesc: "Доставка по Латвии за 1–2 рабочих дня\nПакоматы и курьер",
     originalCosmetics: "100% оригинальная косметика",
-    originalCosmeticsDesc: "Работаем только с официальными брендами",
+    originalCosmeticsDesc: "Работаем только с официальными поставщиками\nГарантия оригинальной продукции",
     securePayment: "Безопасная оплата",
     securePaymentDesc: "Visa • Mastercard • Apple Pay",
     easyReturnTitle: "Лёгкий возврат",
@@ -254,9 +254,9 @@ export const translations = {
     // Why buy us section
     whyBuyUs: "Kāpēc pirkt mums",
     fastDelivery: "Ātra piegāde",
-    fastDeliveryDesc: "Piegāde Latvijā 1–2 dienās",
+    fastDeliveryDesc: "Piegāde Latvijā 1–2 darba dienās\nPakšķi un kurjers",
     originalCosmetics: "100% oriģināla kosmētika",
-    originalCosmeticsDesc: "Strādājam tikai ar oficiāliem zīmoliem",
+    originalCosmeticsDesc: "Strādājam tikai ar oficiāliem piegādātājiem\nOriģinālo preču garantija",
     securePayment: "Draudzīga maksāšana",
     securePaymentDesc: "Visa • Mastercard • Apple Pay",
     easyReturnTitle: "Vienkārša atgriešana",
