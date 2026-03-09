@@ -2,9 +2,22 @@
 
 import { useLang } from "@/lib/i18n"
 import { Truck, Shield, CreditCard, RotateCcw } from "lucide-react"
+import Image from "next/image"
 
 export function WhyBuyUs() {
   const { t } = useLang()
+
+  const paymentMethods = [
+    { name: "VISA", src: "/images/payment-logos/visa.svg" },
+    { name: "Mastercard", src: "/images/payment-logos/mastercard.svg" },
+    { name: "Apple Pay", src: "/images/payment-logos/apple-pay.svg" },
+    { name: "Google Pay", src: "/images/payment-logos/google-pay.svg" },
+    { name: "Swedbank", src: "/images/payment-logos/swedbank.svg" },
+    { name: "SEB", src: "/images/payment-logos/seb.svg" },
+    { name: "Citadele", src: "/images/payment-logos/citadele.svg" },
+    { name: "Luminor", src: "/images/payment-logos/luminor.svg" },
+    { name: "Revolut", src: "/images/payment-logos/revolut.svg" },
+  ]
 
   const features = [
     {
@@ -24,6 +37,7 @@ export function WhyBuyUs() {
       titleKey: "securePayment",
       descKey: "securePaymentDesc",
       href: null,
+      showPaymentLogos: true,
     },
     {
       icon: RotateCcw,
@@ -65,15 +79,35 @@ export function WhyBuyUs() {
                     | "easyReturnTitle"
                 )}
               </h3>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                {t(
-                  feature.descKey as
-                    | "fastDeliveryDesc"
-                    | "originalCosmeticsDesc"
-                    | "securePaymentDesc"
-                    | "easyReturnDesc"
-                )}
-              </p>
+
+              {/* Payment logos for secure payment card */}
+              {feature.showPaymentLogos ? (
+                <div className="mt-2 flex flex-wrap justify-center gap-3">
+                  {paymentMethods.map((method) => (
+                    <div
+                      key={method.name}
+                      className="h-6 w-auto transition-opacity duration-200 opacity-80 hover:opacity-100"
+                      title={method.name}
+                    >
+                      <img
+                        src={method.src}
+                        alt={method.name}
+                        className="h-full object-contain"
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  {t(
+                    feature.descKey as
+                      | "fastDeliveryDesc"
+                      | "originalCosmeticsDesc"
+                      | "securePaymentDesc"
+                      | "easyReturnDesc"
+                  )}
+                </p>
+              )}
             </Component>
           )
         })}
