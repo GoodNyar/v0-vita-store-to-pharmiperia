@@ -7,6 +7,13 @@ import Image from "next/image"
 export function WhyBuyUs() {
   const { t } = useLang()
 
+  const deliveryCarriers = [
+    { name: "Omniva",     src: "/images/delivery-logos/omniva.png",     maxW: "52px" },
+    { name: "DPD",        src: "/images/delivery-logos/dpd.png",        maxW: "40px" },
+    { name: "Venipak",    src: "/images/delivery-logos/venipak.png",    maxW: "52px" },
+    { name: "SmartPosti", src: "/images/delivery-logos/smartposti.png", maxW: "60px" },
+  ]
+
   // maxW controls the visible width of each logo within its fixed-height container
   const paymentMethods = [
     { name: "Visa", src: "/images/payment-logos/visa.png", maxW: "32px" },
@@ -26,6 +33,7 @@ export function WhyBuyUs() {
       titleKey: "fastDelivery",
       descKey: "fastDeliveryDesc",
       href: "/delivery",
+      showDeliveryLogos: true,
     },
     {
       icon: Shield,
@@ -78,8 +86,41 @@ export function WhyBuyUs() {
                 )}
               </h3>
 
-              {/* Payment logos for secure payment card */}
-              {feature.showPaymentLogos ? (
+              {/* Description text — always shown except on payment card */}
+              {!feature.showPaymentLogos && (
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground whitespace-pre-line">
+                  {t(
+                    feature.descKey as
+                      | "fastDeliveryDesc"
+                      | "originalCosmeticsDesc"
+                      | "securePaymentDesc"
+                      | "easyReturnDesc"
+                  )}
+                </p>
+              )}
+
+              {/* Delivery carrier logos */}
+              {feature.showDeliveryLogos && (
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-x-[10px] gap-y-[8px]">
+                  {deliveryCarriers.map((carrier) => (
+                    <div
+                      key={carrier.name}
+                      className="flex h-[15px] items-center justify-center opacity-80 transition-opacity duration-200 hover:opacity-100"
+                      style={{ width: carrier.maxW }}
+                      title={carrier.name}
+                    >
+                      <img
+                        src={carrier.src}
+                        alt={carrier.name}
+                        className="h-full w-full object-contain"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Payment logos */}
+              {feature.showPaymentLogos && (
                 <div className="mt-3 flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[8px]">
                   {paymentMethods.map((method) => (
                     <div
@@ -96,16 +137,6 @@ export function WhyBuyUs() {
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground whitespace-pre-line">
-                  {t(
-                    feature.descKey as
-                      | "fastDeliveryDesc"
-                      | "originalCosmeticsDesc"
-                      | "securePaymentDesc"
-                      | "easyReturnDesc"
-                  )}
-                </p>
               )}
             </a>
           )
