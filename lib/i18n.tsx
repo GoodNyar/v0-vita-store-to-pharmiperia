@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 
 export type Lang = "ru" | "lv"
 
@@ -333,8 +333,50 @@ const LangContext = createContext<LangContextValue>({
 })
 
 export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>("ru")
+  const [lang, setLangState] = useState<Lang>("ru")
+  const [isHydrated, setIsHydrated] = useState(false)
+
+  // Detect browser language on first load and manage localStorage
+  useEffect(() => {
+    // Check if user has previously selected a language
+    const savedLang = localStorage.getItem("preferredLang") as Lang | null
+
+    if (savedLang) {
+      // Use saved preference
+      setLangState(savedLang)
+    } else {
+      // Auto-detect browser language
+      const browserLang = navigator.language || navigator.languages?.[0]
+      const detectedLang: Lang = browserLang?.toLowerCase().startsWith("lv")
+        ? "lv"
+        : browserLang?.toLowerCase().startsWith("ru")
+          ? "ru"
+          : "lv" // Default to LV if unknown
+
+      setLangState(detectedLang)
+      localStorage.setItem("preferredLang", detectedLang)
+    }
+
+    setIsHydrated(true)
+  }, [])
+
+  // Update localStorage when user manually changes language
+  const setLang = (newLang: Lang) => {
+    setLangState(newLang)
+    localStorage.setItem("preferredLang", newLang)
+  }
+
   const t = (key: TranslationKey) => translations[lang][key]
+
+  // Return default language content until hydrated to avoid hydration mismatch
+  if (!isHydrated) {
+    return (
+      <LangContext.Provider value={{ lang: "ru", setLang: () => {}, t: (key) => translations.ru[key] }}>
+        {children}
+      </LangContext.Provider>
+    )
+  }
+
   return (
     <LangContext.Provider value={{ lang, setLang, t }}>
       {children}
