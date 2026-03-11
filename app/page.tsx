@@ -6,6 +6,7 @@ import { HeroBanner } from "@/components/hero-banner"
 import { CategoryCards } from "@/components/category-cards"
 import { CategorySidebar } from "@/components/category-sidebar"
 import { ProductCard } from "@/components/product-card"
+import { ProductFilters } from "@/components/product-filters"
 import { CartDrawer } from "@/components/cart-drawer"
 import { CartProvider } from "@/components/cart-context"
 import { SiteFooter } from "@/components/site-footer"
@@ -82,6 +83,9 @@ function HomeContent() {
             <CategorySidebar />
 
             <div className="flex-1">
+              {/* Products Filters */}
+              <ProductFilters />
+
               {/* Section header */}
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -90,22 +94,10 @@ function HomeContent() {
                     {t("trendingProducts")}
                   </h2>
                 </div>
-                <div className="flex items-center gap-2">
-                  <select
-                    className="h-8 rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                    aria-label={t("sortLabel")}
-                  >
-                    <option>{t("sortBestSelling")}</option>
-                    <option>{t("sortLowHigh")}</option>
-                    <option>{t("sortHighLow")}</option>
-                    <option>{t("sortTopRated")}</option>
-                    <option>{t("sortNewest")}</option>
-                  </select>
-                </div>
               </div>
 
-              {/* Product Grid — max 8, 4 per row desktop, 2 per row mobile */}
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+              {/* Product Grid — 4 per row desktop, 3 tablet, 2 mobile */}
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 lg:gap-4">
                 {products.slice(0, 8).map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}

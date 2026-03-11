@@ -11,6 +11,7 @@ export function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart()
   const { t } = useLang()
   const [isWished, setIsWished] = useState(false)
+  const [isPressed, setIsPressed] = useState(false)
 
   const discount = product.originalPrice
     ? Math.round(
@@ -21,10 +22,17 @@ export function ProductCard({ product }: { product: Product }) {
   const productHref = `/products/${product.id}`
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-lg">
+    <div 
+      className={`group relative flex flex-col overflow-hidden rounded-lg border border-border bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
+        isPressed ? "translate-y-1" : ""
+      }`}
+      onMouseDown={() => setIsPressed(true)}
+      onMouseUp={() => setIsPressed(false)}
+      onMouseLeave={() => setIsPressed(false)}
+    >
       {/* Badge */}
       {product.badge && (
-        <span className="absolute left-2.5 top-2.5 z-10 rounded-md bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">
+        <span className="absolute left-3 top-3 z-10 rounded-md bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground">
           {product.badge === "discount" && discount
             ? `−${discount}%`
             : t(product.badge as Parameters<typeof t>[0])}
@@ -33,8 +41,12 @@ export function ProductCard({ product }: { product: Product }) {
 
       {/* Wishlist — stop propagation so clicking it doesn't navigate */}
       <button
-        onClick={(e) => { e.preventDefault(); setIsWished(!isWished) }}
-        className="absolute right-2.5 top-2.5 z-10 rounded-full bg-card/80 p-1.5 text-muted-foreground opacity-0 shadow-sm backdrop-blur-sm transition-all hover:text-destructive group-hover:opacity-100"
+        onClick={(e) => { 
+          e.preventDefault()
+          e.stopPropagation()
+          setIsWished(!isWished) 
+        }}
+        className="absolute right-3 top-3 z-10 rounded-full bg-white p-1.5 text-muted-foreground opacity-0 shadow-sm transition-all group-hover:opacity-100 hover:text-destructive"
         aria-label="Add to wishlist"
       >
         <Heart
@@ -45,33 +57,49 @@ export function ProductCard({ product }: { product: Product }) {
       {/* Full-card clickable link */}
       <a href={productHref} className="flex flex-1 flex-col">
         {/* Image */}
-        <div className="block overflow-hidden bg-muted">
+        <div className="overflow-hidden bg-muted">
           <div className="relative w-full" style={{ paddingBottom: "100%" }}>
             <Image
               src={product.image}
               alt={product.name}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
             />
           </div>
         </div>
 
         {/* Content */}
         <div className="flex flex-1 flex-col p-3 sm:p-4">
-          <p className="text-xs text-muted-foreground">{product.brand}</p>
+          {/* Product SKU */}
+          <p className="text-xs text-muted-foreground">#{product.sku}</p>
+
+          {/* Brand + Name */}
+          <p className="mt-2 text-xs font-semibold text-muted-foreground">
+            {product.brand}
+          </p>
           <p className="mt-0.5 line-clamp-2 text-sm font-medium text-card-foreground transition-colors group-hover:text-primary">
             {product.name}
           </p>
 
+          {/* Volume */}
+          <p className="mt-1 text-xs text-muted-foreground">
+            {product.volume}
+          </p>
+
+          {/* Short Description */}
+          <p className="mt-1.5 line-clamp-1 text-xs text-muted-foreground">
+            {product.description}
+          </p>
+
           {/* Rating */}
-          <div className="mt-2 flex items-center gap-1.5">
+          <div className="mt-2 flex items-center gap-1">
             <div className="flex items-center gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star
                   key={i}
-                  className={`h-3.5 w-3.5 ${
+                  className={`h-3 w-3 ${
                     i < Math.floor(product.rating)
-                      ? "fill-accent text-accent"
+                      ? "fill-amber-400 text-amber-400"
                       : "fill-muted text-muted"
                   }`}
                 />
@@ -83,29 +111,27 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
 
           {/* Price */}
-          <div className="mt-2 flex items-baseline gap-2">
+          <div className="mt-3 flex items-baseline gap-2">
             <span className="text-lg font-bold text-card-foreground">
               {formatEur(product.price)}
             </span>
             {product.originalPrice && (
-              <span className="text-sm text-muted-foreground line-through">
+              <span className="text-xs text-muted-foreground line-through">
                 {formatEur(product.originalPrice)}
-              </span>
-            )}
-            {discount && (
-              <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-xs font-semibold text-destructive">
-                -{discount}%
               </span>
             )}
           </div>
         </div>
       </a>
 
-      {/* Add to Cart — outside the link to avoid nested interactive elements */}
+      {/* Add to Cart Button — outside the link to avoid nested interactive elements */}
       <div className="px-3 pb-3 sm:px-4 sm:pb-4">
         <button
-          onClick={() => addToCart(product)}
-          className="mt-auto flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          onClick={(e) => {
+            e.preventDefault()
+            addToCart(product)
+          }}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/80"
         >
           <ShoppingCart className="h-4 w-4" />
           {t("addToCart")}

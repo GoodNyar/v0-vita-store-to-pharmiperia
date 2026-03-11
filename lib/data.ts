@@ -13,8 +13,11 @@ export const BRANDS_ORDERED = [
 
 export interface Product {
   id: number
+  sku: string
   name: string
   brand: string
+  volume: string
+  description: string
   price: number
   originalPrice?: number
   rating: number
@@ -129,8 +132,11 @@ export const categories: Category[] = [
 export const products: Product[] = [
   {
     id: 1,
+    sku: "02314",
     name: "Sensibio H2O Micellar Water 500ml",
     brand: "Bioderma",
+    volume: "500 ml",
+    description: "Очищающая мицеллярная вода для чувствительной кожи",
     price: 18.99,
     originalPrice: 24.99,
     rating: 4.9,
@@ -142,8 +148,11 @@ export const products: Product[] = [
   },
   {
     id: 2,
+    sku: "05428",
     name: "Thermal Spring Water Spray 300ml",
     brand: "Avène",
+    volume: "300 ml",
+    description: "Успокаивающий спрей с термальной водой",
     price: 12.50,
     rating: 4.8,
     reviewCount: 18340,
@@ -154,8 +163,11 @@ export const products: Product[] = [
   },
   {
     id: 3,
+    sku: "01847",
     name: "Mineral 89 Hyaluronic Acid Serum 50ml",
     brand: "Vichy",
+    volume: "50 ml",
+    description: "Увлажняющая сыворотка с гиалуроновой кислотой",
     price: 29.95,
     originalPrice: 37.00,
     rating: 4.8,
@@ -167,8 +179,11 @@ export const products: Product[] = [
   },
   {
     id: 4,
+    sku: "03561",
     name: "Proactive Anti-Aging Serum 30ml",
     brand: "Biotherm",
+    volume: "30 ml",
+    description: "Активная сыворотка против старения кожи",
     price: 49.00,
     originalPrice: 62.00,
     rating: 4.7,
@@ -180,8 +195,11 @@ export const products: Product[] = [
   },
   {
     id: 5,
+    sku: "04112",
     name: "Moisture Surge 100H Moisturizer 50ml",
     brand: "Clinique",
+    volume: "50 ml",
+    description: "Увлажняющий крем на 100 часов",
     price: 42.00,
     rating: 4.6,
     reviewCount: 11450,
@@ -191,8 +209,11 @@ export const products: Product[] = [
   },
   {
     id: 6,
+    sku: "02891",
     name: "Huile Prodigieuse Dry Oil 100ml",
     brand: "Nuxe",
+    volume: "100 ml",
+    description: "Универсальное сухое масло для лица и тела",
     price: 34.95,
     originalPrice: 42.00,
     rating: 4.9,
@@ -204,8 +225,11 @@ export const products: Product[] = [
   },
   {
     id: 7,
+    sku: "03725",
     name: "Reve de Miel Lip Balm 15g",
     brand: "Nuxe",
+    volume: "15 g",
+    description: "Питательный бальзам для губ с медом",
     price: 9.99,
     rating: 4.8,
     reviewCount: 31200,
@@ -216,8 +240,11 @@ export const products: Product[] = [
   },
   {
     id: 8,
+    sku: "04506",
     name: "Capital Soleil SPF 50+ Face Fluid 40ml",
     brand: "Vichy",
+    volume: "40 ml",
+    description: "Солнцезащитный флюид для лица SPF 50+",
     price: 22.50,
     rating: 4.7,
     reviewCount: 8760,
@@ -227,8 +254,11 @@ export const products: Product[] = [
   },
   {
     id: 9,
+    sku: "02619",
     name: "Sensibio Light Soothing Cream 40ml",
     brand: "Bioderma",
+    volume: "40 ml",
+    description: "Успокаивающий легкий крем для чувствительной кожи",
     price: 21.99,
     originalPrice: 27.00,
     rating: 4.7,
@@ -240,8 +270,11 @@ export const products: Product[] = [
   },
   {
     id: 10,
+    sku: "05134",
     name: "Thermal Spring Water Facial Mist 50ml",
     brand: "Evian",
+    volume: "50 ml",
+    description: "Успокаивающий спрей с термальной водой Эвиана",
     price: 8.99,
     rating: 4.5,
     reviewCount: 14200,
@@ -251,8 +284,11 @@ export const products: Product[] = [
   },
   {
     id: 11,
+    sku: "03892",
     name: "Life Plankton Essence 175ml",
     brand: "Biotherm",
+    volume: "175 ml",
+    description: "Питающая эссенция с морским планктоном",
     price: 68.00,
     originalPrice: 82.00,
     rating: 4.8,
@@ -264,8 +300,11 @@ export const products: Product[] = [
   },
   {
     id: 12,
+    sku: "01423",
     name: "Eau Thermale Gentle Cleansing Gel 200ml",
     brand: "Avène",
+    volume: "200 ml",
+    description: "Мягкий гель для очищения с термальной водой",
     price: 14.95,
     rating: 4.6,
     reviewCount: 9870,

@@ -137,6 +137,14 @@ export const translations = {
     freeShippingCart: "Бесплатная доставка при заказе от 40€",
     // Product card
     addToCart: "В корзину",
+    // Product filters
+    filterBrand: "Бренд",
+    filterPrice: "Цена",
+    filterSkinType: "Тип кожи",
+    filterCategory: "Категория",
+    filterDiscounts: "Скидки",
+    filterShowAll: "Показать все фильтры",
+    filterSort: "Сортировать",
     // Footer
     footerDesc:
       "Pharmiperia — магазин аутентичной французской аптечной косметики для клиентов в Латвии.",
@@ -295,6 +303,14 @@ export const translations = {
     freeShippingCart: "Bezmaksas piegāde pasūtot no 40€",
     // Product card
     addToCart: "Pievienot grozam",
+    // Product filters
+    filterBrand: "Zīmols",
+    filterPrice: "Cena",
+    filterSkinType: "Ādas tips",
+    filterCategory: "Kategorija",
+    filterDiscounts: "Atlaides",
+    filterShowAll: "Rādīt visus filtrus",
+    filterSort: "Kārtot",
     // Footer
     footerDesc:
       "Pharmiperia — autentiskas franču aptiekas kosmētikas veikals klientiem Latvijā.",
