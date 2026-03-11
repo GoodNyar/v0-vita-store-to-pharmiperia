@@ -323,15 +323,18 @@ export const products: Product[] = [
   },
 ]
 
-export const promoBarItems: Record<"ru" | "lv", string[]> = {
+export const promoBarItems: Record<
+  "ru" | "lv",
+  Array<{ icon: string; text: string }>
+> = {
   ru: [
-    "100% оригинальная аптечная косметика из Франции",
-    "Новинки Bioderma, Vichy и Avène уже в наличии",
-    "Бесплатная доставка по Латвии при заказе от 40€",
+    { icon: "✨", text: "Новинки Bioderma, Vichy и Avène уже в наличии" },
+    { icon: "🚚", text: "Бесплатная доставка по Латвии от 40€" },
+    { icon: "⭐", text: "100% оригинальная французская аптечная косметика" },
   ],
   lv: [
-    "100% oriģināla franču aptiekas kosmētika",
-    "Jaunumi no Bioderma, Vichy un Avène jau pieejami",
-    "Bezmaksas piegāde Latvijā pasūtījumiem virs 40€",
+    { icon: "✨", text: "Jaunumi no Bioderma, Vichy un Avène jau pieejami" },
+    { icon: "🚚", text: "Bezmaksas piegāde Latvijā no 40€" },
+    { icon: "⭐", text: "100% oriģināla franču aptiekas kosmētika" },
   ],
 }

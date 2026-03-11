@@ -25,9 +25,18 @@ export function PromoBar() {
 
   if (!visible) return null
 
+  const currentItem = items[currentIndex]
+
   return (
-    <div className="relative flex items-center justify-center bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-      <span className="text-center">{items[currentIndex]}</span>
+    <div className="relative flex h-10 items-center justify-center bg-primary px-4 text-sm font-medium text-primary-foreground sm:h-11">
+      {/* Icon + Text Container with fixed height and single-line truncation on mobile */}
+      <div className="flex items-center gap-2 truncate">
+        <span className="flex-shrink-0 text-base">{currentItem.icon}</span>
+        <span className="truncate text-center sm:text-left">
+          {currentItem.text}
+        </span>
+      </div>
+      {/* Close button */}
       <button
         onClick={() => setVisible(false)}
         className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm p-0.5 text-primary-foreground/80 transition-colors hover:text-primary-foreground"
