@@ -31,7 +31,12 @@ export function PromoBar() {
     <div className="relative flex h-10 items-center justify-center bg-primary px-4 text-sm font-medium text-primary-foreground sm:h-11">
       {/* Icon + Text Container with fixed height and single-line truncation on mobile */}
       <div className="flex items-center gap-2 truncate">
-        <span className="flex-shrink-0 text-base">{currentItem.icon}</span>
+        <img
+          src={currentItem.icon}
+          alt=""
+          className="h-4.5 w-4.5 flex-shrink-0"
+          style={{ filter: "invert(1)" }}
+        />
         <span className="truncate text-center sm:text-left">
           {currentItem.text}
         </span>
