@@ -35,10 +35,10 @@ export function PromoBar() {
   const IconComponent = iconMap[currentItem.icon]
 
   return (
-    <div className="relative flex h-10 items-center justify-center bg-primary px-4 text-sm font-medium text-primary-foreground sm:h-11">
+    <div className="relative flex h-9 items-center justify-center bg-primary px-4 text-sm font-medium text-primary-foreground sm:h-8">
       {/* Icon + Text Container with fixed height and single-line truncation on mobile */}
       <div className="flex items-center gap-2 truncate">
-        <IconComponent className="h-4 w-4 flex-shrink-0" strokeWidth={2} />
+        <IconComponent className="h-4.5 w-4.5 flex-shrink-0" strokeWidth={2} />
         <span className="truncate text-center sm:text-left">
           {currentItem.text}
         </span>
