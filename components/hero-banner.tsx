@@ -123,17 +123,22 @@ export function HeroBanner() {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Fixed-height container — image fills it completely via object-cover */}
+      {/* Fixed-height container — all slide images pre-rendered, shown via opacity */}
       <div className="relative h-[220px] w-full sm:h-[280px] md:h-[360px] lg:h-[440px]">
-        <Image
-          key={`slide-${current}`}
-          src={slide.image}
-          alt={slide.brand}
-          fill
-          className="object-cover object-center transition-opacity duration-500"
-          priority={current === 0}
-          sizes="(max-width: 768px) 100vw, 1200px"
-        />
+        {slides.map((s, i) => (
+          <Image
+            key={s.id}
+            src={s.image}
+            alt={s.brand}
+            fill
+            className={`object-cover object-center transition-opacity duration-500 ${
+              i === current ? "opacity-100" : "opacity-0"
+            }`}
+            priority={i === 0}
+            loading={i === 0 ? "eager" : "lazy"}
+            sizes="(max-width: 768px) 100vw, 1200px"
+          />
+        ))}
 
         {/* Left gradient so text is always readable */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-transparent" />
