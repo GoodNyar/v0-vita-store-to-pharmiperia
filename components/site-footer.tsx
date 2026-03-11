@@ -58,12 +58,12 @@ export function SiteFooter() {
           </div>
 
           {/* Links */}
-          {Object.entries(footerLinks).map(([title, links]) => (
-            <div key={title}>
+          {Object.entries(footerLinks).map(([title, links], colIndex) => (
+            <div key={`col-${colIndex}`}>
               <h4 className="text-sm font-semibold text-foreground">{title}</h4>
               <ul className="mt-3 flex flex-col gap-2">
-                {links.map((link) => (
-                  <li key={link}>
+                {links.map((link, linkIndex) => (
+                  <li key={`col-${colIndex}-link-${linkIndex}`}>
                     <a
                       href="#"
                       className="text-sm text-muted-foreground transition-colors hover:text-primary"
