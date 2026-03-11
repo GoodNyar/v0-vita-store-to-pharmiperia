@@ -325,13 +325,13 @@ export const products: Product[] = [
 
 export const promoBarItems: Record<"ru" | "lv", string[]> = {
   ru: [
-    "Бесплатная доставка по Латвии при заказе от 40€",
-    "Новинки Bioderma, Vichy и Avène уже в наличии",
     "100% оригинальная аптечная косметика из Франции",
+    "Новинки Bioderma, Vichy и Avène уже в наличии",
+    "Бесплатная доставка по Латвии при заказе от 40€",
   ],
   lv: [
-    "Bezmaksas piegāde Latvijā pasūtot no 40€",
-    "Jauni Bioderma, Vichy un Avène produkti jau pieejami",
-    "100% oriģināla farmācijas kosmētika no Francijas",
+    "100% oriģināla franču aptiekas kosmētika",
+    "Jaunumi no Bioderma, Vichy un Avène jau pieejami",
+    "Bezmaksas piegāde Latvijā pasūtījumiem virs 40€",
   ],
 }

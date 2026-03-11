@@ -8,7 +8,7 @@ export const translations = {
   ru: {
     // Trust strip
     trustStrip: "Аптечный уход за кожей из Франции",
-    pharmacyTagline: "Аптечный уход за кожей из Франции",
+    pharmacyTagline: "Французский аптечный уход за кожей",
     // Header top bar
     deliverTo: "Доставка: Латвия",
     // Header nav
@@ -118,9 +118,9 @@ export const translations = {
     authentic: "Оригинал",
     authenticDesc: "100% гарантия",
     easyReturns: "Лёгкий возврат",
-    easyReturnsDesc: "30 дней",
-    pharmacyBadge: "Аптечный уход",
-    pharmacyBadgeDesc: "Из Франции",
+    easyReturnsDesc: "14 дней",
+    pharmacyBadge: "Французские бренды",
+    pharmacyBadgeDesc: "Аптечное качество",
     // Newsletter
     joinNewsletter: "Получайте лучшие предложения",
     newsletterDesc:
@@ -165,7 +165,7 @@ export const translations = {
   lv: {
     // Trust strip
     trustStrip: "Farmācijas ādas kopšana no Francijas",
-    pharmacyTagline: "Farmācijas ādas kopšana no Francijas",
+    pharmacyTagline: "Franču aptiekas ādas kopšana",
     // Header top bar
     deliverTo: "Piegāde: Latvija",
     // Header nav
@@ -276,9 +276,9 @@ export const translations = {
     authentic: "Oriģināls",
     authenticDesc: "100% garantija",
     easyReturns: "Vienkārša atgriešana",
-    easyReturnsDesc: "30 dienas",
-    pharmacyBadge: "Aptiekas kopšana",
-    pharmacyBadgeDesc: "No Francijas",
+    easyReturnsDesc: "14 dienas",
+    pharmacyBadge: "Franču zīmoli",
+    pharmacyBadgeDesc: "Aptieku kvalitāte",
     // Newsletter
     joinNewsletter: "Saņemiet labākos piedāvājumus",
     newsletterDesc:
