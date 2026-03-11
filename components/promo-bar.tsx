@@ -3,7 +3,13 @@
 import { useState, useEffect } from "react"
 import { promoBarItems } from "@/lib/data"
 import { useLang } from "@/lib/i18n"
-import { X } from "lucide-react"
+import { X, Truck, BadgeCheck, Sparkles } from "lucide-react"
+
+const iconMap = {
+  Truck: Truck,
+  BadgeCheck: BadgeCheck,
+  Sparkles: Sparkles,
+}
 
 export function PromoBar() {
   const { lang } = useLang()
@@ -26,17 +32,13 @@ export function PromoBar() {
   if (!visible) return null
 
   const currentItem = items[currentIndex]
+  const IconComponent = iconMap[currentItem.icon]
 
   return (
     <div className="relative flex h-10 items-center justify-center bg-primary px-4 text-sm font-medium text-primary-foreground sm:h-11">
       {/* Icon + Text Container with fixed height and single-line truncation on mobile */}
       <div className="flex items-center gap-2 truncate">
-        <img
-          src={currentItem.icon}
-          alt=""
-          className="h-4.5 w-4.5 flex-shrink-0"
-          style={{ filter: "invert(1)" }}
-        />
+        <IconComponent className="h-4 w-4 flex-shrink-0" strokeWidth={2} />
         <span className="truncate text-center sm:text-left">
           {currentItem.text}
         </span>
