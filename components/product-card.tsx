@@ -10,12 +10,25 @@ import { useState } from "react"
 export function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart()
   const { t } = useLang()
+  const [isPressed, setIsPressed] = useState(false)
 
   const productHref = `/products/${product.id}`
 
+  const handlePressStart = () => setIsPressed(true)
+  const handlePressEnd = () => setIsPressed(false)
+
   return (
     <div
-      className="group relative flex flex-col cursor-pointer rounded-2xl bg-white shadow-[0_6px_20px_rgba(0,0,0,0.14)]"
+      className={`group relative flex flex-col cursor-pointer rounded-2xl bg-white transition-all duration-100 ${
+        isPressed
+          ? "scale-95 shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+          : "shadow-[0_6px_20px_rgba(0,0,0,0.14)]"
+      }`}
+      onMouseDown={handlePressStart}
+      onMouseUp={handlePressEnd}
+      onMouseLeave={handlePressEnd}
+      onTouchStart={handlePressStart}
+      onTouchEnd={handlePressEnd}
     >
       {/* Clickable area — image + info (excludes the cart button row) */}
       <a href={productHref} className="flex flex-col" tabIndex={0}>
