@@ -368,12 +368,12 @@ export const promoBarItems: Record<
 > = {
   ru: [
     { icon: "Truck", text: "Бесплатная доставка по Латвии от 40€" },
-    { icon: "BadgeCheck", text: "100% оригинальная французская аптечная косметика" },
+    { icon: "BadgeCheck", text: "100% оригинальная французская косметика" },
     { icon: "Sparkles", text: "Новинки Bioderma, Vichy и Avène уже в наличии" },
   ],
   lv: [
     { icon: "Truck", text: "Bezmaksas piegāde Latvijā no 40€" },
-    { icon: "BadgeCheck", text: "100% oriģināla franču aptiekas kosmētika" },
+    { icon: "BadgeCheck", text: "100% oriģināla franču kosmētika" },
     { icon: "Sparkles", text: "Jaunumi no Bioderma, Vichy un Avène jau pieejami" },
   ],
 }

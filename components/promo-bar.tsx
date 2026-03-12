@@ -42,10 +42,10 @@ export function PromoBar() {
           className="h-4 w-4 flex-shrink-0 sm:h-4.5 sm:w-4.5"
           strokeWidth={2}
         />
-        {/* font-size clamps between 12px (very narrow) and 14px (mobile) and 16px (desktop) */}
+        {/* Font size clamps from 10px (narrow phones) → 13px (standard mobile) → 14px (tablet+) */}
         <span
           className="whitespace-nowrap font-medium"
-          style={{ fontSize: "clamp(11.5px, 3.5vw, 14px)" }}
+          style={{ fontSize: "clamp(10px, 3.3vw, 14px)" }}
         >
           {currentItem.text}
         </span>
