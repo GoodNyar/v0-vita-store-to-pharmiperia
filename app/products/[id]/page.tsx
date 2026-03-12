@@ -19,7 +19,7 @@ function ProductPageContent({ product }: { product: Product }) {
   const { t } = useLang()
   const { addToCart } = useCart()
   const [quantity, setQuantity] = useState(1)
-  const [activeTab, setActiveTab] = useState<"description" | "ingredients" | "howToUse">("description")
+  const [activeTab, setActiveTab] = useState<"about" | "benefits" | "howToUse" | "ingredients">("about")
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -251,58 +251,73 @@ function ProductPageContent({ product }: { product: Product }) {
           <div className="mt-10">
             {/* Tab headers */}
             <div className="flex border-b border-border">
-              <button
-                onClick={() => setActiveTab("description")}
-                className={`px-4 py-3 text-sm font-medium transition-colors ${
-                  activeTab === "description"
-                    ? "border-b-2 border-primary text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {t("productDescription")}
-              </button>
-              <button
-                onClick={() => setActiveTab("ingredients")}
-                className={`px-4 py-3 text-sm font-medium transition-colors ${
-                  activeTab === "ingredients"
-                    ? "border-b-2 border-primary text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {t("productIngredients")}
-              </button>
-              <button
-                onClick={() => setActiveTab("howToUse")}
-                className={`px-4 py-3 text-sm font-medium transition-colors ${
-                  activeTab === "howToUse"
-                    ? "border-b-2 border-primary text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {t("productHowToUse")}
-              </button>
+              {(["about", "benefits", "howToUse", "ingredients"] as const).map((tab) => {
+                const labels: Record<typeof tab, string> = {
+                  about: "О товаре",
+                  benefits: "Преимущества",
+                  howToUse: t("productHowToUse"),
+                  ingredients: t("productIngredients"),
+                }
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-4 py-3 text-sm font-medium transition-colors ${
+                      activeTab === tab
+                        ? "border-b-2 border-primary text-primary"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {labels[tab]}
+                  </button>
+                )
+              })}
             </div>
 
             {/* Tab content */}
             <div className="py-6">
-              {activeTab === "description" && (
+              {activeTab === "about" && (
                 <div className="prose prose-sm max-w-none text-muted-foreground">
                   <p>{product.description}</p>
                   <p className="mt-4">
-                    {product.brand} — это проверенный французский бренд аптечной косметики, 
-                    известный своими инновационными формулами и бережным отношением к коже. 
+                    {product.brand} — это проверенный французский бренд аптечной косметики,
+                    известный своими инновационными формулами и бережным отношением к коже.
                     Продукция прошла дерматологический контроль и подходит для ежедневного применения.
                   </p>
                 </div>
               )}
-              {activeTab === "ingredients" && (
-                <div className="prose prose-sm max-w-none text-muted-foreground">
-                  <p className="font-mono text-xs">{productContent.ingredients}</p>
-                </div>
+              {activeTab === "benefits" && (
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                    Дерматологически протестировано и одобрено для чувствительной кожи
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                    Формула без парабенов, без спирта и без красителей
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                    Гипоаллергенный состав, разработанный французскими фармацевтами
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                    Подходит для ежедневного использования утром и вечером
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                    100% оригинальная французская аптечная косметика
+                  </li>
+                </ul>
               )}
               {activeTab === "howToUse" && (
                 <div className="prose prose-sm max-w-none text-muted-foreground">
                   <p>{productContent.howToUse}</p>
+                </div>
+              )}
+              {activeTab === "ingredients" && (
+                <div className="prose prose-sm max-w-none text-muted-foreground">
+                  <p className="font-mono text-xs leading-relaxed">{productContent.ingredients}</p>
                 </div>
               )}
             </div>
