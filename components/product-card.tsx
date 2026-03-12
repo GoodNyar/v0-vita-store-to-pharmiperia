@@ -16,7 +16,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <div
-      className={`group relative flex flex-col overflow-hidden rounded-2xl bg-white transition-all duration-200
+      className={`group relative flex flex-col rounded-2xl bg-white transition-all duration-200
         shadow-[0_2px_12px_rgba(0,0,0,0.10)]
         hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(0,0,0,0.14)]
         ${isPressed ? "translate-y-0.5 shadow-[0_1px_6px_rgba(0,0,0,0.08)]" : ""}
@@ -25,11 +25,11 @@ export function ProductCard({ product }: { product: Product }) {
       onMouseUp={() => setIsPressed(false)}
       onMouseLeave={() => setIsPressed(false)}
     >
-      {/* Entire card is clickable except the cart button */}
-      <a href={productHref} className="flex flex-1 flex-col" tabIndex={0}>
+      {/* Clickable area — image + info (excludes the cart button row) */}
+      <a href={productHref} className="flex flex-col" tabIndex={0}>
 
-        {/* Image area — light gray bg like reference */}
-        <div className="relative overflow-hidden bg-[#f2f3f5]">
+        {/* Image area */}
+        <div className="relative overflow-hidden rounded-t-2xl bg-[#f2f3f5]">
           <div className="relative w-full" style={{ paddingBottom: "90%" }}>
             <Image
               src={product.image}
@@ -41,14 +41,14 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         {/* Text content */}
-        <div className="flex flex-1 flex-col px-3 pt-3 pb-2 sm:px-4 sm:pt-4 sm:pb-3">
+        <div className="flex flex-col px-3 pt-3 sm:px-4 sm:pt-4">
 
-          {/* Product name — bold, dark navy, 2 lines max */}
+          {/* Product name — bold, 2 lines max */}
           <p className="line-clamp-2 text-sm font-bold leading-snug text-foreground group-hover:text-primary sm:text-base">
             {product.name}
           </p>
 
-          {/* Short description — 1 line, gray */}
+          {/* Short description — 1 line */}
           <p className="mt-1.5 line-clamp-1 text-xs leading-relaxed text-muted-foreground">
             {product.description}
           </p>
@@ -74,44 +74,39 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
 
           {/* Divider */}
-          <div className="my-2.5 border-t border-border" />
+          <div className="mt-2.5 border-t border-border" />
 
           {/* SKU | Volume */}
-          <p className="text-xs text-muted-foreground">
+          <p className="py-2 text-xs text-muted-foreground">
             #{product.sku}&nbsp;&nbsp;|&nbsp;&nbsp;{product.volume}
           </p>
 
           {/* Divider */}
-          <div className="my-2.5 border-t border-border" />
-
-          {/* Price + Add to cart on same row */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-lg font-bold text-foreground">
-                {formatEur(product.price)}
-              </span>
-              {product.originalPrice && (
-                <span className="text-xs text-muted-foreground line-through">
-                  {formatEur(product.originalPrice)}
-                </span>
-              )}
-            </div>
-
-            {/* Cart button — pill shape, green (primary), stops link propagation */}
-            <button
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                addToCart(product)
-              }}
-              className="flex-shrink-0 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/80 sm:px-4 sm:text-sm"
-            >
-              {t("addToCart")}
-            </button>
-          </div>
+          <div className="border-t border-border" />
 
         </div>
       </a>
+
+      {/* Price + Cart button — outside <a> to prevent nesting interactive elements */}
+      <div className="flex items-center justify-between gap-2 px-3 pb-3 pt-2.5 sm:px-4 sm:pb-4">
+        <div className="flex min-w-0 flex-col">
+          <span className="text-base font-bold text-foreground sm:text-lg">
+            {formatEur(product.price)}
+          </span>
+          {product.originalPrice && (
+            <span className="text-xs text-muted-foreground line-through">
+              {formatEur(product.originalPrice)}
+            </span>
+          )}
+        </div>
+
+        <button
+          onClick={() => addToCart(product)}
+          className="flex-shrink-0 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/80 sm:px-4"
+        >
+          {t("addToCart")}
+        </button>
+      </div>
     </div>
   )
 }

@@ -83,9 +83,6 @@ function HomeContent() {
             <CategorySidebar />
 
             <div className="flex-1">
-              {/* Products Filters */}
-              <ProductFilters />
-
               {/* Section header */}
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">

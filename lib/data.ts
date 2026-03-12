@@ -133,7 +133,7 @@ export const products: Product[] = [
   {
     id: 1,
     sku: "02314",
-    name: "Sensibio H2O Micellar Water 500ml",
+    name: "Sensibio H2O Micellar Water",
     brand: "Bioderma",
     volume: "500 ml",
     description: "Очищающая мицеллярная вода для чувствительной кожи",
@@ -149,7 +149,7 @@ export const products: Product[] = [
   {
     id: 2,
     sku: "05428",
-    name: "Thermal Spring Water Spray 300ml",
+    name: "Thermal Spring Water Spray",
     brand: "Avène",
     volume: "300 ml",
     description: "Успокаивающий спрей с термальной водой",
@@ -164,7 +164,7 @@ export const products: Product[] = [
   {
     id: 3,
     sku: "01847",
-    name: "Mineral 89 Hyaluronic Acid Serum 50ml",
+    name: "Mineral 89 Hyaluronic Acid Serum",
     brand: "Vichy",
     volume: "50 ml",
     description: "Увлажняющая сыворотка с гиалуроновой кислотой",
@@ -180,7 +180,7 @@ export const products: Product[] = [
   {
     id: 4,
     sku: "03561",
-    name: "Proactive Anti-Aging Serum 30ml",
+    name: "Proactive Anti-Aging Serum",
     brand: "Biotherm",
     volume: "30 ml",
     description: "Активная сыворотка против старения кожи",
@@ -196,7 +196,7 @@ export const products: Product[] = [
   {
     id: 5,
     sku: "04112",
-    name: "Moisture Surge 100H Moisturizer 50ml",
+    name: "Moisture Surge 100H Moisturizer",
     brand: "Clinique",
     volume: "50 ml",
     description: "Увлажняющий крем на 100 часов",
@@ -210,7 +210,7 @@ export const products: Product[] = [
   {
     id: 6,
     sku: "02891",
-    name: "Huile Prodigieuse Dry Oil 100ml",
+    name: "Huile Prodigieuse Dry Oil",
     brand: "Nuxe",
     volume: "100 ml",
     description: "Универсальное сухое масло для лица и тела",
@@ -226,7 +226,7 @@ export const products: Product[] = [
   {
     id: 7,
     sku: "03725",
-    name: "Reve de Miel Lip Balm 15g",
+    name: "Reve de Miel Lip Balm",
     brand: "Nuxe",
     volume: "15 g",
     description: "Питательный бальзам для губ с медом",
@@ -241,7 +241,7 @@ export const products: Product[] = [
   {
     id: 8,
     sku: "04506",
-    name: "Capital Soleil SPF 50+ Face Fluid 40ml",
+    name: "Capital Soleil SPF 50+ Face Fluid",
     brand: "Vichy",
     volume: "40 ml",
     description: "Солнцезащитный флюид для лица SPF 50+",
@@ -255,7 +255,7 @@ export const products: Product[] = [
   {
     id: 9,
     sku: "02619",
-    name: "Sensibio Light Soothing Cream 40ml",
+    name: "Sensibio Light Soothing Cream",
     brand: "Bioderma",
     volume: "40 ml",
     description: "Успокаивающий легкий крем для чувствительной кожи",
@@ -271,7 +271,7 @@ export const products: Product[] = [
   {
     id: 10,
     sku: "05134",
-    name: "Thermal Spring Water Facial Mist 50ml",
+    name: "Thermal Spring Water Facial Mist",
     brand: "Evian",
     volume: "50 ml",
     description: "Успокаивающий спрей с термальной водой Эвиана",
@@ -285,7 +285,7 @@ export const products: Product[] = [
   {
     id: 11,
     sku: "03892",
-    name: "Life Plankton Essence 175ml",
+    name: "Life Plankton Essence",
     brand: "Biotherm",
     volume: "175 ml",
     description: "Питающая эссенция с морским планктоном",
@@ -301,7 +301,7 @@ export const products: Product[] = [
   {
     id: 12,
     sku: "01423",
-    name: "Eau Thermale Gentle Cleansing Gel 200ml",
+    name: "Eau Thermale Gentle Cleansing Gel",
     brand: "Avène",
     volume: "200 ml",
     description: "Мягкий гель для очищения с термальной водой",
