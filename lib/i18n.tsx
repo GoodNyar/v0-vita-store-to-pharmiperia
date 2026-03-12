@@ -145,6 +145,8 @@ export const translations = {
     filterDiscounts: "Скидки",
     filterShowAll: "Показать все фильтры",
     filterSort: "Сортировать",
+    filterClearAll: "Сбросить фильтры",
+    filterFilters: "Фильтры",
     // Footer
     footerDesc:
       "Pharmiperia — магазин аутентичной французской аптечной косметики для клиентов в Латвии.",
@@ -311,6 +313,8 @@ export const translations = {
     filterDiscounts: "Atlaides",
     filterShowAll: "Rādīt visus filtrus",
     filterSort: "Kārtot",
+    filterClearAll: "Notīrīt filtrus",
+    filterFilters: "Filtri",
     // Footer
     footerDesc:
       "Pharmiperia — autentiskas franču aptiekas kosmētikas veikals klientiem Latvijā.",
