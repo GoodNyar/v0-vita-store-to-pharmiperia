@@ -5,30 +5,16 @@ import { Star } from "lucide-react"
 import type { Product } from "@/lib/data"
 import { useCart } from "@/components/cart-context"
 import { useLang, formatEur } from "@/lib/i18n"
-import { useState } from "react"
 
 export function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart()
   const { t } = useLang()
-  const [isPressed, setIsPressed] = useState(false)
 
   const productHref = `/products/${product.id}`
 
-  const handlePressStart = () => setIsPressed(true)
-  const handlePressEnd = () => setIsPressed(false)
-
   return (
     <div
-      className={`group relative flex flex-col cursor-pointer rounded-2xl bg-white transition-all duration-200 ${
-        isPressed
-          ? "translate-y-1 shadow-[0_3px_12px_rgba(0,0,0,0.10)]"
-          : "shadow-[0_6px_20px_rgba(0,0,0,0.14)]"
-      }`}
-      onMouseDown={handlePressStart}
-      onMouseUp={handlePressEnd}
-      onMouseLeave={handlePressEnd}
-      onTouchStart={handlePressStart}
-      onTouchEnd={handlePressEnd}
+      className="group relative flex flex-col cursor-pointer rounded-2xl bg-white shadow-[0_6px_20px_rgba(0,0,0,0.14)] transition-all duration-200 active:translate-y-1 active:shadow-[0_3px_12px_rgba(0,0,0,0.10)]"
     >
       {/* Clickable area — image + info (excludes the cart button row) */}
       <a href={productHref} className="flex flex-col" tabIndex={0}>
