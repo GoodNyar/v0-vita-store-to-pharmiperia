@@ -10,20 +10,12 @@ import { useState } from "react"
 export function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart()
   const { t } = useLang()
-  const [isPressed, setIsPressed] = useState(false)
 
   const productHref = `/products/${product.id}`
 
   return (
     <div
-      className={`group relative flex flex-col rounded-2xl bg-white transition-all duration-200
-        shadow-[0_2px_12px_rgba(0,0,0,0.10)]
-        hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(0,0,0,0.14)]
-        ${isPressed ? "translate-y-0.5 shadow-[0_1px_6px_rgba(0,0,0,0.08)]" : ""}
-      `}
-      onMouseDown={() => setIsPressed(true)}
-      onMouseUp={() => setIsPressed(false)}
-      onMouseLeave={() => setIsPressed(false)}
+      className="group relative flex flex-col cursor-pointer rounded-2xl bg-white shadow-[0_6px_20px_rgba(0,0,0,0.14)]"
     >
       {/* Clickable area — image + info (excludes the cart button row) */}
       <a href={productHref} className="flex flex-col" tabIndex={0}>
@@ -35,7 +27,7 @@ export function ProductCard({ product }: { product: Product }) {
               src={product.image}
               alt={product.name}
               fill
-              className="object-contain object-center p-4 transition-transform duration-300 group-hover:scale-105"
+              className="object-contain object-center p-4"
             />
           </div>
         </div>
@@ -44,7 +36,7 @@ export function ProductCard({ product }: { product: Product }) {
         <div className="flex flex-col px-3 pt-3 sm:px-4 sm:pt-4">
 
           {/* Product name — bold, 2 lines max */}
-          <p className="line-clamp-2 text-sm font-bold leading-snug text-foreground group-hover:text-primary sm:text-base">
+          <p className="line-clamp-2 text-sm font-bold leading-snug text-foreground sm:text-base">
             {product.name}
           </p>
 
