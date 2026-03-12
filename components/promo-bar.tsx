@@ -35,18 +35,26 @@ export function PromoBar() {
   const IconComponent = iconMap[currentItem.icon]
 
   return (
-    <div className="relative flex h-9 items-center justify-center bg-primary px-4 text-sm font-medium text-primary-foreground sm:h-8">
-      {/* Icon + Text Container with fixed height and single-line truncation on mobile */}
-      <div className="flex items-center gap-2 truncate">
-        <IconComponent className="h-4.5 w-4.5 flex-shrink-0" strokeWidth={2} />
-        <span className="truncate text-center sm:text-left">
+    <div className="flex h-9 items-center bg-primary pl-2 pr-2 text-primary-foreground sm:h-8 sm:pl-4 sm:pr-4">
+      {/* Icon + Text — takes all available space between left edge and close button */}
+      <div className="flex min-w-0 flex-1 items-center justify-center gap-1.5 sm:gap-2">
+        <IconComponent
+          className="h-4 w-4 flex-shrink-0 sm:h-4.5 sm:w-4.5"
+          strokeWidth={2}
+        />
+        {/* font-size clamps between 12px (very narrow) and 14px (mobile) and 16px (desktop) */}
+        <span
+          className="whitespace-nowrap font-medium"
+          style={{ fontSize: "clamp(11.5px, 3.5vw, 14px)" }}
+        >
           {currentItem.text}
         </span>
       </div>
-      {/* Close button */}
+
+      {/* Close button — fixed width so it never overlaps text */}
       <button
         onClick={() => setVisible(false)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm p-0.5 text-primary-foreground/80 transition-colors hover:text-primary-foreground"
+        className="ml-2 flex-shrink-0 rounded-sm p-0.5 text-primary-foreground/80 transition-colors hover:text-primary-foreground"
         aria-label="Close promotion banner"
       >
         <X className="h-4 w-4" />
