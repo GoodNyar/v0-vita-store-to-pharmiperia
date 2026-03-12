@@ -19,9 +19,9 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <div
-      className={`group relative flex flex-col cursor-pointer rounded-2xl bg-white transition-all duration-100 ${
+      className={`group relative flex flex-col cursor-pointer rounded-2xl bg-white transition-all duration-200 ${
         isPressed
-          ? "scale-95 shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+          ? "translate-y-1 shadow-[0_3px_12px_rgba(0,0,0,0.10)]"
           : "shadow-[0_6px_20px_rgba(0,0,0,0.14)]"
       }`}
       onMouseDown={handlePressStart}
