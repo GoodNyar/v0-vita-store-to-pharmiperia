@@ -213,29 +213,20 @@ function ProductPageContent({ product }: { product: Product }) {
                 </button>
               </div>
 
-              {/* Trust badges — clickable */}
+              {/* Trust badges */}
               <div className="mt-6 grid grid-cols-3 gap-3">
-                <Link
-                  href="/delivery"
-                  className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-card p-3 text-center transition-colors hover:border-primary/40 hover:bg-primary/5"
-                >
+                <div className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-card p-3 text-center">
                   <Truck className="h-5 w-5 text-primary" />
                   <span className="text-xs font-medium text-foreground">{t("productDelivery")}</span>
-                </Link>
-                <Link
-                  href="/delivery#guarantee"
-                  className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-card p-3 text-center transition-colors hover:border-primary/40 hover:bg-primary/5"
-                >
+                </div>
+                <div className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-card p-3 text-center">
                   <Shield className="h-5 w-5 text-primary" />
                   <span className="text-xs font-medium text-foreground">{t("productGuarantee")}</span>
-                </Link>
-                <Link
-                  href="/delivery#returns"
-                  className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-card p-3 text-center transition-colors hover:border-primary/40 hover:bg-primary/5"
-                >
+                </div>
+                <div className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-card p-3 text-center">
                   <RotateCcw className="h-5 w-5 text-primary" />
                   <span className="text-xs font-medium text-foreground">{t("productReturn")}</span>
-                </Link>
+                </div>
               </div>
 
               {/* Product details */}
