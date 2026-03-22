@@ -5,6 +5,7 @@ import { useLang, formatEur } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import { X, Plus, Minus, ShoppingBag } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
 export function CartDrawer() {
   const { items, removeFromCart, updateQuantity, totalPrice, isCartOpen, setIsCartOpen } = useCart()
@@ -110,9 +111,11 @@ export function CartDrawer() {
                   {formatEur(totalPrice)}
                 </span>
               </div>
-              <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90" size="lg">
-                {t("checkout")}
-              </Button>
+              <Link href="/checkout" className="block">
+                <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90" size="lg" onClick={() => setIsCartOpen(false)}>
+                  {t("checkout")}
+                </Button>
+              </Link>
               <p className="mt-2 text-center text-xs text-muted-foreground">
                 {t("freeShippingCart")}
               </p>
