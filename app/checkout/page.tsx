@@ -3,8 +3,8 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useCart } from "@/components/cart-context"
-import { useLang, formatEur } from "@/lib/i18n"
+import { useCart, CartProvider } from "@/components/cart-context"
+import { useLang, formatEur, LangProvider } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, MapPin, Truck, AlertCircle } from "lucide-react"
 
@@ -23,7 +23,7 @@ const SHIPPING_OPTIONS = [
   { id: "smartpost", name: "smartpostItella", price: 2.99 },
 ]
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const { items, totalPrice } = useCart()
   const { t } = useLang()
 
@@ -275,5 +275,15 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function CheckoutPage() {
+  return (
+    <LangProvider>
+      <CartProvider>
+        <CheckoutContent />
+      </CartProvider>
+    </LangProvider>
   )
 }
