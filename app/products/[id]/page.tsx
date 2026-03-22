@@ -229,6 +229,38 @@ function ProductPageContent({ product }: { product: Product }) {
                 </div>
               </div>
 
+              {/* Delivery info block */}
+              <div className="mt-6 rounded-xl border border-border bg-card p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <Truck className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-semibold text-foreground">Доставка по Латвии</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Omniva pakomāts</span>
+                    <span className="font-medium text-foreground">3,50 €</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">DPD Pickup punkts</span>
+                    <span className="font-medium text-foreground">3,20 €</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Venipak pakomāts</span>
+                    <span className="font-medium text-foreground">2,95 €</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Smartpost Itella</span>
+                    <span className="font-medium text-foreground">2,99 €</span>
+                  </div>
+                  <div className="mt-2 border-t border-border pt-2 text-xs text-muted-foreground">
+                    Бесплатная доставка при заказе от 40 €.{" "}
+                    <Link href="/delivery" className="text-primary hover:underline">
+                      Подробнее об условиях доставки
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
               {/* Product details */}
               <div className="mt-6 space-y-2 text-sm">
                 <div className="flex justify-between border-b border-border py-2">
