@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { useCart } from "@/components/cart-context"
 import { useLang, type TranslationKey } from "@/lib/i18n"
 import { categories, BRANDS_ORDERED } from "@/lib/data"
@@ -105,7 +106,15 @@ export function SiteHeader() {
 
           {/* Search Bar — desktop only; mobile has its own row below */}
           <div className="hidden flex-1 md:block">
-            <div className="relative">
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault()
+                if (searchValue.trim()) {
+                  window.location.href = `/search?q=${encodeURIComponent(searchValue.trim())}`
+                }
+              }}
+              className="relative"
+            >
               <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
@@ -114,23 +123,29 @@ export function SiteHeader() {
                 onChange={(e) => setSearchValue(e.target.value)}
                 className="h-10 w-full rounded-full border border-border bg-background pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
-            </div>
+            </form>
           </div>
 
           {/* Right icons */}
           <div className="ml-auto flex items-center gap-1 md:ml-0 lg:gap-2">
-            <button className="hidden md:flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-foreground transition-colors hover:bg-muted" aria-label="Account">
+            <Link 
+              href="/auth/login"
+              className="hidden md:flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-foreground transition-colors hover:bg-muted"
+            >
               <User className="h-5 w-5" />
               <span className="text-[10px] text-muted-foreground">
                 {t("signIn")}
               </span>
-            </button>
-            <button className="hidden md:flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-foreground transition-colors hover:bg-muted" aria-label="Wishlist">
+            </Link>
+            <Link 
+              href="/account/favorites"
+              className="hidden md:flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-foreground transition-colors hover:bg-muted"
+            >
               <Heart className="h-5 w-5" />
               <span className="text-[10px] text-muted-foreground">
                 {t("wishlist")}
               </span>
-            </button>
+            </Link>
             <button
               onClick={() => setIsCartOpen(true)}
               className="relative flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-foreground transition-colors hover:bg-muted md:flex-col md:gap-0.5 md:px-3"
@@ -151,7 +166,15 @@ export function SiteHeader() {
 
         {/* Mobile search bar — full width below logo/icons row */}
         <div className="mt-2 md:hidden">
-          <div className="relative">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              if (searchValue.trim()) {
+                window.location.href = `/search?q=${encodeURIComponent(searchValue.trim())}`
+              }
+            }}
+            className="relative"
+          >
             <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
@@ -160,7 +183,7 @@ export function SiteHeader() {
               onChange={(e) => setSearchValue(e.target.value)}
               className="h-11 w-full rounded-full border border-border bg-background pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
-          </div>
+          </form>
         </div>
       </div>
 
@@ -175,21 +198,24 @@ export function SiteHeader() {
                 onMouseEnter={() => setActiveDropdown(category.id)}
                 onMouseLeave={() => setActiveDropdown(null)}
               >
-                <button className="flex items-center gap-1 px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:text-primary">
+                <Link 
+                  href={`/category/${category.id}`}
+                  className="flex items-center gap-1 px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:text-primary"
+                >
                   {getCategoryName(category.id)}
                   <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-                </button>
+                </Link>
 
                 {activeDropdown === category.id && category.subcategories.length > 0 && (
                   <div className="absolute left-0 top-full z-50 min-w-[200px] rounded-lg border border-border bg-card py-2 shadow-lg">
                     {category.subcategories.map((sub) => (
-                      <a
+                      <Link
                         key={sub}
-                        href="#"
+                        href={isBrandName(sub) ? `/brand/${sub.toLowerCase().replace(/\s+/g, '-')}` : `/category/${category.id}?filter=${sub}`}
                         className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
                       >
                         {isBrandName(sub) ? sub : t(sub as TranslationKey)}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 )}
