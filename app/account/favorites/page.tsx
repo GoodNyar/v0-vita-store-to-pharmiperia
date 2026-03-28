@@ -5,9 +5,12 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
-import { LangProvider, formatEur } from "@/lib/i18n"
+import { LangProvider, useLang, formatEur } from "@/lib/i18n"
 import { CartProvider, useCart } from "@/components/cart-context"
-import { Button } from "@/components/ui/button"
+import { PromoBar } from "@/components/promo-bar"
+import { SiteHeader } from "@/components/site-header"
+import { CartDrawer } from "@/components/cart-drawer"
+import { SiteFooter } from "@/components/site-footer"
 import { 
   Leaf, Heart, Star, Loader2, ChevronLeft, Trash2, ShoppingCart
 } from "lucide-react"
@@ -23,13 +26,15 @@ interface FavoriteProduct {
     rating: number
     review_count: number
     volume: string
+    sku: string
     brand: { name: string }
   }
 }
 
 function FavoritesContent() {
   const router = useRouter()
-  const { addItem } = useCart()
+  const { t } = useLang()
+  const { addToCart } = useCart()
   const [favorites, setFavorites] = useState<FavoriteProduct[]>([])
   const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState<string | null>(null)
@@ -59,10 +64,12 @@ function FavoritesContent() {
             rating,
             review_count,
             volume,
+            sku,
             brand:brands(name)
           )
         `)
         .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
 
       setFavorites((data as unknown as FavoriteProduct[]) || [])
       setLoading(false)
@@ -87,120 +94,147 @@ function FavoritesContent() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-          <Link href="/" className="flex items-center gap-1.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-              <Leaf className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold text-foreground">Pharmiperia</span>
-          </Link>
-        </div>
-      </header>
+      <PromoBar />
+      <SiteHeader />
+      <CartDrawer />
 
-      <main className="flex-1 py-8">
-        <div className="mx-auto max-w-5xl px-4">
-          {/* Back link */}
-          <Link 
-            href="/account" 
-            className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
+      <main className="flex-1">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
+          {/* Breadcrumb */}
+          <Link
+            href="/account"
+            className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <ChevronLeft className="h-4 w-4" />
-            Назад в аккаунт
+            {t("account") || "Аккаунт"}
           </Link>
 
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Избранное</h1>
-              <p className="text-sm text-muted-foreground">
-                {favorites.length} товаров
-              </p>
-            </div>
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-foreground">{t("wishlist") || "Избранное"}</h1>
+            <p className="mt-2 text-muted-foreground">
+              {favorites.length > 0 
+                ? `${favorites.length} ${favorites.length === 1 ? 'товар' : 'товаров'}`
+                : 'У вас нет избранных товаров'
+              }
+            </p>
           </div>
 
+          {/* Empty state */}
           {favorites.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-card py-16">
-              <Heart className="mb-4 h-16 w-16 text-muted-foreground/50" />
-              <h2 className="text-xl font-semibold text-foreground">Избранное пусто</h2>
-              <p className="mt-2 text-muted-foreground">
-                Добавляйте товары в избранное, чтобы не потерять их
+            <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-card py-16">
+              <Heart className="h-16 w-16 text-muted-foreground/20" />
+              <h2 className="mt-4 text-lg font-semibold text-foreground">Нет избранных товаров</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Добавляйте товары в избранное чтобы вернуться к ним позже
               </p>
-              <Link href="/" className="mt-6">
-                <Button>Перейти к покупкам</Button>
+              <Link
+                href="/"
+                className="mt-6 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                {t("continueShopping") || "Продолжить покупки"}
               </Link>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {favorites.map(({ id, product }) => (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {favorites.map((fav) => (
                 <div
-                  key={id}
-                  className="group relative rounded-xl border border-border bg-card p-3 transition-shadow hover:shadow-md"
+                  key={fav.id}
+                  className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_6px_20px_rgba(0,0,0,0.14)] transition-all duration-200"
                 >
-                  <button
-                    onClick={() => removeFavorite(id)}
-                    className="absolute right-3 top-3 z-10 rounded-full bg-card/80 p-1.5 text-destructive opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive hover:text-destructive-foreground"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-
-                  <Link href={`/products/${product.id}`}>
-                    <div className="relative aspect-square overflow-hidden rounded-lg bg-secondary">
-                      <Image
-                        src={product.image_url}
-                        alt={product.name}
-                        fill
-                        className="object-cover transition-transform group-hover:scale-105"
-                      />
-                      {product.original_price && (
-                        <span className="absolute left-2 top-2 rounded-full bg-destructive px-2 py-0.5 text-xs font-bold text-destructive-foreground">
-                          -{Math.round((1 - product.price / product.original_price) * 100)}%
-                        </span>
+                  {/* Product image */}
+                  <Link href={`/products/${fav.product.id}`} className="relative overflow-hidden bg-[#f2f3f5]">
+                    <div className="relative w-full" style={{ paddingBottom: "100%" }}>
+                      {fav.product.image_url && (
+                        <Image
+                          src={fav.product.image_url}
+                          alt={fav.product.name}
+                          fill
+                          className="object-contain object-center p-4"
+                        />
                       )}
                     </div>
                   </Link>
 
-                  <div className="mt-3">
-                    <p className="text-xs text-muted-foreground">{product.brand.name}</p>
-                    <Link href={`/products/${product.id}`}>
-                      <h3 className="mt-1 font-medium text-foreground line-clamp-2 hover:text-primary">
-                        {product.name}
-                      </h3>
+                  {/* Remove button */}
+                  <button
+                    onClick={() => removeFavorite(fav.id)}
+                    className="absolute right-2 top-2 rounded-full bg-white/90 p-2 shadow-md transition-all hover:bg-white hover:scale-110"
+                    aria-label="Remove from favorites"
+                  >
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </button>
+
+                  {/* Product info */}
+                  <div className="flex flex-col gap-2 px-3 py-3">
+                    {/* Brand */}
+                    <span className="text-xs font-semibold text-primary">
+                      {fav.product.brand?.name || "Brand"}
+                    </span>
+
+                    {/* Name */}
+                    <Link
+                      href={`/products/${fav.product.id}`}
+                      className="line-clamp-2 text-sm font-bold leading-snug text-foreground hover:text-primary transition-colors"
+                    >
+                      {fav.product.name}
                     </Link>
-                    
-                    <div className="mt-1 flex items-center gap-1">
-                      <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-                      <span className="text-xs font-medium text-foreground">{product.rating}</span>
+
+                    {/* Rating */}
+                    <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-0.5">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-3 w-3 ${
+                              i < Math.floor(fav.product.rating)
+                                ? "fill-amber-400 text-amber-400"
+                                : "fill-gray-300 text-gray-300"
+                            }`}
+                            strokeWidth={0}
+                          />
+                        ))}
+                      </div>
                       <span className="text-xs text-muted-foreground">
-                        ({product.review_count.toLocaleString()})
+                        ({fav.product.review_count})
                       </span>
                     </div>
 
-                    <div className="mt-3 flex items-center justify-between">
-                      <div>
-                        <span className="text-lg font-bold text-primary">
-                          {formatEur(product.price)}
+                    {/* Price */}
+                    <div className="mt-1 flex items-baseline gap-2">
+                      <span className="text-base font-bold text-foreground">
+                        {formatEur(fav.product.price)}
+                      </span>
+                      {fav.product.original_price && (
+                        <span className="text-xs text-muted-foreground line-through">
+                          {formatEur(fav.product.original_price)}
                         </span>
-                        {product.original_price && (
-                          <span className="ml-2 text-sm text-muted-foreground line-through">
-                            {formatEur(product.original_price)}
-                          </span>
-                        )}
-                      </div>
-                      <Button
-                        size="sm"
-                        className="bg-primary text-primary-foreground hover:bg-primary/90"
-                        onClick={() => addItem({
-                          id: product.id,
-                          name: product.name,
-                          price: product.price,
-                          image: product.image_url,
-                          brand: product.brand.name
-                        })}
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                      </Button>
+                      )}
                     </div>
+
+                    {/* Add to cart button */}
+                    <button
+                      onClick={() => addToCart({
+                        id: fav.product.id,
+                        name: fav.product.name,
+                        price: fav.product.price,
+                        originalPrice: fav.product.original_price,
+                        image: fav.product.image_url,
+                        category: "",
+                        brand: fav.product.brand?.name || "",
+                        rating: fav.product.rating,
+                        reviewCount: fav.product.review_count,
+                        description: "",
+                        volume: fav.product.volume,
+                        sku: fav.product.sku,
+                        inStock: true,
+                        badge: undefined
+                      })}
+                      className="mt-2 w-full rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/80"
+                    >
+                      <ShoppingCart className="h-3.5 w-3.5 inline mr-1" />
+                      {t("addToCart") || "В корзину"}
+                    </button>
                   </div>
                 </div>
               ))}
@@ -208,6 +242,8 @@ function FavoritesContent() {
           )}
         </div>
       </main>
+
+      <SiteFooter />
     </div>
   )
 }

@@ -4,7 +4,7 @@ import { use } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { Star, Minus, Plus, Truck, Shield, RotateCcw, ChevronLeft, Check } from "lucide-react"
+import { Star, Minus, Plus, Truck, Shield, RotateCcw, ChevronLeft, Check, Heart } from "lucide-react"
 import { PromoBar } from "@/components/promo-bar"
 import { SiteHeader } from "@/components/site-header"
 import { CartDrawer } from "@/components/cart-drawer"
@@ -14,12 +14,15 @@ import { CartProvider, useCart } from "@/components/cart-context"
 import { LangProvider, useLang, formatEur } from "@/lib/i18n"
 import { products, type Product } from "@/lib/data"
 import { useState } from "react"
+import { useFavorites } from "@/hooks/use-favorites"
 
 function ProductPageContent({ product }: { product: Product }) {
   const { t } = useLang()
   const { addToCart } = useCart()
+  const { isFavorited, toggleFavorite } = useFavorites()
   const [quantity, setQuantity] = useState(1)
   const [activeTab, setActiveTab] = useState<"about" | "benefits" | "howToUse" | "ingredients">("about")
+  const isFav = isFavorited(product.id)
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -183,7 +186,7 @@ function ProductPageContent({ product }: { product: Product }) {
                 {product.description}
               </p>
 
-              {/* Quantity + Add to Cart */}
+              {/* Quantity + Add to Cart + Wishlist */}
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
                 {/* Quantity selector */}
                 <div className="flex items-center rounded-lg border border-border">
@@ -210,6 +213,19 @@ function ProductPageContent({ product }: { product: Product }) {
                   className="flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/80 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {t("addToCart")} — {formatEur(product.price * quantity)}
+                </button>
+
+                {/* Wishlist button */}
+                <button
+                  onClick={() => toggleFavorite(product.id)}
+                  className="flex h-11 items-center justify-center rounded-lg border border-border bg-background px-4 transition-colors hover:bg-secondary"
+                  aria-label="Add to wishlist"
+                >
+                  <Heart
+                    className={`h-5 w-5 transition-colors ${
+                      isFav ? "fill-red-500 text-red-500" : "text-gray-400"
+                    }`}
+                  />
                 </button>
               </div>
 
