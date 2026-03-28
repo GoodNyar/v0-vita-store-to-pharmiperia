@@ -10,6 +10,7 @@ import { SiteHeader } from "@/components/site-header"
 import { CartDrawer } from "@/components/cart-drawer"
 import { SiteFooter } from "@/components/site-footer"
 import { ProductCard } from "@/components/product-card"
+import { ProductReviews } from "@/components/product-reviews"
 import { CartProvider, useCart } from "@/components/cart-context"
 import { LangProvider, useLang, formatEur } from "@/lib/i18n"
 import { products, type Product } from "@/lib/data"
@@ -347,6 +348,13 @@ function ProductPageContent({ product }: { product: Product }) {
               )}
             </div>
           </div>
+
+          {/* Reviews Section */}
+          <ProductReviews 
+            productId={product.id.toString()} 
+            initialRating={product.rating} 
+            initialReviewCount={product.reviewCount}
+          />
 
           {/* Similar products */}
           {similarProducts.length > 0 && (
