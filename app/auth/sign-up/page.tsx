@@ -48,8 +48,7 @@ export default function SignUpPage() {
       email,
       password,
       options: {
-        emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || 
-          `${window.location.origin}/account`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/account`,
         data: {
           first_name: firstName,
           last_name: lastName,
@@ -63,7 +62,7 @@ export default function SignUpPage() {
       return
     }
 
-    router.push("/auth/sign-up-success")
+    router.push(`/auth/sign-up-success?email=${encodeURIComponent(email)}`)
   }
 
   return (

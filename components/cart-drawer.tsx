@@ -1,15 +1,30 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useCart } from "@/components/cart-context"
 import { useLang, formatEur } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
-import { X, Plus, Minus, ShoppingBag } from "lucide-react"
+import { X, Plus, Minus, ShoppingBag, LogIn, UserPlus } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { createClient } from "@/lib/supabase/client"
 
 export function CartDrawer() {
   const { items, removeFromCart, updateQuantity, totalPrice, isCartOpen, setIsCartOpen } = useCart()
   const { t } = useLang()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsLoggedIn(!!user)
+    })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setIsLoggedIn(!!session?.user)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
 
   if (!isCartOpen) return null
 
@@ -111,11 +126,25 @@ export function CartDrawer() {
                   {formatEur(totalPrice)}
                 </span>
               </div>
-              <Link href="/checkout" className="block">
-                <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90" size="lg" onClick={() => setIsCartOpen(false)}>
+              {isLoggedIn ? (
+                <Link href="/checkout" className="block">
+                  <Button
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                    size="lg"
+                    onClick={() => setIsCartOpen(false)}
+                  >
+                    {t("checkout")}
+                  </Button>
+                </Link>
+              ) : (
+                <Button
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  size="lg"
+                  onClick={() => setShowAuthModal(true)}
+                >
                   {t("checkout")}
                 </Button>
-              </Link>
+              )}
               <p className="mt-2 text-center text-xs text-muted-foreground">
                 {t("freeShippingCart")}
               </p>
@@ -123,6 +152,50 @@ export function CartDrawer() {
           </>
         )}
       </div>
+      {/* Auth required modal */}
+      {showAuthModal && (
+        <>
+          <div
+            className="fixed inset-0 z-[60] bg-foreground/40 backdrop-blur-sm"
+            onClick={() => setShowAuthModal(false)}
+          />
+          <div className="fixed left-1/2 top-1/2 z-[70] w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-card p-6 shadow-2xl">
+            <button
+              onClick={() => setShowAuthModal(false)}
+              className="absolute right-4 top-4 rounded-lg p-1 text-muted-foreground hover:bg-muted"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <ShoppingBag className="h-6 w-6 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground">
+              Войдите чтобы оформить заказ
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Для оформления заказа необходимо войти в аккаунт или создать новый. Товары в корзине сохранятся.
+            </p>
+            <div className="mt-5 flex flex-col gap-3">
+              <Link
+                href="/auth/login"
+                onClick={() => { setShowAuthModal(false); setIsCartOpen(false) }}
+                className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                <LogIn className="h-4 w-4" />
+                Войти в аккаунт
+              </Link>
+              <Link
+                href="/auth/sign-up"
+                onClick={() => { setShowAuthModal(false); setIsCartOpen(false) }}
+                className="flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+              >
+                <UserPlus className="h-4 w-4" />
+                Создать аккаунт
+              </Link>
+            </div>
+          </div>
+        </>
+      )}
     </>
   )
 }
