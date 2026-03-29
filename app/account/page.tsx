@@ -1,53 +1,90 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { 
   Leaf, User, Package, Heart, MapPin, Settings, LogOut, 
-  ChevronRight, Loader2, Gift, Bell, CreditCard
+  ChevronRight, Loader2, Gift, Bell, CreditCard, AlertCircle
 } from "lucide-react"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 
 interface Profile {
-  first_name: string | null
-  last_name: string | null
-  email: string | null
-  phone: string | null
+  first_name?: string | null
+  last_name?: string | null
+  email?: string | null
+  phone?: string | null
 }
 
-export default function AccountPage() {
+function AccountContent() {
   const router = useRouter()
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const getUser = async () => {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        router.push("/auth/login")
-        return
+    const loadAccountData = async () => {
+      try {
+        setIsLoading(true)
+        setError(null)
+
+        const supabase = createClient()
+
+        // First, get the current user (should be instant if logged in)
+        const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser()
+
+        if (userError || !currentUser) {
+          console.log("[v0] No user found, redirecting to login")
+          router.push("/auth/login")
+          return
+        }
+
+        setUser(currentUser)
+        console.log("[v0] User loaded:", currentUser.email)
+
+        // Try to fetch profile with timeout
+        const profilePromise = supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", currentUser.id)
+          .maybeSingle() // Returns null if no rows instead of error
+
+        // Set 5 second timeout for profile fetch
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Profile fetch timeout")), 5000)
+        )
+
+        try {
+          const { data: profileData, error: profileError } = await Promise.race([
+            profilePromise,
+            timeoutPromise as any,
+          ]) as any
+
+          if (profileError) {
+            console.log("[v0] Profile fetch error:", profileError.message)
+            // Don't set error - profile might just not exist yet, still show page
+            setProfile(null)
+          } else {
+            console.log("[v0] Profile loaded:", profileData)
+            setProfile(profileData || null)
+          }
+        } catch (timeoutError) {
+          console.log("[v0] Profile fetch timeout, continuing without profile")
+          setProfile(null)
+        }
+
+        setIsLoading(false)
+      } catch (err) {
+        console.log("[v0] Account loading error:", err)
+        setError(err instanceof Error ? err.message : "Failed to load account")
+        setIsLoading(false)
       }
-
-      setUser(user)
-
-      // Fetch profile
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single()
-
-      setProfile(profile)
-      setLoading(false)
     }
 
-    getUser()
+    loadAccountData()
   }, [router])
 
   const handleLogout = async () => {
@@ -57,12 +94,31 @@ export default function AccountPage() {
     router.refresh()
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex min-h-[100dvh] items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Загрузка аккаунта...</p>
+        </div>
       </div>
     )
+  }
+
+  if (error && !user) {
+    return (
+      <div className="flex min-h-[100dvh] items-center justify-center bg-background px-4">
+        <div className="rounded-xl border border-destructive/50 bg-destructive/10 p-6 text-center">
+          <AlertCircle className="mx-auto mb-3 h-8 w-8 text-destructive" />
+          <p className="mb-4 text-sm text-destructive">{error}</p>
+          <Button onClick={() => router.push("/auth/login")}>Вернуться на вход</Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
   }
 
   const menuItems = [
@@ -74,6 +130,10 @@ export default function AccountPage() {
     { icon: Bell, label: "Уведомления", href: "/account/notifications" },
     { icon: Settings, label: "Настройки", href: "/account/settings" },
   ]
+
+  const displayName = profile?.first_name || profile?.last_name 
+    ? `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim()
+    : user.email?.split("@")[0] || "Пользователь"
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -103,10 +163,8 @@ export default function AccountPage() {
                 <User className="h-8 w-8 text-primary" />
               </div>
               <div className="flex-1">
-                <h1 className="text-xl font-bold text-foreground">
-                  {profile?.first_name || "Пользователь"} {profile?.last_name || ""}
-                </h1>
-                <p className="text-sm text-muted-foreground">{user?.email}</p>
+                <h1 className="text-xl font-bold text-foreground">{displayName}</h1>
+                <p className="text-sm text-muted-foreground">{user.email}</p>
               </div>
               <Link href="/account/profile">
                 <Button variant="outline" size="sm">
@@ -183,5 +241,17 @@ export default function AccountPage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function AccountPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-[100dvh] items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <AccountContent />
+    </Suspense>
   )
 }
