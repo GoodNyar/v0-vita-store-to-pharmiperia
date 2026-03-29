@@ -55,13 +55,24 @@ export function AuthProvider({ children, initialSession = null }: AuthProviderPr
   useEffect(() => {
     const supabase = createClient()
 
-    // Get initial session if not provided
-    if (!initialSession) {
-      supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+    // Get initial session and user
+    const initAuth = async () => {
+      try {
+        // Use getUser() for reliable auth check (validates with server)
+        const { data: { user: currentUser } } = await supabase.auth.getUser()
+        const { data: { session: currentSession } } = await supabase.auth.getSession()
+        setUser(currentUser)
         setSession(currentSession)
-        setUser(currentSession?.user ?? null)
+      } catch (error) {
+        setUser(null)
+        setSession(null)
+      } finally {
         setIsLoading(false)
-      })
+      }
+    }
+
+    if (!initialSession) {
+      initAuth()
     } else {
       setIsLoading(false)
     }

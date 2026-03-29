@@ -138,8 +138,8 @@ export function SiteHeader() {
               className="flex flex-col items-center gap-0.5 rounded-lg p-2 text-foreground transition-colors hover:bg-muted md:px-3"
               aria-label={user ? t("account") : t("signIn")}
             >
-              <User className={`h-5 w-5 ${user ? "text-primary" : ""}`} />
-              <span className="text-[10px] text-muted-foreground hidden md:block">
+              <User className={`h-5 w-5 ${user ? "text-primary fill-primary/20" : ""}`} />
+              <span className={`text-[10px] hidden md:block ${user ? "text-primary font-medium" : "text-muted-foreground"}`}>
                 {authLoading ? "..." : user ? t("account") : t("signIn")}
               </span>
             </Link>
