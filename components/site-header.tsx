@@ -81,43 +81,18 @@ export function SiteHeader() {
       {/* Main header */}
       <div className="mx-auto max-w-7xl px-4 py-2.5 lg:py-3">
         <div className="flex items-center gap-3 lg:gap-6">
-          {/* Mobile: menu button + language switcher */}
-          <div className="flex items-center gap-1 lg:hidden">
-            <button
-              className="rounded-lg p-1.5 text-foreground hover:bg-muted"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </button>
-            {/* Language switcher — mobile */}
-            <div className="flex items-center rounded-lg border border-border overflow-hidden">
-              <button
-                onClick={() => setLang("ru")}
-                className={`px-2 py-1 text-xs font-semibold transition-colors ${
-                  lang === "ru"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                RU
-              </button>
-              <button
-                onClick={() => setLang("lv")}
-                className={`px-2 py-1 text-xs font-semibold transition-colors ${
-                  lang === "lv"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                LV
-              </button>
-            </div>
-          </div>
+          {/* Mobile: menu button only */}
+          <button
+            className="rounded-lg p-1.5 text-foreground hover:bg-muted lg:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
+          </button>
 
           {/* Logo */}
           <a href="#" className="flex items-center gap-1.5 flex-shrink-0">
@@ -152,44 +127,38 @@ export function SiteHeader() {
           </div>
 
           {/* Right icons */}
-          <div className="ml-auto flex items-center gap-0.5 md:ml-0 lg:gap-2">
+          <div className="ml-auto flex items-center md:ml-0 lg:gap-1">
             {/* Account */}
             <Link
               href="/auth/login"
-              className="flex flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 text-foreground transition-colors hover:bg-muted md:px-3"
+              className="flex flex-col items-center gap-0.5 rounded-lg p-2 text-foreground transition-colors hover:bg-muted md:px-3"
               aria-label={t("signIn")}
             >
               <User className="h-5 w-5" />
-              <span className="text-[10px] text-muted-foreground hidden md:block">
-                {t("signIn")}
-              </span>
+              <span className="text-[10px] text-muted-foreground hidden md:block">{t("signIn")}</span>
             </Link>
             {/* Favorites */}
             <Link
               href="/account/favorites"
-              className="flex flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 text-foreground transition-colors hover:bg-muted md:px-3"
+              className="flex flex-col items-center gap-0.5 rounded-lg p-2 text-foreground transition-colors hover:bg-muted md:px-3"
               aria-label={t("wishlist")}
             >
               <Heart className="h-5 w-5" />
-              <span className="text-[10px] text-muted-foreground hidden md:block">
-                {t("wishlist")}
-              </span>
+              <span className="text-[10px] text-muted-foreground hidden md:block">{t("wishlist")}</span>
             </Link>
             {/* Cart */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative flex flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 text-foreground transition-colors hover:bg-muted md:px-3"
+              className="relative flex flex-col items-center gap-0.5 rounded-lg p-2 text-foreground transition-colors hover:bg-muted md:px-3"
               aria-label="Shopping cart"
             >
               <ShoppingCart className="h-5 w-5" />
               {totalItems > 0 && (
-                <span className="absolute right-0.5 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">
+                <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">
                   {totalItems}
                 </span>
               )}
-              <span className="text-[10px] text-muted-foreground hidden md:block">
-                {t("cart")}
-              </span>
+              <span className="text-[10px] text-muted-foreground hidden md:block">{t("cart")}</span>
             </button>
           </div>
         </div>
@@ -277,6 +246,32 @@ export function SiteHeader() {
       {mobileMenuOpen && (
         <div className="border-t border-border bg-card lg:hidden">
           <div className="px-4 py-3">
+            {/* Language switcher inside menu */}
+            <div className="mb-4 flex items-center gap-2">
+              <span className="text-xs text-muted-foreground font-medium">{t("language")}:</span>
+              <div className="flex items-center rounded-lg border border-border overflow-hidden">
+                <button
+                  onClick={() => setLang("ru")}
+                  className={`px-3 py-1.5 text-sm font-semibold transition-colors ${
+                    lang === "ru"
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  RU
+                </button>
+                <button
+                  onClick={() => setLang("lv")}
+                  className={`px-3 py-1.5 text-sm font-semibold transition-colors ${
+                    lang === "lv"
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  LV
+                </button>
+              </div>
+            </div>
             <div className="flex flex-col">
               {categories.map((category) => (
                 <a

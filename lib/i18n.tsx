@@ -205,6 +205,7 @@ export const translations = {
     orderSummary: "Итого заказа",
     shippingCost: "Доставка",
     placeOrder: "Разместить заказ",
+    language: "Язык",
     // Reviews page
     reviewsTitle: "Отзывы покупателей",
     reviewsSubtitle: "Реальные отзывы от наших клиентов о товарах и сервисе",
@@ -219,7 +220,7 @@ export const translations = {
     reviewProduct: "Товар",
     reviewComment: "Комментарий",
     reviewSubmit: "Отправить отзыв",
-    reviewPending: "Спасибо! Ваш отзыв будет опубликован после проверки.",
+    reviewPending: "Спасибо! Ваш отзыв будет опу��ликован после проверки.",
     reviewRating: "Оценка",
     reviewNamePlaceholder: "Например: Анна К.",
     reviewProductPlaceholder: "Название товара",
@@ -427,6 +428,7 @@ export const translations = {
     orderSummary: "Pasūtījuma kopsavilkums",
     shippingCost: "Piegāde",
     placeOrder: "Apstiprināt pasūtījumu",
+    language: "Valoda",
     // Reviews page
     reviewsTitle: "Pircēju atsauksmes",
     reviewsSubtitle: "Īstas atsauksmes no mūsu klientiem par precēm un servisu",
