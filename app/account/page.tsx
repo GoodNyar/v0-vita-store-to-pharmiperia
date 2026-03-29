@@ -21,13 +21,21 @@ import {
   ShoppingBag,
   Award,
   RotateCcw,
-  Zap
+  Zap,
+  X,
+  Edit2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface Profile {
+  id?: string
   first_name?: string
   last_name?: string
+  phone?: string
+  country?: string
+  city?: string
+  address?: string
+  postal_code?: string
 }
 
 interface Order {
@@ -47,6 +55,9 @@ export default function AccountPage() {
   const { addToCart } = useCart()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [profileLoading, setProfileLoading] = useState(true)
+  const [isEditing, setIsEditing] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [formData, setFormData] = useState<Profile>({})
   const [orders, setOrders] = useState<Order[]>([])
   const [bonusPoints, setBonusPoints] = useState(150)
   const bonusMax = 200
@@ -66,11 +77,17 @@ export default function AccountPage() {
       const supabase = createClient()
       const { data } = await supabase
         .from("profiles")
-        .select("first_name, last_name")
+        .select("id, first_name, last_name, phone, country, city, address, postal_code")
         .eq("id", user.id)
         .maybeSingle()
       
-      setProfile(data)
+      if (data) {
+        setProfile(data)
+        setFormData(data)
+      } else {
+        setProfile({ id: user.id })
+        setFormData({ id: user.id })
+      }
       setProfileLoading(false)
     }
 
@@ -123,6 +140,37 @@ export default function AccountPage() {
     await signOut()
     router.push("/")
     router.refresh()
+  }
+
+  const handleSaveProfile = async () => {
+    if (!user) return
+    
+    setIsSaving(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({
+          id: user.id,
+          first_name: formData.first_name || "",
+          last_name: formData.last_name || "",
+          phone: formData.phone || "",
+          country: formData.country || "",
+          city: formData.city || "",
+          address: formData.address || "",
+          postal_code: formData.postal_code || "",
+        })
+      
+      if (error) {
+        console.error("Error saving profile:", error)
+        return
+      }
+      
+      setProfile(formData)
+      setIsEditing(false)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const repeatOrder = (order: Order) => {
@@ -206,34 +254,215 @@ export default function AccountPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
-      {/* Header: Profile + Logout */}
-      <div className="mb-12 flex items-center justify-between rounded-2xl bg-gradient-to-r from-primary/5 to-primary/10 p-6 sm:p-8">
-        <div className="flex items-center gap-4 sm:gap-6">
-          <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-primary/15 ring-2 ring-primary/30">
-            <User className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-foreground sm:text-2xl">
-              {displayName}
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
-            {profileLoading && (
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                {lang === "ru" ? "Загрузка..." : "Ielāde..."}
-              </p>
-            )}
+      {/* Enhanced Hero Block with Gradient */}
+      <div className="mb-12 rounded-3xl overflow-hidden shadow-lg">
+        <div className="relative bg-gradient-to-r from-primary via-primary/60 to-primary/20 p-8 sm:p-12">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            {/* Left: Profile Info */}
+            <div className="flex items-start gap-4 sm:gap-6 flex-1">
+              <div className="flex h-20 w-20 sm:h-24 sm:w-24 flex-shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm ring-2 ring-white/30 shadow-lg">
+                <User className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
+              </div>
+              <div className="flex-1">
+                <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                  {displayName}
+                </h1>
+                <p className="mt-2 text-sm sm:text-base text-white/90">{user.email}</p>
+                
+                {/* Additional Info: Phone & City (only if exists) */}
+                {(profile?.phone || profile?.city) && (
+                  <div className="mt-3 flex flex-col gap-1 text-sm text-white/80">
+                    {profile?.phone && <span>{profile.phone}</span>}
+                    {profile?.city && <span>{profile.city}{profile?.country ? `, ${profile.country}` : ""}</span>}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right: Buttons */}
+            <div className="flex flex-col sm:flex-col gap-2 w-full sm:w-auto">
+              <Button
+                onClick={() => setIsEditing(true)}
+                variant="secondary"
+                size="sm"
+                className="whitespace-nowrap text-sm w-full sm:w-auto"
+              >
+                <Edit2 className="mr-2 h-4 w-4" />
+                {lang === "ru" ? "Редактировать" : "Rediģēt"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSignOut}
+                className="whitespace-nowrap text-sm w-full sm:w-auto bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                {lang === "ru" ? "Выйти" : "Iziet"}
+              </Button>
+            </div>
           </div>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSignOut}
-          className="whitespace-nowrap text-sm"
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          {lang === "ru" ? "Выйти" : "Iziet"}
-        </Button>
       </div>
+
+      {/* Edit Profile Modal */}
+      {isEditing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-2xl rounded-2xl bg-card shadow-xl">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-border p-6">
+              <h2 className="text-xl font-bold text-foreground">
+                {lang === "ru" ? "Редактировать профиль" : "Rediģēt profilu"}
+              </h2>
+              <button
+                onClick={() => setIsEditing(false)}
+                className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* First Name */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    {lang === "ru" ? "Имя" : "Vārds"}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.first_name || ""}
+                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                    placeholder={lang === "ru" ? "Иван" : "Vārds"}
+                    className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                {/* Last Name */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    {lang === "ru" ? "Фамилия" : "Uzvārds"}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.last_name || ""}
+                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                    placeholder={lang === "ru" ? "Петров" : "Uzvārds"}
+                    className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    {lang === "ru" ? "Телефон" : "Tālrunis"}
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.phone || ""}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="+371 25123456"
+                    className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                {/* Email (disabled) */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    {lang === "ru" ? "Email" : "E-pasts"}
+                  </label>
+                  <input
+                    type="email"
+                    value={user.email || ""}
+                    disabled
+                    className="w-full rounded-lg border border-border bg-muted px-4 py-2.5 text-muted-foreground cursor-not-allowed"
+                  />
+                </div>
+
+                {/* Country */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    {lang === "ru" ? "Страна" : "Valsts"}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.country || ""}
+                    onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                    placeholder={lang === "ru" ? "Латвия" : "Latvija"}
+                    className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                {/* City */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    {lang === "ru" ? "Город" : "Pilsēta"}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.city || ""}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    placeholder={lang === "ru" ? "Рига" : "Rīga"}
+                    className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                {/* Address */}
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    {lang === "ru" ? "Адрес" : "Adrese"}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.address || ""}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    placeholder={lang === "ru" ? "ул. Гагарина, 10" : "Gagarīna iela 10"}
+                    className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                {/* Postal Code */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
+                    {lang === "ru" ? "Почтовый индекс" : "Pasta indekss"}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.postal_code || ""}
+                    onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
+                    placeholder="LV-1234"
+                    className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex gap-3 border-t border-border p-6 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setIsEditing(false)}
+                disabled={isSaving}
+              >
+                {lang === "ru" ? "Отмена" : "Atcelt"}
+              </Button>
+              <Button
+                onClick={handleSaveProfile}
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {lang === "ru" ? "Сохранение..." : "Saglabā..."}
+                  </>
+                ) : (
+                  lang === "ru" ? "Сохранить" : "Saglabāt"
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="mb-12 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
@@ -300,7 +529,7 @@ export default function AccountPage() {
         </div>
       </div>
 
-      {/* Quick Actions - сразу после бонусов */}
+      {/* Quick Actions */}
       <div className="mb-12 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
         <button
           onClick={() => orders.length > 0 && repeatOrder(orders[0])}
