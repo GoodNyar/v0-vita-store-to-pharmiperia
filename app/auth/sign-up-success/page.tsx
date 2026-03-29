@@ -35,67 +35,66 @@ function SignUpSuccessContent() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-[100dvh] flex-col bg-background">
       <header className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
           <Link href="/" className="flex items-center gap-1.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-              <Leaf className="h-5 w-5 text-primary-foreground" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+              <Leaf className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-foreground">Pharmiperia</span>
+            <span className="text-lg font-bold text-foreground">Pharmiperia</span>
           </Link>
         </div>
       </header>
 
-      <main className="flex flex-1 items-center justify-center px-4 py-12">
+      <main className="flex flex-1 items-center justify-center px-4 py-4">
         <div className="w-full max-w-md text-center">
-          <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <Mail className="h-8 w-8 text-primary" />
+          <div className="rounded-2xl border border-border bg-card p-5 sm:p-8 shadow-sm">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+              <Mail className="h-7 w-7 text-primary" />
             </div>
 
-            <h1 className="text-2xl font-bold text-foreground">Проверьте почту</h1>
-            <p className="mt-3 text-sm text-muted-foreground">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Проверьте почту</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
               Мы отправили письмо с ссылкой подтверждения на{" "}
               {email && <span className="font-semibold text-foreground">{email}</span>}.
               {" "}Перейдите по ссылке чтобы активировать аккаунт.
             </p>
 
-            <div className="mt-6 rounded-lg border border-border bg-muted/30 p-4 text-left space-y-2">
+            <div className="mt-4 rounded-lg border border-border bg-muted/30 p-3 text-left space-y-1.5">
               <p className="text-xs font-medium text-foreground">Не получили письмо?</p>
-              <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
-                <li>Проверьте папку «Спам» или «Нежелательная почта»</li>
+              <ul className="text-xs text-muted-foreground space-y-0.5 list-disc list-inside">
+                <li>Проверьте папку «Спам»</li>
                 <li>Подождите 1–2 минуты</li>
-                <li>Убедитесь что email введён верно</li>
               </ul>
 
               {resent ? (
-                <div className="mt-2 flex items-center gap-2 text-xs text-primary font-medium">
-                  <CheckCircle className="h-4 w-4" />
-                  Письмо отправлено повторно!
+                <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
+                  <CheckCircle className="h-3.5 w-3.5" />
+                  Письмо отправлено!
                 </div>
               ) : (
                 <button
                   onClick={handleResend}
                   disabled={resending || !email}
-                  className="mt-2 flex items-center gap-1.5 text-xs font-medium text-primary hover:underline disabled:opacity-50"
+                  className="flex items-center gap-1.5 text-xs font-medium text-primary hover:underline disabled:opacity-50"
                 >
                   {resending && <Loader2 className="h-3 w-3 animate-spin" />}
-                  Отправить письмо повторно
+                  Отправить повторно
                 </button>
               )}
               {error && <p className="text-xs text-destructive">{error}</p>}
             </div>
 
-            <div className="mt-6 flex flex-col gap-3">
+            <div className="mt-4 flex flex-col gap-2">
               <Link href="/auth/login">
-                <Button className="h-11 w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                <Button className="h-10 w-full bg-primary text-primary-foreground hover:bg-primary/90">
                   Перейти ко входу
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
               <Link href="/">
-                <Button variant="outline" className="h-11 w-full">
+                <Button variant="outline" className="h-10 w-full">
                   Вернуться на главную
                 </Button>
               </Link>

@@ -66,25 +66,25 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-[100dvh] flex-col bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
           <Link href="/" className="flex items-center gap-1.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-              <Leaf className="h-5 w-5 text-primary-foreground" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+              <Leaf className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-foreground">Pharmiperia</span>
+            <span className="text-lg font-bold text-foreground">Pharmiperia</span>
           </Link>
         </div>
       </header>
 
       {/* Main content */}
-      <main className="flex flex-1 items-center justify-center px-4 py-12">
+      <main className="flex flex-1 items-center justify-center px-4 py-4 sm:py-8">
         <div className="w-full max-w-md">
-          <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
-            <div className="mb-8 text-center">
-              <h1 className="text-2xl font-bold text-foreground">Создать аккаунт</h1>
+          <div className="rounded-2xl border border-border bg-card p-5 sm:p-8 shadow-sm">
+            <div className="mb-5 sm:mb-8 text-center">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground">Создать аккаунт</h1>
               <p className="mt-2 text-sm text-muted-foreground">
                 Получите доступ к эксклюзивным предложениям
               </p>
@@ -220,8 +220,8 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          {/* Benefits */}
-          <div className="mt-6 rounded-xl border border-border bg-card p-4">
+          {/* Benefits - hidden on mobile to fit screen */}
+          <div className="mt-4 rounded-xl border border-border bg-card p-4 hidden sm:block">
             <h3 className="mb-3 text-sm font-medium text-foreground">Преимущества регистрации:</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
