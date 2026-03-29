@@ -81,18 +81,43 @@ export function SiteHeader() {
       {/* Main header */}
       <div className="mx-auto max-w-7xl px-4 py-2.5 lg:py-3">
         <div className="flex items-center gap-3 lg:gap-6">
-          {/* Mobile menu button */}
-          <button
-            className="lg:hidden rounded-lg p-1.5 text-foreground hover:bg-muted"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </button>
+          {/* Mobile: menu button + language switcher */}
+          <div className="flex items-center gap-1 lg:hidden">
+            <button
+              className="rounded-lg p-1.5 text-foreground hover:bg-muted"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </button>
+            {/* Language switcher — mobile */}
+            <div className="flex items-center rounded-lg border border-border overflow-hidden">
+              <button
+                onClick={() => setLang("ru")}
+                className={`px-2 py-1 text-xs font-semibold transition-colors ${
+                  lang === "ru"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                RU
+              </button>
+              <button
+                onClick={() => setLang("lv")}
+                className={`px-2 py-1 text-xs font-semibold transition-colors ${
+                  lang === "lv"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                LV
+              </button>
+            </div>
+          </div>
 
           {/* Logo */}
           <a href="#" className="flex items-center gap-1.5 flex-shrink-0">
@@ -127,33 +152,38 @@ export function SiteHeader() {
           </div>
 
           {/* Right icons */}
-          <div className="ml-auto flex items-center gap-1 md:ml-0 lg:gap-2">
-            <Link 
+          <div className="ml-auto flex items-center gap-0.5 md:ml-0 lg:gap-2">
+            {/* Account */}
+            <Link
               href="/auth/login"
-              className="hidden md:flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-foreground transition-colors hover:bg-muted"
+              className="flex flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 text-foreground transition-colors hover:bg-muted md:px-3"
+              aria-label={t("signIn")}
             >
               <User className="h-5 w-5" />
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-[10px] text-muted-foreground hidden md:block">
                 {t("signIn")}
               </span>
             </Link>
-            <Link 
+            {/* Favorites */}
+            <Link
               href="/account/favorites"
-              className="hidden md:flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-foreground transition-colors hover:bg-muted"
+              className="flex flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 text-foreground transition-colors hover:bg-muted md:px-3"
+              aria-label={t("wishlist")}
             >
               <Heart className="h-5 w-5" />
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-[10px] text-muted-foreground hidden md:block">
                 {t("wishlist")}
               </span>
             </Link>
+            {/* Cart */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-foreground transition-colors hover:bg-muted md:flex-col md:gap-0.5 md:px-3"
+              className="relative flex flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 text-foreground transition-colors hover:bg-muted md:px-3"
               aria-label="Shopping cart"
             >
               <ShoppingCart className="h-5 w-5" />
               {totalItems > 0 && (
-                <span className="absolute right-1 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">
+                <span className="absolute right-0.5 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">
                   {totalItems}
                 </span>
               )}
