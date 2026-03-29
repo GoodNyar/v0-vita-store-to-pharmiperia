@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { Leaf, Mail, ArrowRight, Loader2, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-export default function SignUpSuccessPage() {
+function SignUpSuccessContent() {
   const searchParams = useSearchParams()
   const email = searchParams.get("email") || ""
   const [resending, setResending] = useState(false)
@@ -104,5 +104,17 @@ export default function SignUpSuccessPage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function SignUpSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <SignUpSuccessContent />
+    </Suspense>
   )
 }
