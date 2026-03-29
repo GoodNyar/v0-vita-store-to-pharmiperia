@@ -54,20 +54,16 @@ export default function PaymentMethodsPage() {
                 <p className="text-sm text-muted-foreground mb-5">
                   Принимаем Visa и Mastercard — оплата мгновенная и безопасная.
                 </p>
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-wrap items-center gap-6">
                   {bankCards.map((card) => (
-                    <div
+                    <img
                       key={card.name}
-                      className="flex h-14 items-center justify-center rounded-lg border border-border bg-white px-4"
-                    >
-                      <img
-                        src={card.src}
-                        alt={card.name}
-                        width={card.width}
-                        height={card.height}
-                        className="object-contain"
-                      />
-                    </div>
+                      src={card.src}
+                      alt={card.name}
+                      width={card.width}
+                      height={card.height}
+                      className="object-contain"
+                    />
                   ))}
                 </div>
               </div>
@@ -83,20 +79,16 @@ export default function PaymentMethodsPage() {
                 <p className="text-sm text-muted-foreground mb-5">
                   Платите одним касанием через Apple Pay, Google Pay или Revolut.
                 </p>
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-wrap items-center gap-6">
                   {digitalWallets.map((wallet) => (
-                    <div
+                    <img
                       key={wallet.name}
-                      className="flex h-14 items-center justify-center rounded-lg border border-border bg-white px-4"
-                    >
-                      <img
-                        src={wallet.src}
-                        alt={wallet.name}
-                        width={wallet.width}
-                        height={wallet.height}
-                        className="object-contain"
-                      />
-                    </div>
+                      src={wallet.src}
+                      alt={wallet.name}
+                      width={wallet.width}
+                      height={wallet.height}
+                      className="object-contain"
+                    />
                   ))}
                 </div>
               </div>
@@ -112,20 +104,16 @@ export default function PaymentMethodsPage() {
                 <p className="text-sm text-muted-foreground mb-5">
                   Оплата через интернет-банки крупнейших банков страны.
                 </p>
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-wrap items-center gap-6">
                   {latvianBanks.map((bank) => (
-                    <div
+                    <img
                       key={bank.name}
-                      className="flex h-14 items-center justify-center rounded-lg border border-border bg-white px-4"
-                    >
-                      <img
-                        src={bank.src}
-                        alt={bank.name}
-                        width={bank.width}
-                        height={bank.height}
-                        className="object-contain"
-                      />
-                    </div>
+                      src={bank.src}
+                      alt={bank.name}
+                      width={bank.width}
+                      height={bank.height}
+                      className="object-contain"
+                    />
                   ))}
                 </div>
               </div>
