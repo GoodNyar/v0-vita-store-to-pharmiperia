@@ -24,7 +24,6 @@ export function ProductCard({ product }: { product: Product }) {
         onClick={(e) => {
           e.preventDefault()
           e.stopPropagation()
-          console.log("[v0] Heart clicked for product:", product.id)
           toggleFavorite(product.id)
         }}
         className="absolute right-2 top-2 z-10 rounded-full bg-white/90 p-2 shadow-md transition-all hover:bg-white hover:scale-110"

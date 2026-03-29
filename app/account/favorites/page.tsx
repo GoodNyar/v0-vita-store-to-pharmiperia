@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { createClient } from "@/lib/supabase/client"
 import { useLang, formatEur } from "@/lib/i18n"
 import { useCart } from "@/components/cart-context"
 import { useAuth } from "@/components/auth-provider"
 import { useFavorites } from "@/components/favorites-provider"
+import { products as allProducts, type Product } from "@/lib/data"
 import { Heart, Star, Loader2, ChevronLeft, Trash2, ShoppingCart, LogIn } from "lucide-react"
 
 export default function FavoritesPage() {
@@ -15,10 +15,9 @@ export default function FavoritesPage() {
   const { addToCart } = useCart()
   const { user } = useAuth()
   const { favorites, isLoading, toggleFavorite } = useFavorites()
-  const [products, setProducts] = useState<any[]>([])
-  const [loadingProducts, setLoadingProducts] = useState(false)
+  const [products, setProducts] = useState<Product[]>([])
 
-  // Fetch product details for all favorited IDs
+  // Get product details from local data.ts
   useEffect(() => {
     if (isLoading) return
     if (favorites.length === 0) {
@@ -26,36 +25,12 @@ export default function FavoritesPage() {
       return
     }
 
-    const fetchProducts = async () => {
-      setLoadingProducts(true)
-      try {
-        const supabase = createClient()
-        const { data, error } = await supabase
-          .from("products")
-          .select(`
-            id, name, price, original_price, image,
-            rating, review_count, volume, sku,
-            brand:brands(name)
-          `)
-          .in("id", favorites)
-
-        if (error) {
-          setProducts([])
-          return
-        }
-
-        setProducts(data || [])
-      } catch (err) {
-        setProducts([])
-      } finally {
-        setLoadingProducts(false)
-      }
-    }
-
-    fetchProducts()
+    // Filter products from lib/data.ts by favorited IDs
+    const favoriteProducts = allProducts.filter(p => favorites.includes(p.id))
+    setProducts(favoriteProducts)
   }, [favorites, isLoading])
 
-  if (isLoading || loadingProducts) {
+  if (isLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -161,7 +136,7 @@ export default function FavoritesPage() {
               {/* Info */}
               <div className="flex flex-col gap-2 px-3 py-3">
                 <span className="text-xs font-semibold text-primary">
-                  {product.brand?.name || ""}
+                  {product.brand}
                 </span>
                 <Link
                   href={`/products/${product.id}`}
@@ -174,7 +149,7 @@ export default function FavoritesPage() {
                     <Star
                       key={i}
                       className={`h-3 w-3 ${
-                        i < Math.floor(product.rating ?? 0)
+                        i < Math.floor(product.rating)
                           ? "fill-amber-400 text-amber-400"
                           : "fill-gray-200 text-gray-200"
                       }`}
@@ -182,38 +157,21 @@ export default function FavoritesPage() {
                     />
                   ))}
                   <span className="text-xs text-muted-foreground">
-                    ({product.review_count ?? 0})
+                    ({product.reviewCount})
                   </span>
                 </div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-base font-bold text-foreground">
                     {formatEur(product.price)}
                   </span>
-                  {product.original_price && (
+                  {product.originalPrice && (
                     <span className="text-xs text-muted-foreground line-through">
-                      {formatEur(product.original_price)}
+                      {formatEur(product.originalPrice)}
                     </span>
                   )}
                 </div>
                 <button
-                  onClick={() =>
-                    addToCart({
-                      id: product.id,
-                      name: product.name,
-                      price: product.price,
-                      originalPrice: product.original_price,
-                      image: product.image_url,
-                      category: "",
-                      brand: product.brand?.name || "",
-                      rating: product.rating,
-                      reviewCount: product.review_count,
-                      description: "",
-                      volume: product.volume,
-                      sku: product.sku,
-                      inStock: true,
-                      badge: undefined,
-                    })
-                  }
+                  onClick={() => addToCart(product)}
                   className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                 >
                   <ShoppingCart className="h-3.5 w-3.5" />
