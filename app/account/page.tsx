@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import Image from "next/image"
 import { useAuth } from "@/components/auth-provider"
-import { useLang, formatEur } from "@/lib/i18n"
+import { useLang } from "@/lib/i18n"
 import { useFavorites } from "@/components/favorites-provider"
 import { useCart } from "@/components/cart-context"
 import { products as allProducts } from "@/lib/data"
@@ -49,7 +48,6 @@ export default function AccountPage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [profileLoading, setProfileLoading] = useState(true)
   const [orders, setOrders] = useState<Order[]>([])
-  const [ordersLoading, setOrdersLoading] = useState(true)
   const [bonusPoints, setBonusPoints] = useState(150)
   const bonusMax = 200
 
@@ -81,7 +79,7 @@ export default function AccountPage() {
     }
   }, [user])
 
-  // Load orders (mock data for now - in real app would fetch from DB)
+  // Load orders (mock data - used only for "Repeat Order" button)
   useEffect(() => {
     const mockOrders: Order[] = [
       {
@@ -119,7 +117,6 @@ export default function AccountPage() {
       },
     ]
     setOrders(mockOrders)
-    setOrdersLoading(false)
   }, [])
 
   const handleSignOut = async () => {
@@ -303,7 +300,7 @@ export default function AccountPage() {
         </div>
       </div>
 
-      {/* Quick Actions */}
+      {/* Quick Actions - сразу после бонусов */}
       <div className="mb-12 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
         <button
           onClick={() => orders.length > 0 && repeatOrder(orders[0])}
@@ -358,101 +355,7 @@ export default function AccountPage() {
         </button>
       </div>
 
-      {/* Orders History */}
-      <div className="mb-12">
-        <h2 className="mb-6 text-xl font-bold text-foreground">
-          {lang === "ru" ? "История заказов" : "Pasūtījumu vēsture"}
-        </h2>
-
-        {ordersLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        ) : orders.length === 0 ? (
-          <div className="rounded-2xl border-2 border-dashed border-border bg-card/50 py-12 text-center">
-            <ShoppingBag className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-foreground font-medium">
-              {lang === "ru" ? "У вас пока нет заказов" : "Jums vēl nav pasūtījumu"}
-            </p>
-            <p className="mt-2 text-sm text-muted-foreground mb-4">
-              {lang === "ru" ? "Начните покупки — ваши заказы появятся здесь" : "Sāciet iepirkties — jūsu pasūtījumi parādīsies šeit"}
-            </p>
-            <Link href="/" className="inline-block">
-              <Button size="sm" variant="outline">
-                {lang === "ru" ? "Перейти к покупкам" : "Iet uz iepirkšanos"}
-              </Button>
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {orders.map((order) => {
-              const statusColors = {
-                delivered: { bg: "bg-green-50", border: "border-green-200", text: "text-green-700", label: lang === "ru" ? "Доставлен" : "Piegādāts" },
-                in_progress: { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-700", label: lang === "ru" ? "В пути" : "Ceļā" },
-                cancelled: { bg: "bg-red-50", border: "border-red-200", text: "text-red-700", label: lang === "ru" ? "Отменен" : "Atcelts" },
-              }
-              const status = statusColors[order.status]
-
-              return (
-                <div
-                  key={order.id}
-                  className="rounded-xl border border-border bg-card p-5 sm:p-6 transition-all duration-300 hover:shadow-md"
-                >
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
-                    <div>
-                      <p className="font-bold text-foreground">{order.orderNumber}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(order.date).toLocaleDateString(lang === "ru" ? "ru-RU" : "lv-LV")}
-                      </p>
-                    </div>
-                    <div className={`inline-flex rounded-full px-3 py-1 text-sm font-medium border ${status.bg} ${status.border} ${status.text}`}>
-                      {status.label}
-                    </div>
-                    <p className="text-lg font-bold text-foreground">
-                      €{order.total.toFixed(2)}
-                    </p>
-                  </div>
-
-                  <div className="mb-4 flex gap-2">
-                    {order.products.slice(0, 3).map((product, i) => (
-                      <div
-                        key={i}
-                        className="relative h-16 w-16 rounded-lg bg-muted overflow-hidden ring-1 ring-border"
-                      >
-                        {product.image && (
-                          <Image
-                            src={product.image}
-                            alt={product.name}
-                            fill
-                            className="object-cover"
-                          />
-                        )}
-                      </div>
-                    ))}
-                    {order.products.length > 3 && (
-                      <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-muted ring-1 ring-border text-sm font-semibold text-foreground">
-                        +{order.products.length - 3}
-                      </div>
-                    )}
-                  </div>
-
-                  <Button
-                    onClick={() => repeatOrder(order)}
-                    variant="outline"
-                    size="sm"
-                    className="w-full sm:w-auto"
-                  >
-                    <RotateCcw className="mr-2 h-4 w-4" />
-                    {lang === "ru" ? "Повторить заказ" : "Atkārtot pasūtījumu"}
-                  </Button>
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Action Cards Grid */}
+      {/* Navigation Cards Grid */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
         {menuItems.map((item) => (
           <Link
