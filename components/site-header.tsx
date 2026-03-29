@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useCart } from "@/components/cart-context"
 import { useAuth } from "@/components/auth-provider"
 import { useLang, type TranslationKey } from "@/lib/i18n"
+import { useFavorites } from "@/hooks/use-favorites"
 import { categories, BRANDS_ORDERED } from "@/lib/data"
 import {
   Search,
@@ -23,6 +24,7 @@ import { Button } from "@/components/ui/button"
 export function SiteHeader() {
   const { totalItems, setIsCartOpen } = useCart()
   const { user, isLoading: authLoading } = useAuth()
+  const { favorites } = useFavorites()
   const { lang, setLang, t } = useLang()
   const [searchValue, setSearchValue] = useState("")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -144,10 +146,15 @@ export function SiteHeader() {
             {/* Favorites */}
             <Link
               href="/account/favorites"
-              className="flex flex-col items-center gap-0.5 rounded-lg p-2 text-foreground transition-colors hover:bg-muted md:px-3"
+              className="relative flex flex-col items-center gap-0.5 rounded-lg p-2 text-foreground transition-colors hover:bg-muted md:px-3"
               aria-label={t("wishlist")}
             >
-              <Heart className="h-5 w-5" />
+              <Heart className={`h-5 w-5 ${favorites.length > 0 ? "fill-red-500 text-red-500" : ""}`} />
+              {favorites.length > 0 && (
+                <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                  {favorites.length}
+                </span>
+              )}
               <span className="text-[10px] text-muted-foreground hidden md:block">{t("wishlist")}</span>
             </Link>
             {/* Cart */}
