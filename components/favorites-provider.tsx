@@ -113,6 +113,10 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 
   const toggleFavorite = useCallback(
     async (productId: string) => {
+      console.log("[v0] toggleFavorite called:", productId)
+      console.log("[v0] Current favorites:", favorites)
+      console.log("[v0] User:", user)
+      
       const isFav = favorites.includes(productId)
       
       // Update state IMMEDIATELY for instant UI feedback
@@ -120,6 +124,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         ? favorites.filter((id) => id !== productId)
         : [...favorites, productId]
       
+      console.log("[v0] New favorites:", newFavorites)
       setFavorites(newFavorites)
 
       if (user) {
