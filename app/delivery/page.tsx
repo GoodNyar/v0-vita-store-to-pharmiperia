@@ -51,6 +51,9 @@ const SHIPPING_METHODS = [
   {
     id: "omniva",
     carrier: "Omniva pakomāts",
+    logo: "/images/delivery-logos/omniva.png",
+    logoWidth: 90,
+    logoHeight: 32,
     price: "3,50 €",
     time: "1–2 рабочих дня",
     desc: "Более 200 постаматов по всей Латвии. Удобно забрать в любое время суток.",
@@ -58,6 +61,9 @@ const SHIPPING_METHODS = [
   {
     id: "dpd",
     carrier: "DPD Pickup punkts",
+    logo: "/images/delivery-logos/dpd.png",
+    logoWidth: 56,
+    logoHeight: 32,
     price: "3,20 €",
     time: "1–2 рабочих дня",
     desc: "Пункты выдачи DPD в магазинах-партнёрах по всей Латвии.",
@@ -65,6 +71,9 @@ const SHIPPING_METHODS = [
   {
     id: "venipak",
     carrier: "Venipak pakomāts",
+    logo: "/images/delivery-logos/venipak.png",
+    logoWidth: 90,
+    logoHeight: 28,
     price: "2,95 €",
     time: "1–2 рабочих дня",
     desc: "Современные постаматы Venipak с удобным графиком работы.",
@@ -72,6 +81,9 @@ const SHIPPING_METHODS = [
   {
     id: "smartpost",
     carrier: "Smartpost Itella",
+    logo: "/images/delivery-logos/smartposti.png",
+    logoWidth: 110,
+    logoHeight: 28,
     price: "2,99 €",
     time: "2–3 рабочих дня",
     desc: "Надёжная служба доставки в постаматы Smartpost по всей Латвии.",
@@ -154,7 +166,15 @@ function DeliveryContent() {
                 <div key={method.id} className="bg-card">
                   <div className="flex flex-col gap-1 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex-1">
-                      <p className="font-semibold text-foreground">{method.carrier}</p>
+                      <div className="flex items-center gap-3 mb-1">
+                        <img
+                          src={method.logo}
+                          alt={method.carrier}
+                          width={method.logoWidth}
+                          height={method.logoHeight}
+                          className="object-contain"
+                        />
+                      </div>
                       <p className="mt-0.5 text-sm text-muted-foreground">{method.desc}</p>
                       <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                         <Clock className="h-3.5 w-3.5" />
