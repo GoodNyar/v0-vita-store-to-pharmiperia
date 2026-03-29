@@ -4,13 +4,15 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
+import { useAuth } from "@/components/auth-provider"
 import { Button } from "@/components/ui/button"
 import { Leaf, Eye, EyeOff, Loader2 } from "lucide-react"
 import { useLang } from "@/lib/i18n"
 
 export default function SignUpPage() {
   const router = useRouter()
-  const { t, lang } = useLang()
+  const { refreshAuth } = useAuth()
+  const { lang } = useLang()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -62,15 +64,13 @@ export default function SignUpPage() {
       return
     }
 
-    console.log('[v0] Signup response:', { hasSession: !!data.session, hasUser: !!data.user })
-
     // If session exists immediately (email confirmation disabled), redirect to account
     if (data.session) {
-      console.log('[v0] Session exists after signup, redirecting to /account')
+      await refreshAuth()
       router.push("/account")
+      router.refresh()
     } else {
       // Otherwise redirect to email confirmation page
-      console.log('[v0] No session after signup, redirecting to sign-up-success')
       router.push(`/auth/sign-up-success?email=${encodeURIComponent(email)}`)
     }
   }

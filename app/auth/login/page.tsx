@@ -4,12 +4,14 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
+import { useAuth } from "@/components/auth-provider"
 import { Button } from "@/components/ui/button"
 import { Leaf, Eye, EyeOff, Loader2 } from "lucide-react"
 import { useLang } from "@/lib/i18n"
 
 export default function LoginPage() {
   const router = useRouter()
+  const { refreshAuth } = useAuth()
   const { lang } = useLang()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -56,7 +58,8 @@ export default function LoginPage() {
       return
     }
 
-    console.log('[v0] Login successful, redirecting to /account')
+    // Refresh auth state in provider before redirecting
+    await refreshAuth()
     router.push("/account")
     router.refresh()
   }

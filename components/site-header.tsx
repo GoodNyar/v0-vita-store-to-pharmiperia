@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useCart } from "@/components/cart-context"
+import { useAuth } from "@/components/auth-provider"
 import { useLang, type TranslationKey } from "@/lib/i18n"
 import { categories, BRANDS_ORDERED } from "@/lib/data"
 import {
@@ -21,6 +22,7 @@ import { Button } from "@/components/ui/button"
 
 export function SiteHeader() {
   const { totalItems, setIsCartOpen } = useCart()
+  const { user, isLoading: authLoading } = useAuth()
   const { lang, setLang, t } = useLang()
   const [searchValue, setSearchValue] = useState("")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -95,14 +97,14 @@ export function SiteHeader() {
           </button>
 
           {/* Logo */}
-          <a href="#" className="flex items-center gap-1.5 flex-shrink-0">
+          <Link href="/" className="flex items-center gap-1.5 flex-shrink-0">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary lg:h-9 lg:w-9">
               <Leaf className="h-4 w-4 text-primary-foreground lg:h-5 lg:w-5" />
             </div>
             <span className="text-lg font-bold text-foreground lg:text-xl">
               Pharmiperia
             </span>
-          </a>
+          </Link>
 
           {/* Search Bar — desktop only; mobile has its own row below */}
           <div className="hidden flex-1 md:block">
@@ -130,12 +132,14 @@ export function SiteHeader() {
           <div className="ml-auto flex items-center md:ml-0 lg:gap-1">
             {/* Account */}
             <Link
-              href="/auth/login"
+              href={user ? "/account" : "/auth/login"}
               className="flex flex-col items-center gap-0.5 rounded-lg p-2 text-foreground transition-colors hover:bg-muted md:px-3"
-              aria-label={t("signIn")}
+              aria-label={user ? t("account") : t("signIn")}
             >
-              <User className="h-5 w-5" />
-              <span className="text-[10px] text-muted-foreground hidden md:block">{t("signIn")}</span>
+              <User className={`h-5 w-5 ${user ? "text-primary" : ""}`} />
+              <span className="text-[10px] text-muted-foreground hidden md:block">
+                {authLoading ? "..." : user ? t("account") : t("signIn")}
+              </span>
             </Link>
             {/* Favorites */}
             <Link

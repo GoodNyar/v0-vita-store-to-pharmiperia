@@ -8,13 +8,13 @@ import { CategorySidebar } from "@/components/category-sidebar"
 import { ProductCard } from "@/components/product-card"
 import { ProductFilters } from "@/components/product-filters"
 import { CartDrawer } from "@/components/cart-drawer"
-import { CartProvider } from "@/components/cart-context"
+import { useCart } from "@/components/cart-context"
 import { SiteFooter } from "@/components/site-footer"
 import { PromoCards } from "@/components/promo-cards"
 import { WhyBuyUs } from "@/components/why-buy-us"
 import { AIRecommendations } from "@/components/ai-recommendations"
 import { LiveChat } from "@/components/live-chat"
-import { LangProvider, useLang, formatEur } from "@/lib/i18n"
+import { useLang, formatEur } from "@/lib/i18n"
 import { products } from "@/lib/data"
 import { Truck, Shield, RotateCcw, Flame, Leaf } from "lucide-react"
 
@@ -159,11 +159,5 @@ function HomeContent() {
 }
 
 export default function HomePage() {
-  return (
-    <LangProvider>
-      <CartProvider>
-        <HomeContent />
-      </CartProvider>
-    </LangProvider>
-  )
+  return <HomeContent />
 }
