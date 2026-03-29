@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/components/auth-provider"
 import { useLang } from "@/lib/i18n"
+import { useFavorites } from "@/components/favorites-provider"
 import { createClient } from "@/lib/supabase/client"
 import { 
   User, 
@@ -15,7 +16,8 @@ import {
   LogOut, 
   ChevronRight,
   Loader2,
-  ShoppingBag
+  ShoppingBag,
+  Award
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -28,6 +30,7 @@ export default function AccountPage() {
   const router = useRouter()
   const { user, isLoading: authLoading, signOut } = useAuth()
   const { lang } = useLang()
+  const { favorites } = useFavorites()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [profileLoading, setProfileLoading] = useState(true)
 
@@ -81,12 +84,35 @@ export default function AccountPage() {
     ? `${profile.first_name} ${profile.last_name || ""}`.trim()
     : user.email?.split("@")[0] || "User"
 
+  const stats = [
+    {
+      icon: ShoppingBag,
+      number: "0",
+      label: lang === "ru" ? "Заказы" : "Pasūtījumi",
+    },
+    {
+      icon: Heart,
+      number: favorites.length.toString(),
+      label: lang === "ru" ? "Избранное" : "Vēlmju saraksts",
+    },
+    {
+      icon: MapPin,
+      number: "0",
+      label: lang === "ru" ? "Адреса" : "Adreses",
+    },
+    {
+      icon: Award,
+      number: "0",
+      label: lang === "ru" ? "Бонусы" : "Bonusi",
+    },
+  ]
+
   const menuItems = [
     {
       href: "/account/orders",
       icon: Package,
       label: lang === "ru" ? "Мои заказы" : "Mani pasūtījumi",
-      description: lang === "ru" ? "История и статус заказов" : "Pasūtījumu vēsture un statuss",
+      description: lang === "ru" ? "История и статус заказов" : "Pasūtījumu vēsture",
     },
     {
       href: "/account/favorites",
@@ -109,90 +135,75 @@ export default function AccountPage() {
   ]
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 sm:py-10">
-      {/* User profile header */}
-      <div className="mb-8 flex flex-col items-center text-center sm:flex-row sm:items-start sm:text-left">
-        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 sm:mb-0 sm:mr-6">
-          <User className="h-10 w-10 text-primary" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
-            {lang === "ru" ? "Привет" : "Sveiks"}, {displayName}!
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
-          {profileLoading && (
-            <p className="mt-1 text-xs text-muted-foreground">
-              {lang === "ru" ? "Загрузка профиля..." : "Profils tiek ielādēts..."}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Quick stats */}
-      <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-xl border border-border bg-card p-4 text-center">
-          <ShoppingBag className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
-          <p className="text-2xl font-bold text-foreground">0</p>
-          <p className="text-xs text-muted-foreground">
-            {lang === "ru" ? "Заказов" : "Pasūtījumi"}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4 text-center">
-          <Heart className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
-          <p className="text-2xl font-bold text-foreground">0</p>
-          <p className="text-xs text-muted-foreground">
-            {lang === "ru" ? "В избранном" : "Izlasē"}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4 text-center">
-          <MapPin className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
-          <p className="text-2xl font-bold text-foreground">0</p>
-          <p className="text-xs text-muted-foreground">
-            {lang === "ru" ? "Адресов" : "Adreses"}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4 text-center">
-          <div className="mx-auto mb-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-            %
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
+      {/* Header: Profile + Logout */}
+      <div className="mb-12 flex items-center justify-between rounded-2xl bg-gradient-to-r from-primary/5 to-primary/10 p-6 sm:p-8">
+        <div className="flex items-center gap-4 sm:gap-6">
+          <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-primary/15 ring-2 ring-primary/30">
+            <User className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
           </div>
-          <p className="text-2xl font-bold text-foreground">0</p>
-          <p className="text-xs text-muted-foreground">
-            {lang === "ru" ? "Бонусов" : "Bonusi"}
-          </p>
+          <div>
+            <h1 className="text-xl font-bold text-foreground sm:text-2xl">
+              {displayName}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
+            {profileLoading && (
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {lang === "ru" ? "Загрузка..." : "Ielāde..."}
+              </p>
+            )}
+          </div>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleSignOut}
+          className="whitespace-nowrap text-sm"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          {lang === "ru" ? "Выйти" : "Iziet"}
+        </Button>
       </div>
 
-      {/* Menu items */}
-      <div className="mb-8 space-y-2">
+      {/* Stats Cards */}
+      <div className="mb-12 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        {stats.map((stat) => (
+          <div
+            key={stat.label}
+            className="group rounded-xl bg-card p-4 sm:p-6 text-center shadow-sm transition-all duration-300 hover:shadow-md hover:ring-1 hover:ring-primary/30"
+          >
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 transition-colors group-hover:bg-primary/15">
+              <stat.icon className="h-6 w-6 text-primary" />
+            </div>
+            <p className="text-3xl font-bold text-foreground">{stat.number}</p>
+            <p className="mt-1 text-xs sm:text-sm text-muted-foreground">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Action Cards Grid */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
         {menuItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted"
+            className="group flex flex-col rounded-xl border border-border bg-card p-5 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30 hover:bg-primary/5"
           >
-            <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                <item.icon className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="font-medium text-foreground">{item.label}</p>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
-              </div>
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 transition-colors group-hover:bg-primary/15">
+              <item.icon className="h-6 w-6 text-primary" />
             </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            <h3 className="font-semibold text-foreground transition-colors group-hover:text-primary">
+              {item.label}
+            </h3>
+            <p className="mt-1 flex-1 text-xs sm:text-sm text-muted-foreground">
+              {item.description}
+            </p>
+            <div className="mt-3 flex items-center text-primary opacity-0 transition-all group-hover:opacity-100">
+              <ChevronRight className="h-4 w-4" />
+            </div>
           </Link>
         ))}
       </div>
-
-      {/* Sign out button */}
-      <Button
-        variant="outline"
-        className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
-        onClick={handleSignOut}
-      >
-        <LogOut className="mr-2 h-4 w-4" />
-        {lang === "ru" ? "Выйти из аккаунта" : "Iziet no konta"}
-      </Button>
     </div>
   )
 }
