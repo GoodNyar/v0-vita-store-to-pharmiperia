@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useCart } from "@/components/cart-context"
 import { useAuth } from "@/components/auth-provider"
 import { useLang, type TranslationKey } from "@/lib/i18n"
-import { useFavorites } from "@/hooks/use-favorites"
+import { useFavorites } from "@/components/favorites-provider"
 import { categories, BRANDS_ORDERED } from "@/lib/data"
 import {
   Search,

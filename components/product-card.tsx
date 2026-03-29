@@ -5,7 +5,7 @@ import { Star, Heart } from "lucide-react"
 import type { Product } from "@/lib/data"
 import { useCart } from "@/components/cart-context"
 import { useLang, formatEur } from "@/lib/i18n"
-import { useFavorites } from "@/hooks/use-favorites"
+import { useFavorites } from "@/components/favorites-provider"
 
 export function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart()

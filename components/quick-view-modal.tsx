@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { X, Star, Minus, Plus, Heart, ShoppingCart, ExternalLink } from "lucide-react"
 import { useCart } from "@/components/cart-context"
-import { useFavorites } from "@/hooks/use-favorites"
+import { useFavorites } from "@/components/favorites-provider"
 import { useLang, formatEur } from "@/lib/i18n"
 import type { Product } from "@/lib/data"
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { createContext, useContext, useCallback, useEffect, useState, type ReactNode } from "react"
 import { createClient } from "@/lib/supabase/client"
 
 const LS_KEY = "pharmiperia_favorites"
@@ -19,13 +19,29 @@ function setLocalFavorites(ids: string[]) {
   localStorage.setItem(LS_KEY, JSON.stringify(ids))
 }
 
-export function useFavorites() {
+type FavoritesContextType = {
+  favorites: string[]
+  isLoading: boolean
+  toggleFavorite: (productId: string) => Promise<void>
+  isFavorited: (productId: string) => boolean
+  isLoggedIn: boolean
+}
+
+const FavoritesContext = createContext<FavoritesContextType | null>(null)
+
+export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<{ id: string } | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
+    // Load localStorage immediately for instant display
+    const localFavs = getLocalFavorites()
+    if (localFavs.length > 0) {
+      setFavorites(localFavs)
+    }
+
     const init = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser()
@@ -39,7 +55,6 @@ export function useFavorites() {
             .eq("user_id", user.id)
 
           if (error) {
-            setFavorites(getLocalFavorites())
             setIsLoading(false)
             return
           }
@@ -54,20 +69,15 @@ export function useFavorites() {
             await supabase.from("favorites").insert(
               toSync.map((product_id) => ({ user_id: user.id, product_id }))
             )
-            // Clear local after sync
             setLocalFavorites([])
           }
 
           const merged = [...new Set([...dbFavs, ...toSync])]
           setFavorites(merged)
-        } else {
-          // Not logged in — use localStorage
-          const localFavs = getLocalFavorites()
-          setFavorites(localFavs)
         }
+        // For guests, favorites are already loaded from localStorage above
       } catch (error) {
-        // Fallback to localStorage on any error
-        setFavorites(getLocalFavorites())
+        // Keep localStorage favorites on error
       } finally {
         setIsLoading(false)
       }
@@ -75,11 +85,10 @@ export function useFavorites() {
 
     init()
 
-    // Listen for auth changes (login/logout)
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
         setUser({ id: session.user.id })
-        // Sync localStorage favorites to DB after login
         const localFavs = getLocalFavorites()
         if (localFavs.length > 0) {
           await supabase.from("favorites").insert(
@@ -91,8 +100,7 @@ export function useFavorites() {
           .from("favorites")
           .select("product_id")
           .eq("user_id", session.user.id)
-        const dbFavs = data?.map((f: any) => f.product_id) || []
-        setFavorites(dbFavs)
+        setFavorites(data?.map((f: any) => f.product_id) || [])
       } else if (event === "SIGNED_OUT") {
         setUser(null)
         setFavorites([])
@@ -106,44 +114,36 @@ export function useFavorites() {
   const toggleFavorite = useCallback(
     async (productId: string) => {
       const isFav = favorites.includes(productId)
+      
+      // Update state IMMEDIATELY for instant UI feedback
+      const newFavorites = isFav
+        ? favorites.filter((id) => id !== productId)
+        : [...favorites, productId]
+      
+      setFavorites(newFavorites)
 
       if (user) {
-        // Logged in — sync with DB
+        // Logged in — sync with DB in background
         try {
           if (isFav) {
-            const { error } = await supabase
+            await supabase
               .from("favorites")
               .delete()
               .eq("user_id", user.id)
               .eq("product_id", productId)
-            if (error) {
-              return
-            }
-            setFavorites((prev) => {
-              return prev.filter((id) => id !== productId)
-            })
           } else {
-            const { error } = await supabase.from("favorites").insert({
+            await supabase.from("favorites").insert({
               user_id: user.id,
               product_id: productId,
             })
-            if (error) {
-              return
-            }
-            setFavorites((prev) => {
-              return [...prev, productId]
-            })
           }
         } catch (error) {
-          // Silent fail
+          // Revert on error
+          setFavorites(favorites)
         }
       } else {
         // Not logged in — save to localStorage
-        const updated = isFav
-          ? favorites.filter((id) => id !== productId)
-          : [...favorites, productId]
-        setFavorites(updated)
-        setLocalFavorites(updated)
+        setLocalFavorites(newFavorites)
       }
     },
     [user, favorites]
@@ -154,11 +154,17 @@ export function useFavorites() {
     [favorites]
   )
 
-  return {
-    favorites,
-    isLoading,
-    toggleFavorite,
-    isFavorited,
-    isLoggedIn: !!user,
+  return (
+    <FavoritesContext.Provider value={{ favorites, isLoading, toggleFavorite, isFavorited, isLoggedIn: !!user }}>
+      {children}
+    </FavoritesContext.Provider>
+  )
+}
+
+export function useFavorites() {
+  const context = useContext(FavoritesContext)
+  if (!context) {
+    throw new Error("useFavorites must be used within FavoritesProvider")
   }
+  return context
 }

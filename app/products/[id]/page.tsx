@@ -15,7 +15,7 @@ import { CartProvider, useCart } from "@/components/cart-context"
 import { LangProvider, useLang, formatEur } from "@/lib/i18n"
 import { products, type Product } from "@/lib/data"
 import { useState } from "react"
-import { useFavorites } from "@/hooks/use-favorites"
+import { useFavorites } from "@/components/favorites-provider"
 
 function ProductPageContent({ product }: { product: Product }) {
   const { t } = useLang()
@@ -332,7 +332,7 @@ function ProductPageContent({ product }: { product: Product }) {
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-                    100% оригинальная французская аптечная косметика
+                    100% оригинальная французская аптечна�� косметика
                   </li>
                 </ul>
               )}
@@ -388,11 +388,5 @@ export default function ProductPage({
     notFound()
   }
 
-  return (
-    <LangProvider>
-      <CartProvider>
-        <ProductPageContent product={product} />
-      </CartProvider>
-    </LangProvider>
-  )
+  return <ProductPageContent product={product} />
 }

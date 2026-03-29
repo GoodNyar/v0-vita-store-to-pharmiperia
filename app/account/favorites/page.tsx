@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client"
 import { useLang, formatEur } from "@/lib/i18n"
 import { useCart } from "@/components/cart-context"
 import { useAuth } from "@/components/auth-provider"
-import { useFavorites } from "@/hooks/use-favorites"
+import { useFavorites } from "@/components/favorites-provider"
 import { Heart, Star, Loader2, ChevronLeft, Trash2, ShoppingCart, LogIn } from "lucide-react"
 
 export default function FavoritesPage() {

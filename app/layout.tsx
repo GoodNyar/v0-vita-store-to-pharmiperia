@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { ToastProvider } from '@/components/toast-provider'
 import { AuthProvider } from '@/components/auth-provider'
 import { CartProvider } from '@/components/cart-context'
+import { FavoritesProvider } from '@/components/favorites-provider'
 import { LangProvider } from '@/lib/i18n'
 import './globals.css'
 
@@ -43,11 +44,13 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <LangProvider>
           <AuthProvider>
-            <CartProvider>
-              <ToastProvider>
-                {children}
-              </ToastProvider>
-            </CartProvider>
+            <FavoritesProvider>
+              <CartProvider>
+                <ToastProvider>
+                  {children}
+                </ToastProvider>
+              </CartProvider>
+            </FavoritesProvider>
           </AuthProvider>
         </LangProvider>
         <Analytics />
