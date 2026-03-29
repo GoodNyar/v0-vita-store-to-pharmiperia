@@ -15,18 +15,18 @@ const reviews = [
     rating: 5,
     date: { ru: "20 марта 2026", lv: "20. marts 2026" },
     text: {
-      ru: "Заказываю уже третий раз. Sensibio H2O — просто спасение для моей чувствительной кожи. Доставка в Латвию быстрая, упаковка надёжная.",
-      lv: "Pasūtu jau trešo reizi. Sensibio H2O ir īsts glābiņš manai jutīgajai ādai. Piegāde Latvijā ātra, iepakojums uzticams."
+      ru: "Заказывал Vichy Homme антиперспирант – реально держит целый день без запаха, даже после работы. Не оставляет следов на одежде, что важно для меня. Доставка в Ригу быстрая, товар оригинал.",
+      lv: "Pasūtīju Vichy Homme antiperspirantu – tiešām notur visu dienu bez smakas, pat pēc darba. Neatstāj pēdas uz drēbēm, kas man ir svarīgi. Piegāde uz Rīgu ātra, prece oriģināla.",
     },
-    product: "Sensibio H2O",
+    product: "Vichy Homme",
   },
   {
     name: "Мария Н.",
     rating: 5,
     date: { ru: "15 марта 2026", lv: "15. marts 2026" },
     text: {
-      ru: "Наконец нашла магазин с оригинальной La Roche-Posay в Латвии! Anthelios SPF50+ — лучший санскрин, что я пробовала. Рекомендую всем.",
-      lv: "Beidzot atradu veikalu ar oriģinālo La Roche-Posay Latvijā! Anthelios SPF50+ — labākais sauļošanās līdzeklis, ko esmu izmēģinājusi."
+      ru: "Покупала La Roche-Posay Anthelios SPF50+ – лучший солнцезащитный крем, который пробовала. Кожа не жирнится, нет белых следов. Очень довольна, буду заказывать ещё.",
+      lv: "Pirku La Roche-Posay Anthelios SPF50+ – labākais sauļošanās krēms, ko esmu izmēģinājusi. Āda nekļūst taukaina, nav baltu pēdu. Esmu ļoti apmierināta, pasūtīšu vēl.",
     },
     product: "Anthelios SPF50+",
   },
@@ -35,28 +35,28 @@ const reviews = [
     rating: 5,
     date: { ru: "10 марта 2026", lv: "10. marts 2026" },
     text: {
-      ru: "Mineral 89 от Vichy преобразил мою кожу. Начал использовать зимой — уже через неделю кожа стала более увлажнённой и гладкой.",
-      lv: "Vichy Mineral 89 pārveidoja manu ādu. Sāku lietot ziemā — jau pēc nedēļas āda kļuva mitrinātāka un gludāka."
+      ru: "Брал Vichy Mineral 89 – кожа стала заметно более увлажнённой уже через неделю. Не имеет выраженного запаха, быстро впитывается. Отличный уход на каждый день.",
+      lv: "Ņēmu Vichy Mineral 89 – āda kļuva manāmi mitrinātāka jau pēc nedēļas. Nav izteiktas smakas, ātri uzsūcas. Lieliska ikdienas kopšana.",
     },
     product: "Mineral 89",
   },
   {
     name: "Julija S.",
-    rating: 4,
+    rating: 5,
     date: { ru: "5 марта 2026", lv: "5. marts 2026" },
     text: {
-      ru: "Хороший сайт, большой выбор брендов. Cicaplast Baume — теперь мой постоянный продукт. Доставка пришла быстро.",
-      lv: "Laba mājaslapa, liela zīmolu izvēle. Cicaplast Baume tagad ir mans pastāvīgais produkts. Piegāde ieradās ātri."
+      ru: "Zakazala Hyalu B5 serum – efekt realno vidno uzhe cherez paru nedel. Kozha stala bolee gladkaja i svezhaja. Magazin ponravilsa, budu zdes brat eshe",
+      lv: "Zakazala Hyalu B5 serum – efekt realno vidno uzhe cherez paru nedel. Kozha stala bolee gladkaja i svezhaja. Magazin ponravilsa, budu zdes brat eshe",
     },
-    product: "Cicaplast Baume B5+",
+    product: "Hyalu B5 Serum",
   },
   {
-    name: "Анна К.",
+    name: "Anna K.",
     rating: 5,
     date: { ru: "28 февраля 2026", lv: "28. februāris 2026" },
     text: {
-      ru: "Pharmiperia — лучший выбор для тех, кто ищет аптечную косметику в Латвии. Быстро, оригинально, есть накопительные бонусы. Очень довольна!",
-      lv: "Pharmiperia — labākā izvēle tiem, kas meklē aptiekas kosmētiku Latvijā. Ātri, oriģināli, ir uzkrājošie bonusi. Esmu ļoti apmierināta!"
+      ru: "Huile Prodigieuse – просто находка. Использую и для тела, и для волос. Запах дорогой, эффект заметен сразу. Приятно, что всё оригинал и по адекватной цене.",
+      lv: "Huile Prodigieuse – īsts atradums. Izmantoju gan ķermenim, gan matiem. Smarža dārga, efekts jūtams uzreiz. Patīkami, ka viss oriģināls un par saprātīgu cenu.",
     },
     product: "Huile Prodigieuse",
   },
@@ -65,8 +65,8 @@ const reviews = [
     rating: 5,
     date: { ru: "20 февраля 2026", lv: "20. februāris 2026" },
     text: {
-      ru: "Отличный магазин! Заказала Hyalu B5 сыворотку — результат виден уже через 2 недели. Кожа выглядит как после салонной процедуры.",
-      lv: "Lielisks veikals! Pasūtīju Hyalu B5 serumu — rezultāts redzams jau pēc 2 nedēļām. Āda izskatās kā pēc salona procedūras."
+      ru: "Заказала сыворотку La Roche-Posay Hyalu B5 – кожа стала выглядеть как после салона. Хорошо увлажняет, разглаживает мелкие морщины. Доставка быстрая, всё аккуратно упаковано. Очень довольна",
+      lv: "Pasūtīju La Roche-Posay Hyalu B5 serumu – āda sāka izskatīties kā pēc salona. Labi mitrina, izlīdzina sīkas grumbiņas. Piegāde ātra, viss rūpīgi iepakots. Esmu ļoti apmierināta",
     },
     product: "Hyalu B5 Serum",
   },
@@ -75,20 +75,20 @@ const reviews = [
     rating: 5,
     date: { ru: "14 февраля 2026", lv: "14. februāris 2026" },
     text: {
-      ru: "Заказываю для всей семьи. Pharmiperia стал нашим любимым магазином. Всегда оригинальная продукция и удобная доставка.",
-      lv: "Pasūtu visai ģimenei. Pharmiperia ir kļuvis par mūsu iecienīto veikalu. Vienmēr oriģināla produkcija un ērta piegāde."
+      ru: "Покупаю здесь для всей семьи. Брала Bioderma и Vichy – качество отличное, всё оригинальное. Цены приятнее, чем в аптеках. Очень удобно и быстро.",
+      lv: "Šeit pērku visai ģimenei. Ņēmu Bioderma un Vichy – kvalitāte lieliska, viss oriģināls. Cenas labākas nekā aptiekās. Ļoti ērti un ātri.",
     },
-    product: "Dažādi produkti",
+    product: "Bioderma, Vichy",
   },
   {
     name: "Māris L.",
-    rating: 4,
+    rating: 5,
     date: { ru: "8 февраля 2026", lv: "8. februāris 2026" },
     text: {
-      ru: "Хороший выбор мужской косметики. Eucerin Men понравился. Буду заказывать снова.",
-      lv: "Laba vīriešu kosmētikas izvēle. Eucerin Men patika. Pasūtīšu vēlreiz."
+      ru: "Заказывал Biotherm Homme – хороший мужской уход, кожа стала более свежей и ухоженной. Нравится, что с ним молодею. Обязательно буду брать ещё.",
+      lv: "Pasūtīju Biotherm Homme – laba vīriešu kopšana, āda kļuva svaigāka un koptāka. Patīk, ka ar to jūtos jaunāks. Noteikti ņemšu vēl.",
     },
-    product: "Eucerin Men",
+    product: "Biotherm Homme",
   },
 ]
 
