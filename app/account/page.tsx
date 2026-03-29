@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/components/auth-provider"
 import { useLang } from "@/lib/i18n"
-import { useFavorites } from "@/components/favorites-provider"
 import { useCart } from "@/components/cart-context"
 import { products as allProducts } from "@/lib/data"
 import { createClient } from "@/lib/supabase/client"
@@ -13,7 +12,6 @@ import {
   User, 
   Heart, 
   Package, 
-  MapPin, 
   Settings, 
   LogOut, 
   ChevronRight,
@@ -51,7 +49,6 @@ export default function AccountPage() {
   const router = useRouter()
   const { user, isLoading: authLoading, signOut } = useAuth()
   const { lang } = useLang()
-  const { favorites } = useFavorites()
   const { addToCart } = useCart()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [profileLoading, setProfileLoading] = useState(true)
@@ -209,16 +206,6 @@ export default function AccountPage() {
       label: lang === "ru" ? "Заказы" : "Pasūtījumi",
     },
     {
-      icon: Heart,
-      number: favorites.length.toString(),
-      label: lang === "ru" ? "Избранное" : "Vēlmju saraksts",
-    },
-    {
-      icon: MapPin,
-      number: "0",
-      label: lang === "ru" ? "Адреса" : "Adreses",
-    },
-    {
       icon: Award,
       number: bonusPoints.toString(),
       label: lang === "ru" ? "Бонусы" : "Bonusi",
@@ -237,12 +224,6 @@ export default function AccountPage() {
       icon: Heart,
       label: lang === "ru" ? "Избранное" : "Vēlmju saraksts",
       description: lang === "ru" ? "Сохранённые товары" : "Saglabātās preces",
-    },
-    {
-      href: "/account/addresses",
-      icon: MapPin,
-      label: lang === "ru" ? "Адреса доставки" : "Piegādes adreses",
-      description: lang === "ru" ? "Управление адресами" : "Adrešu pārvaldība",
     },
     {
       href: "/account/settings",
@@ -464,8 +445,8 @@ export default function AccountPage() {
         </div>
       )}
 
-      {/* Stats Cards */}
-      <div className="mb-12 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+      {/* Stats Cards - Only Orders and Bonus */}
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-4">
         {stats.map((stat) => (
           <div
             key={stat.label}
@@ -529,63 +510,34 @@ export default function AccountPage() {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="mb-12 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+      {/* Main CTA: Repeat Order */}
+      <div className="mb-12">
         <button
           onClick={() => orders.length > 0 && repeatOrder(orders[0])}
           disabled={orders.length === 0}
-          className="flex items-center gap-3 rounded-xl bg-card p-5 sm:p-6 text-left shadow-sm transition-all duration-300 hover:shadow-md hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed border border-border hover:border-primary/30"
+          className="w-full rounded-2xl bg-gradient-to-r from-primary to-primary/80 p-6 sm:p-8 text-left shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-            <RotateCcw className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <p className="font-semibold text-foreground">
-              {lang === "ru" ? "Повторить заказ" : "Atkārtot pasūtījumu"}
-            </p>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              {lang === "ru" ? "Последний заказ" : "Pēdējais pasūtījums"}
-            </p>
-          </div>
-        </button>
-
-        <Link
-          href="/account/favorites"
-          className="flex items-center gap-3 rounded-xl bg-card p-5 sm:p-6 text-left shadow-sm transition-all duration-300 hover:shadow-md hover:bg-primary/5 border border-border hover:border-primary/30"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-            <Heart className="h-6 w-6 text-primary fill-primary" />
-          </div>
-          <div>
-            <p className="font-semibold text-foreground">
-              {lang === "ru" ? "Избранное" : "Vēlmju saraksts"}
-            </p>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              {favorites.length} {lang === "ru" ? "товаров" : "preces"}
-            </p>
-          </div>
-        </Link>
-
-        <button
-          onClick={() => document.querySelector('[aria-label="Shopping Cart"]')?.click()}
-          className="flex items-center gap-3 rounded-xl bg-card p-5 sm:p-6 text-left shadow-sm transition-all duration-300 hover:shadow-md hover:bg-primary/5 border border-border hover:border-primary/30"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-            <ShoppingBag className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <p className="font-semibold text-foreground">
-              {lang === "ru" ? "Корзина" : "Iepirkumu grozs"}
-            </p>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              {lang === "ru" ? "Открыть" : "Atvērt"}
-            </p>
+          <div className="flex items-center gap-4">
+            <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+              <RotateCcw className="h-8 w-8 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-white">
+                {lang === "ru" ? "Повторить последний заказ" : "Atkārtot pēdējo pasūtījumu"}
+              </h3>
+              <p className="mt-1 text-sm text-white/80">
+                {orders.length > 0 
+                  ? `${lang === "ru" ? "Сумма" : "Summa"}: €${orders[0].total.toFixed(2)}`
+                  : lang === "ru" ? "У вас пока нет заказов" : "Jums vēl nav pasūtījumu"}
+              </p>
+            </div>
+            <ChevronRight className="h-6 w-6 text-white flex-shrink-0" />
           </div>
         </button>
       </div>
 
-      {/* Navigation Cards Grid */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
+      {/* Navigation Cards Grid - 3 items only */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
         {menuItems.map((item) => (
           <Link
             key={item.href}
