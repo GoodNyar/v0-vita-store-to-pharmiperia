@@ -30,18 +30,23 @@ export default function FavoritesPage() {
       setLoadingProducts(true)
       try {
         const supabase = createClient()
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("products")
           .select(`
-            id, name, price, original_price, image_url,
+            id, name, price, original_price, image,
             rating, review_count, volume, sku,
             brand:brands(name)
           `)
           .in("id", favorites)
 
+        if (error) {
+          setProducts([])
+          return
+        }
+
         setProducts(data || [])
       } catch (err) {
-        console.error("Error fetching favorite products:", err)
+        setProducts([])
       } finally {
         setLoadingProducts(false)
       }
@@ -133,9 +138,9 @@ export default function FavoritesPage() {
               {/* Image */}
               <Link href={`/products/${product.id}`} className="relative block overflow-hidden bg-[#f2f3f5]">
                 <div className="relative w-full" style={{ paddingBottom: "100%" }}>
-                  {product.image_url && (
+                  {product.image && (
                     <Image
-                      src={product.image_url}
+                      src={product.image}
                       alt={product.name}
                       fill
                       className="object-contain object-center p-4"

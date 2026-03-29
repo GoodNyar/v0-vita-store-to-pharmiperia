@@ -33,12 +33,18 @@ export function useFavorites() {
 
         if (user) {
           // Fetch from DB
-          const { data } = await supabase
+          const { data, error } = await supabase
             .from("favorites")
             .select("product_id")
             .eq("user_id", user.id)
 
-          const dbFavs = data?.map((f) => f.product_id) || []
+          if (error) {
+            setFavorites(getLocalFavorites())
+            setIsLoading(false)
+            return
+          }
+
+          const dbFavs = data?.map((f: any) => f.product_id) || []
 
           // Merge any locally saved favorites into DB
           const localFavs = getLocalFavorites()
@@ -56,7 +62,8 @@ export function useFavorites() {
           setFavorites(merged)
         } else {
           // Not logged in — use localStorage
-          setFavorites(getLocalFavorites())
+          const localFavs = getLocalFavorites()
+          setFavorites(localFavs)
         }
       } catch (error) {
         // Fallback to localStorage on any error
@@ -77,14 +84,15 @@ export function useFavorites() {
         if (localFavs.length > 0) {
           await supabase.from("favorites").insert(
             localFavs.map((product_id) => ({ user_id: session.user.id, product_id }))
-          ).select()
+          )
           setLocalFavorites([])
         }
         const { data } = await supabase
           .from("favorites")
           .select("product_id")
           .eq("user_id", session.user.id)
-        setFavorites(data?.map((f) => f.product_id) || [])
+        const dbFavs = data?.map((f: any) => f.product_id) || []
+        setFavorites(dbFavs)
       } else if (event === "SIGNED_OUT") {
         setUser(null)
         setFavorites([])
@@ -103,21 +111,31 @@ export function useFavorites() {
         // Logged in — sync with DB
         try {
           if (isFav) {
-            await supabase
+            const { error } = await supabase
               .from("favorites")
               .delete()
               .eq("user_id", user.id)
               .eq("product_id", productId)
-            setFavorites((prev) => prev.filter((id) => id !== productId))
+            if (error) {
+              return
+            }
+            setFavorites((prev) => {
+              return prev.filter((id) => id !== productId)
+            })
           } else {
-            await supabase.from("favorites").insert({
+            const { error } = await supabase.from("favorites").insert({
               user_id: user.id,
               product_id: productId,
             })
-            setFavorites((prev) => [...prev, productId])
+            if (error) {
+              return
+            }
+            setFavorites((prev) => {
+              return [...prev, productId]
+            })
           }
         } catch (error) {
-          console.error("Error toggling favorite:", error)
+          // Silent fail
         }
       } else {
         // Not logged in — save to localStorage
@@ -128,7 +146,7 @@ export function useFavorites() {
         setLocalFavorites(updated)
       }
     },
-    [user, favorites, supabase]
+    [user, favorites]
   )
 
   const isFavorited = useCallback(
