@@ -6,86 +6,28 @@ import { PromoBar } from "@/components/promo-bar"
 import { CartDrawer } from "@/components/cart-drawer"
 import { CartProvider } from "@/components/cart-context"
 import { LangProvider } from "@/lib/i18n"
-import { Shield, Lock, CheckCircle } from "lucide-react"
-
-/* ── Inline brand badges matching real brand colours ── */
-function VisaLogo() {
-  return (
-    <div className="flex h-12 w-20 items-center justify-center rounded-lg border border-border bg-white px-2">
-      <span className="text-xl font-extrabold italic tracking-tight text-[#1A1F71]">VISA</span>
-    </div>
-  )
-}
-function MastercardLogo() {
-  return (
-    <div className="flex h-12 w-20 items-center justify-center rounded-lg border border-border bg-white px-2 gap-0.5">
-      <div className="h-7 w-7 rounded-full bg-[#EB001B] opacity-90" />
-      <div className="h-7 w-7 -ml-3 rounded-full bg-[#F79E1B] opacity-90" />
-    </div>
-  )
-}
-function ApplePayLogo() {
-  return (
-    <div className="flex h-12 w-24 items-center justify-center rounded-lg border border-border bg-black px-3">
-      <span className="text-white text-sm font-semibold tracking-tight"> Pay</span>
-    </div>
-  )
-}
-function GooglePayLogo() {
-  return (
-    <div className="flex h-12 w-24 items-center justify-center rounded-lg border border-border bg-white px-3">
-      <span className="text-sm font-semibold">
-        <span className="text-[#4285F4]">G</span>
-        <span className="text-[#EA4335]">o</span>
-        <span className="text-[#FBBC05]">o</span>
-        <span className="text-[#4285F4]">g</span>
-        <span className="text-[#34A853]">l</span>
-        <span className="text-[#EA4335]">e </span>
-        <span className="text-[#5F6368]">Pay</span>
-      </span>
-    </div>
-  )
-}
-function RevolutLogo() {
-  return (
-    <div className="flex h-12 w-24 items-center justify-center rounded-lg border border-border bg-white px-3">
-      <span className="text-sm font-bold tracking-tight text-[#191C1F]">Revolut</span>
-    </div>
-  )
-}
-function SwedbankLogo() {
-  return (
-    <div className="flex h-12 w-28 items-center justify-center rounded-lg border border-border bg-white px-3 gap-1.5">
-      <span className="text-sm font-bold text-[#EF7B10]">Swedbank</span>
-      <div className="h-5 w-5 rounded-full bg-[#EF7B10] flex items-center justify-center">
-        <div className="h-3 w-3 rounded-full border-2 border-white" />
-      </div>
-    </div>
-  )
-}
-function SEBLogo() {
-  return (
-    <div className="flex h-12 w-20 items-center justify-center rounded-lg border border-border bg-[#60A830] px-3">
-      <span className="text-sm font-extrabold tracking-widest text-white">SEB</span>
-    </div>
-  )
-}
-function CitadeleLogo() {
-  return (
-    <div className="flex h-12 w-24 items-center justify-center rounded-lg border border-border bg-[#D0001E] px-3">
-      <span className="text-sm font-bold text-white tracking-wide">Citadele</span>
-    </div>
-  )
-}
-function LuminorLogo() {
-  return (
-    <div className="flex h-12 w-24 items-center justify-center rounded-lg border border-border bg-[#5B2D8E] px-3">
-      <span className="text-sm font-bold text-white tracking-wide">Luminor</span>
-    </div>
-  )
-}
+import { Shield, Lock, CheckCircle, CreditCard, Smartphone, Building2 } from "lucide-react"
+import Image from "next/image"
 
 export default function PaymentMethodsPage() {
+  const bankCards = [
+    { name: "Visa", src: "/images/payment-logos/visa.png", width: 50, height: 32 },
+    { name: "Mastercard", src: "/images/payment-logos/mastercard.svg", width: 45, height: 32 },
+  ]
+
+  const digitalWallets = [
+    { name: "Apple Pay", src: "/images/payment-logos/apple-pay.png", width: 60, height: 32 },
+    { name: "Google Pay", src: "/images/payment-logos/google-pay.png", width: 60, height: 32 },
+    { name: "Revolut", src: "/images/payment-logos/revolut.png", width: 70, height: 32 },
+  ]
+
+  const latvianBanks = [
+    { name: "Swedbank", src: "/images/payment-logos/swedbank.png", width: 90, height: 32 },
+    { name: "SEB", src: "/images/payment-logos/seb.jpg", width: 50, height: 32 },
+    { name: "Citadele", src: "/images/payment-logos/citadele.png", width: 80, height: 32 },
+    { name: "Luminor", src: "/images/payment-logos/luminor.jpg", width: 80, height: 32 },
+  ]
+
   return (
     <LangProvider>
       <CartProvider>
@@ -101,40 +43,90 @@ export default function PaymentMethodsPage() {
 
             <div className="mt-8 space-y-4">
 
-              {/* Payment icons */}
+              {/* Bank Cards */}
               <div className="rounded-xl border border-border bg-card p-6">
-                <h2 className="text-lg font-bold text-foreground mb-2">Банковские карты</h2>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                    <CreditCard className="h-5 w-5 text-primary" />
+                  </div>
+                  <h2 className="text-lg font-bold text-foreground">Банковские карты</h2>
+                </div>
                 <p className="text-sm text-muted-foreground mb-5">
                   Принимаем Visa и Mastercard — оплата мгновенная и безопасная.
                 </p>
-                <div className="flex flex-wrap gap-3">
-                  <VisaLogo />
-                  <MastercardLogo />
+                <div className="flex flex-wrap items-center gap-4">
+                  {bankCards.map((card) => (
+                    <div
+                      key={card.name}
+                      className="flex h-14 items-center justify-center rounded-lg border border-border bg-white px-4"
+                    >
+                      <img
+                        src={card.src}
+                        alt={card.name}
+                        width={card.width}
+                        height={card.height}
+                        className="object-contain"
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
 
+              {/* Digital Wallets */}
               <div className="rounded-xl border border-border bg-card p-6">
-                <h2 className="text-lg font-bold text-foreground mb-2">Цифровые кошельки</h2>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                    <Smartphone className="h-5 w-5 text-primary" />
+                  </div>
+                  <h2 className="text-lg font-bold text-foreground">Цифровые кошельки</h2>
+                </div>
                 <p className="text-sm text-muted-foreground mb-5">
                   Платите одним касанием через Apple Pay, Google Pay или Revolut.
                 </p>
-                <div className="flex flex-wrap gap-3">
-                  <ApplePayLogo />
-                  <GooglePayLogo />
-                  <RevolutLogo />
+                <div className="flex flex-wrap items-center gap-4">
+                  {digitalWallets.map((wallet) => (
+                    <div
+                      key={wallet.name}
+                      className="flex h-14 items-center justify-center rounded-lg border border-border bg-white px-4"
+                    >
+                      <img
+                        src={wallet.src}
+                        alt={wallet.name}
+                        width={wallet.width}
+                        height={wallet.height}
+                        className="object-contain"
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
 
+              {/* Latvian Banks */}
               <div className="rounded-xl border border-border bg-card p-6">
-                <h2 className="text-lg font-bold text-foreground mb-2">Банки Латвии</h2>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                    <Building2 className="h-5 w-5 text-primary" />
+                  </div>
+                  <h2 className="text-lg font-bold text-foreground">Банки Латвии</h2>
+                </div>
                 <p className="text-sm text-muted-foreground mb-5">
                   Оплата через интернет-банки крупнейших банков страны.
                 </p>
-                <div className="flex flex-wrap gap-3">
-                  <SwedbankLogo />
-                  <SEBLogo />
-                  <CitadeleLogo />
-                  <LuminorLogo />
+                <div className="flex flex-wrap items-center gap-4">
+                  {latvianBanks.map((bank) => (
+                    <div
+                      key={bank.name}
+                      className="flex h-14 items-center justify-center rounded-lg border border-border bg-white px-4"
+                    >
+                      <img
+                        src={bank.src}
+                        alt={bank.name}
+                        width={bank.width}
+                        height={bank.height}
+                        className="object-contain"
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
 
