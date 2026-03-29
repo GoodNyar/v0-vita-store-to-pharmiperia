@@ -62,21 +62,15 @@ export default function SignUpPage() {
       return
     }
 
-    // Check if email confirmation is disabled (user is immediately confirmed)
-    // If user has a session or identities, they're confirmed
-    if (data.user?.identities?.length === 0) {
-      // Email already exists
-      setError(lang === "ru" ? "Этот email уже зарегистрирован" : "Šis e-pasts jau ir reģistrēts")
-      setLoading(false)
-      return
-    }
+    console.log('[v0] Signup response:', { hasSession: !!data.session, hasUser: !!data.user })
 
-    // Check if session exists (email confirmation disabled)
+    // If session exists immediately (email confirmation disabled), redirect to account
     if (data.session) {
-      // User is immediately logged in - redirect to account
+      console.log('[v0] Session exists after signup, redirecting to /account')
       router.push("/account")
     } else {
-      // Email confirmation required - redirect to success page
+      // Otherwise redirect to email confirmation page
+      console.log('[v0] No session after signup, redirecting to sign-up-success')
       router.push(`/auth/sign-up-success?email=${encodeURIComponent(email)}`)
     }
   }

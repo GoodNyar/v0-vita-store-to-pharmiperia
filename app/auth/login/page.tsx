@@ -56,6 +56,7 @@ export default function LoginPage() {
       return
     }
 
+    console.log('[v0] Login successful, redirecting to /account')
     router.push("/account")
     router.refresh()
   }
