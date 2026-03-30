@@ -90,6 +90,17 @@ export default function AccountPage() {
     async function loadProfile() {
       if (!user) return
       
+      // First try to load from localStorage
+      const localData = localStorage.getItem(`profile_${user.id}`)
+      if (localData) {
+        const parsed = JSON.parse(localData)
+        setProfile(parsed)
+        setFormData(parsed)
+        setSavedData(parsed)
+        setProfileLoading(false)
+        return
+      }
+      
       const supabase = createClient()
       const { data } = await supabase
         .from("profiles")
@@ -101,10 +112,11 @@ export default function AccountPage() {
         setProfile(data)
         setFormData(data)
         setSavedData(data)
+        localStorage.setItem(`profile_${user.id}`, JSON.stringify(data))
       } else {
-        setProfile({ id: user.id })
-        setFormData({ id: user.id })
-        setSavedData({ id: user.id })
+        setProfile({ id: user.id, email: user.email })
+        setFormData({ id: user.id, email: user.email })
+        setSavedData({ id: user.id, email: user.email })
       }
       setProfileLoading(false)
     }
@@ -223,7 +235,7 @@ export default function AccountPage() {
       return
     }
 
-    // Update local state with all fields (even if not saved to DB yet)
+    // Update local state
     const newProfile = {
       id: user.id,
       first_name: formData.first_name,
@@ -237,8 +249,12 @@ export default function AccountPage() {
     }
     setProfile(newProfile)
     setSavedData(newProfile)
+    
+    // Save to localStorage for persistence
+    localStorage.setItem(`profile_${user.id}`, JSON.stringify(newProfile))
+    
     setIsEditing(false)
-    showToast(lang === "ru" ? "Профиль обновлен ✓" : "Profils atjaunināts ✓", e)
+    showToast(lang === "ru" ? "Данные сохранены" : "Dati saglabāti", e)
   }
 
   const handleSignOut = async () => {
@@ -711,20 +727,17 @@ export default function AccountPage() {
           <Button
             variant="outline"
             onClick={() => {
-              // Reset to saved data or clear all except email
-              if (savedData) {
-                setFormData(savedData)
-              } else {
-                setFormData({
-                  id: user?.id,
-                  first_name: "",
-                  last_name: "",
-                  phone: "",
-                  city: "",
-                  address: "",
-                  postal_code: "",
-                })
-              }
+              // Clear all fields except email
+              setFormData({
+                id: user?.id,
+                email: user?.email,
+                first_name: "",
+                last_name: "",
+                phone: "",
+                city: "",
+                address: "",
+                postal_code: "",
+              })
               setIsEditing(false)
             }}
             className="flex-1"
@@ -748,7 +761,8 @@ export default function AccountPage() {
           className="fixed z-[100] pointer-events-none animate-in fade-in zoom-in-95 duration-200"
           style={{ left: toastPos.x, top: toastPos.y, transform: "translate(-50%, -100%)" }}
         >
-          <div className="rounded-lg bg-foreground px-3 py-2 text-sm font-medium text-background shadow-xl whitespace-nowrap">
+          <div className="rounded-lg bg-emerald-500 px-3 py-2 text-sm font-medium text-white shadow-xl whitespace-nowrap flex items-center gap-2">
+            <span>✓</span>
             {toast}
           </div>
         </div>
