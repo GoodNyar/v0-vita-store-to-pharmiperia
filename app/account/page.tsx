@@ -292,16 +292,16 @@ export default function AccountPage() {
     setIsSaving(true)
     const supabase = createClient()
     
+    // Clear profile fields except email, using empty strings instead of null
     const clearedProfile = {
       id: user.id,
-      email: user.email,
-      first_name: null,
-      last_name: null,
-      phone: null,
-      country: null,
-      city: null,
-      address: null,
-      postal_code: null,
+      first_name: "",
+      last_name: "",
+      phone: "",
+      country: "",
+      city: "",
+      address: "",
+      postal_code: "",
     }
 
     const { error } = await supabase
@@ -316,7 +316,7 @@ export default function AccountPage() {
       return
     }
 
-    // Update local state
+    // Update local state - keep only id and email
     const emailOnlyProfile = {
       id: user.id,
       email: user.email,
@@ -329,7 +329,7 @@ export default function AccountPage() {
     localStorage.setItem(`profile_${user.id}`, JSON.stringify(emailOnlyProfile))
     
     setShowResetConfirm(false)
-    setIsEditing(false)
+    // Keep drawer open with empty fields, don't close it
     showToast(lang === "ru" ? "Данные профиля очищены" : "Profila dati notīrēti", e, "success")
   }
 
@@ -618,7 +618,7 @@ export default function AccountPage() {
               {lang === "ru" ? "Избранное" : "Vēlmju saraksts"}
             </h3>
             <p className="text-xs text-muted-foreground">
-              {lang === "ru" ? "Сохранённые товары" : "Saglabātās preces"}
+              {lang === "ru" ? "Сохранён��ые товары" : "Saglabātās preces"}
             </p>
           </div>
           <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
@@ -838,8 +838,8 @@ export default function AccountPage() {
             </h3>
             <p className="text-sm text-muted-foreground mb-6">
               {lang === "ru" 
-                ? "Вы уверены, что хотите очистить все данные профиля кроме email? Это действие нельзя отменить." 
-                : "Vai esat pārliecināts, ka vēlaties notīrēt visus profila datus, izņemot e-pastu? Šo darbību nevar atsaukt."}
+                ? "Вы действительно хотите стереть данные профиля?" 
+                : "Vai esat pārliecināts, ka vēlaties dzēst profila datus?"}
             </p>
             <div className="flex gap-3">
               <Button
@@ -850,10 +850,7 @@ export default function AccountPage() {
                 {lang === "ru" ? "Отмена" : "Atcelt"}
               </Button>
               <Button
-                onClick={(e) => {
-                  handleResetProfile(e)
-                  setShowResetConfirm(false)
-                }}
+                onClick={(e) => handleResetProfile(e)}
                 disabled={isSaving}
                 className="flex-1 bg-red-500 hover:bg-red-600 text-white"
               >
