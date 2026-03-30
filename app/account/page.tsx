@@ -63,12 +63,16 @@ export default function AccountPage() {
   const bonusMax = 200
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([])
   const [toast, setToast] = useState<string | null>(null)
+  const [toastPos, setToastPos] = useState({ x: 0, y: 0 })
   const [savedData, setSavedData] = useState<Profile | null>(null)
 
-  // Show toast notification
-  const showToast = (message: string) => {
+  // Show toast notification near cursor
+  const showToast = (message: string, e?: React.MouseEvent) => {
+    if (e) {
+      setToastPos({ x: e.clientX, y: e.clientY - 50 })
+    }
     setToast(message)
-    setTimeout(() => setToast(null), 2000)
+    setTimeout(() => setToast(null), 1800)
   }
 
   const bonusEquivalent = (bonusPoints * 0.01).toFixed(2)
@@ -147,7 +151,7 @@ export default function AccountPage() {
     }
   }, [])
 
-  const handleSaveProfile = async () => {
+  const handleSaveProfile = async (e: React.MouseEvent) => {
     if (!user) return
     
     // Check if data changed
@@ -169,7 +173,7 @@ export default function AccountPage() {
     })
     
     if (currentData === savedDataStr) {
-      showToast(lang === "ru" ? "Данные уже сохранены!" : "Dati jau saglabāti!")
+      showToast(lang === "ru" ? "Данные уже сохранены" : "Dati jau saglabāti", e)
       setIsEditing(false)
       return
     }
@@ -185,6 +189,10 @@ export default function AccountPage() {
           first_name: formData.first_name || null,
           last_name: formData.last_name || null,
           phone: formData.phone || null,
+          country: "Latvija",
+          city: formData.city || null,
+          address: formData.address || null,
+          postal_code: formData.postal_code || null,
         },
         { onConflict: "id" }
       )
@@ -192,7 +200,7 @@ export default function AccountPage() {
     setIsSaving(false)
 
     if (error) {
-      showToast(lang === "ru" ? "Ошибка сохранения" : "Kļūda saglabājot")
+      showToast(lang === "ru" ? "Ошибка сохранения" : "Kļūda saglabājot", e)
       return
     }
 
@@ -211,7 +219,7 @@ export default function AccountPage() {
     setProfile(newProfile)
     setSavedData(newProfile)
     setIsEditing(false)
-    showToast(lang === "ru" ? "Профиль обновлен!" : "Profils atjaunināts!")
+    showToast(lang === "ru" ? "Профиль обновлен" : "Profils atjaunināts", e)
   }
 
   const handleSignOut = async () => {
@@ -684,8 +692,22 @@ export default function AccountPage() {
           <Button
             variant="outline"
             onClick={() => {
-              // Reset to last saved data
-              setFormData(savedData || {})
+              // Clear all fields except email
+              setFormData({
+                id: user?.id,
+                first_name: "",
+                last_name: "",
+                phone: "",
+                city: "",
+                address: "",
+                postal_code: "",
+              })
+              // Also clear profile display
+              setProfile({
+                id: user?.id,
+                email: user?.email,
+              })
+              setSavedData(null)
               setIsEditing(false)
             }}
             className="flex-1"
@@ -693,7 +715,7 @@ export default function AccountPage() {
             {lang === "ru" ? "Отмена" : "Atcelt"}
           </Button>
           <Button
-            onClick={handleSaveProfile}
+            onClick={(e) => handleSaveProfile(e)}
             disabled={isSaving}
             className="flex-1"
           >
@@ -703,10 +725,13 @@ export default function AccountPage() {
         </div>
       </div>
 
-      {/* Toast notification */}
+      {/* Toast notification near cursor */}
       {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background shadow-lg">
+        <div 
+          className="fixed z-[100] pointer-events-none animate-in fade-in zoom-in-95 duration-200"
+          style={{ left: toastPos.x, top: toastPos.y, transform: "translate(-50%, -100%)" }}
+        >
+          <div className="rounded-lg bg-foreground px-3 py-2 text-sm font-medium text-background shadow-xl whitespace-nowrap">
             {toast}
           </div>
         </div>
