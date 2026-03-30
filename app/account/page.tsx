@@ -576,7 +576,23 @@ export default function AccountPage() {
       {/* ===== EDIT PROFILE — SLIDE-IN DRAWER (right side) ===== */}
       {/* Backdrop */}
       <div
-        onClick={() => { setFormData(savedData || {}); setIsEditing(false) }}
+        onClick={() => {
+          const cleared = {
+            id: user?.id,
+            email: user?.email,
+            first_name: "",
+            last_name: "",
+            phone: "",
+            city: "",
+            address: "",
+            postal_code: "",
+          }
+          setFormData(cleared)
+          setProfile(cleared)
+          setSavedData(null)
+          if (user?.id) localStorage.removeItem(`profile_${user.id}`)
+          setIsEditing(false)
+        }}
         className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 ${isEditing ? "opacity-100" : "opacity-0 pointer-events-none"}`}
       />
       {/* Drawer */}
@@ -589,7 +605,23 @@ export default function AccountPage() {
             {lang === "ru" ? "Редактировать профиль" : "Rediģēt profilu"}
           </h2>
           <button
-            onClick={() => { setFormData(savedData || {}); setIsEditing(false) }}
+            onClick={() => {
+              const cleared = {
+                id: user?.id,
+                email: user?.email,
+                first_name: "",
+                last_name: "",
+                phone: "",
+                city: "",
+                address: "",
+                postal_code: "",
+              }
+              setFormData(cleared)
+              setProfile(cleared)
+              setSavedData(null)
+              if (user?.id) localStorage.removeItem(`profile_${user.id}`)
+              setIsEditing(false)
+            }}
             className="rounded-lg p-2 transition-colors hover:bg-muted"
           >
             <X className="h-5 w-5" />
@@ -728,7 +760,7 @@ export default function AccountPage() {
             variant="outline"
             onClick={() => {
               // Clear all fields except email
-              setFormData({
+              const cleared = {
                 id: user?.id,
                 email: user?.email,
                 first_name: "",
@@ -737,7 +769,11 @@ export default function AccountPage() {
                 city: "",
                 address: "",
                 postal_code: "",
-              })
+              }
+              setFormData(cleared)
+              setProfile(cleared)
+              setSavedData(null)
+              if (user?.id) localStorage.removeItem(`profile_${user.id}`)
               setIsEditing(false)
             }}
             className="flex-1"
