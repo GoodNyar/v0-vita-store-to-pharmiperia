@@ -62,17 +62,17 @@ export default function AccountPage() {
   const [bonusPoints, setBonusPoints] = useState(150)
   const bonusMax = 200
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([])
-  const [toast, setToast] = useState<string | null>(null)
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
   const [toastPos, setToastPos] = useState({ x: 0, y: 0 })
   const [savedData, setSavedData] = useState<Profile | null>(null)
   const [errors, setErrors] = useState<Record<string, boolean>>({})
 
   // Show toast notification near cursor
-  const showToast = (message: string, e?: React.MouseEvent) => {
+  const showToast = (message: string, e?: React.MouseEvent, type: "success" | "error" = "success") => {
     if (e) {
       setToastPos({ x: e.clientX, y: e.clientY - 50 })
     }
-    setToast(message)
+    setToast({ message, type })
     setTimeout(() => setToast(null), 1800)
   }
 
@@ -178,7 +178,7 @@ export default function AccountPage() {
     
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
-      showToast(lang === "ru" ? "Заполните все поля" : "Aizpildiet visus laukus", e)
+      showToast(lang === "ru" ? "Заполните все поля" : "Aizpildiet visus laukus", e, "error")
       return
     }
     setErrors({})
@@ -380,7 +380,7 @@ export default function AccountPage() {
             <p className="text-3xl font-bold text-amber-600">€{bonusEquivalent}</p>
           </div>
           <div className="rounded-lg bg-white/60 backdrop-blur-sm p-4 border border-white/40 col-span-2 sm:col-span-1">
-            <p className="text-xs text-muted-foreground mb-1">{lang === "ru" ? "До следующего" : "Līdz nākamajam"}</p>
+            <p className="text-xs text-muted-foreground mb-1">{lang === "ru" ? "��о следующего" : "Līdz nākamajam"}</p>
             <p className="text-2xl font-bold text-foreground">{bonusMax - bonusPoints}</p>
           </div>
         </div>
@@ -752,7 +752,21 @@ export default function AccountPage() {
           <Button
             variant="outline"
             onClick={() => {
-              setFormData(savedData || { id: user?.id, email: user?.email })
+              // Clear ALL fields except email
+              const cleared = {
+                id: user?.id,
+                email: user?.email,
+                first_name: "",
+                last_name: "",
+                phone: "",
+                city: "",
+                address: "",
+                postal_code: "",
+              }
+              setFormData(cleared)
+              setProfile(cleared)
+              setSavedData(null)
+              if (user?.id) localStorage.removeItem(`profile_${user.id}`)
               setErrors({})
               setIsEditing(false)
             }}
@@ -777,9 +791,9 @@ export default function AccountPage() {
           className="fixed z-[100] pointer-events-none animate-in fade-in zoom-in-95 duration-200"
           style={{ left: toastPos.x, top: toastPos.y, transform: "translate(-50%, -100%)" }}
         >
-          <div className="rounded-lg bg-emerald-500 px-3 py-2 text-sm font-medium text-white shadow-xl whitespace-nowrap flex items-center gap-2">
-            <span>✓</span>
-            {toast}
+          <div className={`rounded-lg px-3 py-2 text-sm font-medium text-white shadow-xl whitespace-nowrap flex items-center gap-2 ${toast.type === "error" ? "bg-red-400" : "bg-emerald-500"}`}>
+            <span>{toast.type === "error" ? "!" : "✓"}</span>
+            {toast.message}
           </div>
         </div>
       )}
