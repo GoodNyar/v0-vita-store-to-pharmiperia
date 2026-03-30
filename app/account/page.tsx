@@ -831,8 +831,18 @@ export default function AccountPage() {
 
       {/* Reset confirmation dialog */}
       {showResetConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="rounded-lg bg-card p-6 shadow-lg max-w-sm mx-4">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowResetConfirm(false)
+            }
+          }}
+        >
+          <div 
+            className="rounded-lg bg-card p-6 shadow-lg max-w-sm mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 className="text-lg font-semibold mb-2">
               {lang === "ru" ? "Очистить профиль?" : "Notīrēt profilu?"}
             </h3>
@@ -843,14 +853,24 @@ export default function AccountPage() {
             </p>
             <div className="flex gap-3">
               <Button
+                type="button"
                 variant="outline"
-                onClick={() => setShowResetConfirm(false)}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setShowResetConfirm(false)
+                }}
                 className="flex-1"
               >
                 {lang === "ru" ? "Отмена" : "Atcelt"}
               </Button>
               <Button
-                onClick={(e) => handleResetProfile(e)}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleResetProfile(e)
+                }}
                 disabled={isSaving}
                 className="flex-1 bg-red-500 hover:bg-red-600 text-white"
               >
