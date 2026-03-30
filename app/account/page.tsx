@@ -32,8 +32,11 @@ interface Profile {
   first_name?: string
   last_name?: string
   phone?: string
+  email?: string
   country?: string
   city?: string
+  address?: string
+  postal_code?: string
 }
 
 interface Order {
@@ -78,7 +81,7 @@ export default function AccountPage() {
       const supabase = createClient()
       const { data } = await supabase
         .from("profiles")
-        .select("id, first_name, last_name, phone, country, city")
+        .select("id, first_name, last_name, phone, email, country, city, address, postal_code")
         .eq("id", user.id)
         .maybeSingle()
       
@@ -467,108 +470,173 @@ export default function AccountPage() {
         </Link>
       </div>
 
-      {/* ===== EDIT PROFILE MODAL ===== */}
-      {isEditing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-2xl bg-background shadow-2xl border border-border max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-border p-6">
-              <h2 className="text-xl font-bold">
-                {lang === "ru" ? "Редактировать профиль" : "Rediģēt profilu"}
-              </h2>
-              <button
-                onClick={() => setIsEditing(false)}
-                className="p-2 hover:bg-muted rounded-lg transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
+      {/* ===== EDIT PROFILE — SLIDE-IN DRAWER (right side) ===== */}
+      {/* Backdrop */}
+      <div
+        onClick={() => setIsEditing(false)}
+        className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 ${isEditing ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      />
+      {/* Drawer */}
+      <div
+        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-sm flex-col bg-background shadow-2xl border-l border-border transition-transform duration-300 ease-out ${isEditing ? "translate-x-0" : "translate-x-full"}`}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-border px-6 py-4 flex-shrink-0">
+          <h2 className="text-lg font-bold text-foreground">
+            {lang === "ru" ? "Редактировать профиль" : "Rediģēt profilu"}
+          </h2>
+          <button
+            onClick={() => setIsEditing(false)}
+            className="rounded-lg p-2 transition-colors hover:bg-muted"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Form — compact, no scroll needed */}
+        <div className="flex-1 px-6 py-4 space-y-3 overflow-hidden">
+
+          {/* Row: Имя + Фамилия */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-semibold text-foreground mb-1 block">
+                {lang === "ru" ? "Имя" : "Vārds"} <span className="text-primary">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.first_name || ""}
+                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder={lang === "ru" ? "Имя" : "Vārds"}
+              />
             </div>
-
-            <div className="space-y-4 p-6">
-              <div>
-                <label className="text-sm font-semibold text-foreground mb-2 block">
-                  {lang === "ru" ? "Имя" : "Vārds"}
-                </label>
-                <input
-                  type="text"
-                  value={formData.first_name || ""}
-                  onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                  className="w-full rounded-lg border border-border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder={lang === "ru" ? "Ваше имя" : "Jūsu vārds"}
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-semibold text-foreground mb-2 block">
-                  {lang === "ru" ? "Фамилия" : "Uzvārds"}
-                </label>
-                <input
-                  type="text"
-                  value={formData.last_name || ""}
-                  onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                  className="w-full rounded-lg border border-border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder={lang === "ru" ? "Ваша фамилия" : "Jūsu uzvārds"}
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-semibold text-foreground mb-2 block">
-                  {lang === "ru" ? "Телефон" : "Telefons"}
-                </label>
-                <input
-                  type="tel"
-                  value={formData.phone || ""}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full rounded-lg border border-border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="+371 2X XXX XXX"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-semibold text-foreground mb-2 block">
-                  {lang === "ru" ? "Страна" : "Valsts"}
-                </label>
-                <input
-                  type="text"
-                  value={formData.country || ""}
-                  onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                  className="w-full rounded-lg border border-border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder={lang === "ru" ? "Ваша страна" : "Jūsu valsts"}
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-semibold text-foreground mb-2 block">
-                  {lang === "ru" ? "Город" : "Pilsēta"}
-                </label>
-                <input
-                  type="text"
-                  value={formData.city || ""}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full rounded-lg border border-border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder={lang === "ru" ? "Ваш город" : "Jūsu pilsēta"}
-                />
-              </div>
+            <div>
+              <label className="text-xs font-semibold text-foreground mb-1 block">
+                {lang === "ru" ? "Фамилия" : "Uzvārds"} <span className="text-primary">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.last_name || ""}
+                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder={lang === "ru" ? "Фамилия" : "Uzvārds"}
+              />
             </div>
+          </div>
 
-            <div className="flex gap-3 border-t border-border p-6">
-              <Button
-                variant="outline"
-                onClick={() => setIsEditing(false)}
-                className="flex-1"
-              >
-                {lang === "ru" ? "Отмена" : "Atcelt"}
-              </Button>
-              <Button
-                onClick={handleSaveProfile}
-                disabled={isSaving}
-                className="flex-1"
-              >
-                {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                {lang === "ru" ? "Сохранить" : "Saglabāt"}
-              </Button>
+          {/* Телефон с кодом +371 */}
+          <div>
+            <label className="text-xs font-semibold text-foreground mb-1 block">
+              {lang === "ru" ? "Мобильный телефон" : "Mobilā tālruņa numurs"} <span className="text-primary">*</span>
+            </label>
+            <div className="flex rounded-lg border border-border overflow-hidden focus-within:ring-2 focus-within:ring-primary">
+              <span className="flex items-center bg-muted px-3 text-sm font-medium text-muted-foreground border-r border-border whitespace-nowrap select-none">
+                +371
+              </span>
+              <input
+                type="tel"
+                value={(formData.phone || "").replace(/^\+371\s?/, "")}
+                onChange={(e) => setFormData({ ...formData, phone: "+371 " + e.target.value })}
+                className="flex-1 bg-background px-3 py-2 text-sm focus:outline-none"
+                placeholder="2X XXX XXX"
+              />
+            </div>
+          </div>
+
+          {/* Email — read only */}
+          <div>
+            <label className="text-xs font-semibold text-foreground mb-1 block">
+              {lang === "ru" ? "E-mail" : "E-pasta adrese"} <span className="text-primary">*</span>
+            </label>
+            <input
+              type="email"
+              value={user?.email || ""}
+              disabled
+              className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm text-muted-foreground cursor-not-allowed"
+            />
+          </div>
+
+          {/* Row: Страна (locked) + Город */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-semibold text-foreground mb-1 block">
+                {lang === "ru" ? "Страна" : "Valsts"} <span className="text-primary">*</span>
+              </label>
+              <input
+                type="text"
+                value={lang === "ru" ? "Латвия" : "Latvija"}
+                disabled
+                className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm text-muted-foreground cursor-not-allowed"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-foreground mb-1 block">
+                {lang === "ru" ? "Город" : "Pilsēta"} <span className="text-primary">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.city || ""}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Rīga"
+              />
+            </div>
+          </div>
+
+          {/* Адрес */}
+          <div>
+            <label className="text-xs font-semibold text-foreground mb-1 block">
+              {lang === "ru" ? "Адрес" : "Adrese"} <span className="text-primary">*</span>
+            </label>
+            <input
+              type="text"
+              value={formData.address || ""}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder={lang === "ru" ? "Улица, номер дома" : "Iela, mājas numurs"}
+            />
+          </div>
+
+          {/* Почтовый индекс с LV- по умолчанию */}
+          <div>
+            <label className="text-xs font-semibold text-foreground mb-1 block">
+              {lang === "ru" ? "Почтовый индекс" : "Pasta indekss"} <span className="text-primary">*</span>
+            </label>
+            <div className="flex rounded-lg border border-border overflow-hidden focus-within:ring-2 focus-within:ring-primary">
+              <span className="flex items-center bg-muted px-3 text-sm font-medium text-muted-foreground border-r border-border select-none">
+                LV-
+              </span>
+              <input
+                type="text"
+                value={(formData.postal_code || "").replace(/^LV-?/, "")}
+                onChange={(e) => setFormData({ ...formData, postal_code: "LV-" + e.target.value })}
+                className="flex-1 bg-background px-3 py-2 text-sm focus:outline-none"
+                placeholder="1010"
+                maxLength={4}
+              />
             </div>
           </div>
         </div>
+
+        {/* Footer buttons */}
+        <div className="flex gap-3 border-t border-border px-6 py-4 flex-shrink-0">
+          <Button
+            variant="outline"
+            onClick={() => setIsEditing(false)}
+            className="flex-1"
+          >
+            {lang === "ru" ? "Отмена" : "Atcelt"}
+          </Button>
+          <Button
+            onClick={handleSaveProfile}
+            disabled={isSaving}
+            className="flex-1"
+          >
+            {isSaving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+            {lang === "ru" ? "Сохранить" : "Saglabāt"}
+          </Button>
+        </div>
+      </div>
       )}
     </div>
   )
