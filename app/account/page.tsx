@@ -181,6 +181,69 @@ export default function AccountPage() {
     setIsSaving(true)
     
     const supabase = createClient()
+    
+    // Try to save with all fields first
+    let { error } = await supabase
+      .from("profiles")
+      .upsert(
+        {
+          id: user.id,
+          first_name: formData.first_name || null,
+          last_name: formData.last_name || null,
+          phone: formData.phone || null,
+          country: "Latvija",
+          city: formData.city || null,
+          address: formData.address || null,
+          postal_code: formData.postal_code || null,
+        },
+        { onConflict: "id" }
+      )
+
+    // If error due to missing columns, try without them
+    if (error && error.message?.includes("column")) {
+      const { error: error2 } = await supabase
+        .from("profiles")
+        .upsert(
+          {
+            id: user.id,
+            first_name: formData.first_name || null,
+            last_name: formData.last_name || null,
+            phone: formData.phone || null,
+          },
+          { onConflict: "id" }
+        )
+      error = error2
+    }
+
+    setIsSaving(false)
+
+    if (error) {
+      console.error("[v0] Save error:", error)
+      showToast(lang === "ru" ? "Ошибка сохранения" : "Kļūda saglabājot", e)
+      return
+    }
+
+    // Update local state with all fields (even if not saved to DB yet)
+    const newProfile = {
+      id: user.id,
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      phone: formData.phone,
+      email: user.email,
+      country: "Latvija",
+      city: formData.city,
+      address: formData.address,
+      postal_code: formData.postal_code,
+    }
+    setProfile(newProfile)
+    setSavedData(newProfile)
+    setIsEditing(false)
+    showToast(lang === "ru" ? "Профиль обновлен ✓" : "Profils atjaunināts ✓", e)
+  }
+
+    setIsSaving(true)
+    
+    const supabase = createClient()
     const { error } = await supabase
       .from("profiles")
       .upsert(
@@ -692,22 +755,20 @@ export default function AccountPage() {
           <Button
             variant="outline"
             onClick={() => {
-              // Clear all fields except email
-              setFormData({
-                id: user?.id,
-                first_name: "",
-                last_name: "",
-                phone: "",
-                city: "",
-                address: "",
-                postal_code: "",
-              })
-              // Also clear profile display
-              setProfile({
-                id: user?.id,
-                email: user?.email,
-              })
-              setSavedData(null)
+              // Reset to saved data or clear all except email
+              if (savedData) {
+                setFormData(savedData)
+              } else {
+                setFormData({
+                  id: user?.id,
+                  first_name: "",
+                  last_name: "",
+                  phone: "",
+                  city: "",
+                  address: "",
+                  postal_code: "",
+                })
+              }
               setIsEditing(false)
             }}
             className="flex-1"
