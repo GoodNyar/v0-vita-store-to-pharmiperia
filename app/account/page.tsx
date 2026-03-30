@@ -202,13 +202,28 @@ export default function AccountPage() {
               <User className="h-10 w-10 text-white" />
             </div>
             <div className="flex-1">
-              <h1 className="text-3xl font-bold text-foreground mb-1">{displayName}</h1>
-              <p className="text-sm text-muted-foreground mb-3">{user.email}</p>
-              {profile?.phone && (
-                <p className="text-sm text-muted-foreground">{profile.phone}</p>
-              )}
-              {profile?.city && (
-                <p className="text-sm text-muted-foreground">{profile.city}</p>
+              <h1 className="text-2xl font-bold text-foreground mb-0.5">{displayName}</h1>
+              <p className="text-sm text-muted-foreground">{user.email}</p>
+              {(profile?.phone || profile?.city || profile?.postal_code || profile?.country) && (
+                <div className="mt-3 space-y-0.5">
+                  {profile?.phone && (
+                    <p className="text-sm text-muted-foreground">{profile.phone}</p>
+                  )}
+                  {(profile?.country || profile?.city || profile?.postal_code) && (
+                    <p className="text-sm text-muted-foreground">
+                      {[
+                        profile?.country ? (lang === "ru" ? "Латвия" : "Latvija") : null,
+                        profile?.city,
+                        profile?.postal_code,
+                      ]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </p>
+                  )}
+                  {profile?.address && (
+                    <p className="text-sm text-muted-foreground">{profile.address}</p>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -342,7 +357,7 @@ export default function AccountPage() {
               {lang === "ru" ? "Рекомендуем вам" : "Mēs iesakām"}
             </h2>
             <p className="text-muted-foreground">
-              {lang === "ru" ? "Популярные товары из ваших категорий" : "Populāras preces no jūsu kategorijām"}
+              {lang === "ru" ? "Популярные товары и�� ваших категорий" : "Populāras preces no jūsu kategorijām"}
             </p>
           </div>
 
@@ -473,7 +488,7 @@ export default function AccountPage() {
       {/* ===== EDIT PROFILE — SLIDE-IN DRAWER (right side) ===== */}
       {/* Backdrop */}
       <div
-        onClick={() => setIsEditing(false)}
+        onClick={() => { setFormData(profile || {}); setIsEditing(false) }}
         className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 ${isEditing ? "opacity-100" : "opacity-0 pointer-events-none"}`}
       />
       {/* Drawer */}
@@ -486,7 +501,7 @@ export default function AccountPage() {
             {lang === "ru" ? "Редактировать профиль" : "Rediģēt profilu"}
           </h2>
           <button
-            onClick={() => setIsEditing(false)}
+            onClick={() => { setFormData(profile || {}); setIsEditing(false) }}
             className="rounded-lg p-2 transition-colors hover:bg-muted"
           >
             <X className="h-5 w-5" />
@@ -622,7 +637,10 @@ export default function AccountPage() {
         <div className="flex gap-3 border-t border-border px-6 py-4 flex-shrink-0">
           <Button
             variant="outline"
-            onClick={() => setIsEditing(false)}
+            onClick={() => {
+              setFormData(profile || {})
+              setIsEditing(false)
+            }}
             className="flex-1"
           >
             {lang === "ru" ? "Отмена" : "Atcelt"}
