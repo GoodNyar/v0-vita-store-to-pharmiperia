@@ -96,7 +96,6 @@ export default function AccountPage() {
       if (localData) {
         const parsed = JSON.parse(localData)
         setProfile(parsed)
-        setFormData(parsed)
         setSavedData(parsed)
         setProfileLoading(false)
         return
@@ -111,12 +110,10 @@ export default function AccountPage() {
       
       if (data) {
         setProfile(data)
-        setFormData(data)
         setSavedData(data)
         localStorage.setItem(`profile_${user.id}`, JSON.stringify(data))
       } else {
         setProfile({ id: user.id, email: user.email })
-        setFormData({ id: user.id, email: user.email })
         setSavedData({ id: user.id, email: user.email })
       }
       setProfileLoading(false)
@@ -126,6 +123,14 @@ export default function AccountPage() {
       loadProfile()
     }
   }, [user])
+
+  // Sync formData with savedData when opening form
+  useEffect(() => {
+    if (isEditing && savedData) {
+      setFormData(savedData)
+      setErrors({})
+    }
+  }, [isEditing])
 
   // Load mock orders
   useEffect(() => {
@@ -591,10 +596,9 @@ export default function AccountPage() {
       </div>
 
       {/* ===== EDIT PROFILE — SLIDE-IN DRAWER (right side) ===== */}
-      {/* Backdrop */}
+      {/* Backdrop — close without saving */}
       <div
         onClick={() => {
-          setErrors({})
           setIsEditing(false)
         }}
         className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 ${isEditing ? "opacity-100" : "opacity-0 pointer-events-none"}`}
