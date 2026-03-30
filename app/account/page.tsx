@@ -139,34 +139,53 @@ export default function AccountPage() {
 
   const handleSaveProfile = async () => {
     if (!user) return
-    setIsSaving(true)
-
+    
     try {
+      setIsSaving(true)
+      console.log("[v0] Saving profile...", formData)
+      
       const supabase = createClient()
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
-        .upsert({
-          id: user.id,
-          first_name: formData.first_name || null,
-          last_name: formData.last_name || null,
-          phone: formData.phone || null,
-          country: "Latvija",
-          city: formData.city || null,
-          address: formData.address || null,
-          postal_code: formData.postal_code || null,
-          updated_at: new Date().toISOString(),
-        })
+        .upsert(
+          {
+            id: user.id,
+            first_name: formData.first_name || null,
+            last_name: formData.last_name || null,
+            phone: formData.phone || null,
+          },
+          { onConflict: "id" }
+        )
+        .select()
+
+      console.log("[v0] Save response - data:", data, "error:", error)
 
       if (error) {
-        console.error("[v0] Supabase error:", error)
-        alert(lang === "ru" ? "Ошибка сохранения" : "Kļūda saglabājot")
-      } else {
-        setProfile({ ...formData, country: "Latvija" })
-        setIsEditing(false)
+        console.error("[v0] Supabase error:", error.message)
+        alert(`Error: ${error.message}`)
+        setIsSaving(false)
+        return
       }
-    } catch (error) {
-      console.error("[v0] Save error:", error)
-      alert(lang === "ru" ? "Ошибка сохранения" : "Kļūda saglabājot")
+
+      // Update local state with all fields
+      setProfile({
+        id: user.id,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        phone: formData.phone,
+        email: user.email,
+        country: "Latvija",
+        city: formData.city,
+        address: formData.address,
+        postal_code: formData.postal_code,
+      })
+
+      setIsEditing(false)
+      alert(lang === "ru" ? "✓ Профиль сохранен!" : "✓ Profils saglabāts!")
+      
+    } catch (err: any) {
+      console.error("[v0] Exception:", err)
+      alert(`Exception: ${err?.message || "Unknown error"}`)
     } finally {
       setIsSaving(false)
     }
