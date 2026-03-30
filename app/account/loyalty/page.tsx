@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { PromoBar } from "@/components/promo-bar"
 import { SiteHeader } from "@/components/site-header"
 import { CartDrawer } from "@/components/cart-drawer"
 import { SiteFooter } from "@/components/site-footer"
@@ -345,7 +344,6 @@ export default function LoyaltyPage() {
     <LangProvider>
       <CartProvider>
         <div className="min-h-screen bg-background">
-          <PromoBar />
           <SiteHeader />
           <CartDrawer />
           <main>

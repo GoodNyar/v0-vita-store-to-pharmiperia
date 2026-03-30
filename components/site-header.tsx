@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useCart } from "@/components/cart-context"
 import { useAuth } from "@/components/auth-provider"
 import { useLang, type TranslationKey } from "@/lib/i18n"
 import { useFavorites } from "@/components/favorites-provider"
-import { categories, BRANDS_ORDERED } from "@/lib/data"
+import { categories, BRANDS_ORDERED, promoBarItems } from "@/lib/data"
 import {
   Search,
   ShoppingCart,
@@ -16,7 +16,16 @@ import {
   ChevronDown,
   Leaf,
   X,
+  Truck,
+  BadgeCheck,
+  Sparkles,
 } from "lucide-react"
+
+const promoIconMap = {
+  Truck,
+  BadgeCheck,
+  Sparkles,
+}
 
 const isBrandName = (sub: string) => BRANDS_ORDERED.includes(sub)
 import { Button } from "@/components/ui/button"
@@ -29,6 +38,22 @@ export function SiteHeader() {
   const [searchValue, setSearchValue] = useState("")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [promoVisible, setPromoVisible] = useState(true)
+  const [promoIndex, setPromoIndex] = useState(0)
+
+  const promoItems = promoBarItems[lang]
+
+  useEffect(() => { setPromoIndex(0) }, [lang])
+  useEffect(() => {
+    if (!promoVisible) return
+    const interval = setInterval(() => {
+      setPromoIndex((prev) => (prev + 1) % promoItems.length)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [promoItems, promoVisible])
+
+  const currentPromo = promoItems[promoIndex]
+  const PromoIcon = promoIconMap[currentPromo?.icon as keyof typeof promoIconMap]
 
   // Map category id to translation key
   const getCategoryName = (id: string) => {
@@ -37,7 +62,27 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-30 bg-card shadow-sm">
+    <div className="sticky top-0 z-30">
+    <header className="bg-card shadow-sm">
+      {/* Promo Bar */}
+      {promoVisible && currentPromo && (
+        <div className="flex h-9 items-center bg-primary pl-2 pr-2 text-primary-foreground sm:h-8 sm:pl-4 sm:pr-4">
+          <div className="flex min-w-0 flex-1 items-center justify-center gap-1.5 sm:gap-2">
+            {PromoIcon && <PromoIcon className="h-4 w-4 flex-shrink-0" strokeWidth={2} />}
+            <span className="whitespace-nowrap font-medium" style={{ fontSize: "clamp(10px, 3.3vw, 14px)" }}>
+              {currentPromo.text}
+            </span>
+          </div>
+          <button
+            onClick={() => setPromoVisible(false)}
+            className="ml-2 flex-shrink-0 rounded-sm p-0.5 text-primary-foreground/80 transition-colors hover:text-primary-foreground"
+            aria-label="Close promotion banner"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
       {/* Top bar — hidden on mobile */}
       <div className="hidden border-b border-border md:block">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
@@ -304,5 +349,6 @@ export function SiteHeader() {
         </div>
       )}
     </header>
+    </div>
   )
 }

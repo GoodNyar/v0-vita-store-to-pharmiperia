@@ -5,7 +5,6 @@ import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Star, Minus, Plus, Truck, Shield, RotateCcw, ChevronLeft, Check, Heart } from "lucide-react"
-import { PromoBar } from "@/components/promo-bar"
 import { SiteHeader } from "@/components/site-header"
 import { CartDrawer } from "@/components/cart-drawer"
 import { SiteFooter } from "@/components/site-footer"
@@ -47,7 +46,6 @@ function ProductPageContent({ product }: { product: Product }) {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <PromoBar />
       <SiteHeader />
       <CartDrawer />
 
@@ -332,7 +330,7 @@ function ProductPageContent({ product }: { product: Product }) {
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-                    100% оригинальная французская аптечна�� косметика
+                    100% оригинальная французская ап��ечна�� косметика
                   </li>
                 </ul>
               )}

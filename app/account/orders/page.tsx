@@ -5,7 +5,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { LangProvider, useLang, formatEur } from "@/lib/i18n"
 import { CartProvider } from "@/components/cart-context"
-import { PromoBar } from "@/components/promo-bar"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
@@ -148,8 +147,7 @@ function OrdersContent() {
 
   return (
     <>
-      <PromoBar />
-      <SiteHeader />
+        <SiteHeader />
       <CartDrawer />
 
       <main className="min-h-screen bg-background py-8">

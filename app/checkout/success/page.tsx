@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { CheckCircle, Package, Truck, ArrowRight } from "lucide-react"
-import { PromoBar } from "@/components/promo-bar"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
@@ -47,8 +46,7 @@ function SuccessContent() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <PromoBar />
-      <SiteHeader />
+        <SiteHeader />
       <CartDrawer />
 
       <main className="flex-1 py-12">

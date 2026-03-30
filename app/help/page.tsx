@@ -3,7 +3,6 @@
 import Link from "next/link"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { PromoBar } from "@/components/promo-bar"
 import { CartDrawer } from "@/components/cart-drawer"
 import { CartProvider } from "@/components/cart-context"
 import { LangProvider } from "@/lib/i18n"
@@ -41,7 +40,6 @@ export default function HelpPage() {
   return (
     <LangProvider>
       <CartProvider>
-        <PromoBar />
         <SiteHeader />
         <CartDrawer />
         <main className="min-h-screen bg-background">

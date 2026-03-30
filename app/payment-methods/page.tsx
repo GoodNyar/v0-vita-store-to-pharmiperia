@@ -2,7 +2,6 @@
 
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { PromoBar } from "@/components/promo-bar"
 import { CartDrawer } from "@/components/cart-drawer"
 import { CartProvider } from "@/components/cart-context"
 import { LangProvider } from "@/lib/i18n"
@@ -31,7 +30,6 @@ export default function PaymentMethodsPage() {
   return (
     <LangProvider>
       <CartProvider>
-        <PromoBar />
         <SiteHeader />
         <CartDrawer />
         <main className="min-h-screen bg-background">
@@ -150,7 +148,7 @@ export default function PaymentMethodsPage() {
                   <h2 className="text-lg font-bold text-foreground">Промокоды и бонусы</h2>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Вы можете применить промокод на странице оформления заказа.
+                  Вы ��ожете применить промокод на странице оформления заказа.
                 </p>
                 <div className="mt-4 rounded-lg bg-primary/5 border border-primary/20 p-4">
                   <p className="text-sm font-medium text-primary">Промокод для новых покупателей</p>

@@ -1,6 +1,5 @@
 "use client"
 
-import { PromoBar } from "@/components/promo-bar"
 import { SiteHeader } from "@/components/site-header"
 import { HeroBanner } from "@/components/hero-banner"
 import { CategoryCards } from "@/components/category-cards"
@@ -30,7 +29,6 @@ function HomeContent() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <PromoBar />
       <SiteHeader />
       <CartDrawer />
       <AIRecommendations />
