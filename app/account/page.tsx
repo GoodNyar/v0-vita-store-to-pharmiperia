@@ -65,6 +65,7 @@ export default function AccountPage() {
   const [toast, setToast] = useState<string | null>(null)
   const [toastPos, setToastPos] = useState({ x: 0, y: 0 })
   const [savedData, setSavedData] = useState<Profile | null>(null)
+  const [errors, setErrors] = useState<Record<string, boolean>>({})
 
   // Show toast notification near cursor
   const showToast = (message: string, e?: React.MouseEvent) => {
@@ -165,6 +166,22 @@ export default function AccountPage() {
 
   const handleSaveProfile = async (e: React.MouseEvent) => {
     if (!user) return
+    
+    // Validate required fields
+    const newErrors: Record<string, boolean> = {}
+    if (!formData.first_name?.trim()) newErrors.first_name = true
+    if (!formData.last_name?.trim()) newErrors.last_name = true
+    if (!formData.phone?.trim()) newErrors.phone = true
+    if (!formData.city?.trim()) newErrors.city = true
+    if (!formData.address?.trim()) newErrors.address = true
+    if (!formData.postal_code?.trim()) newErrors.postal_code = true
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      showToast(lang === "ru" ? "Заполните все поля" : "Aizpildiet visus laukus", e)
+      return
+    }
+    setErrors({})
     
     // Check if data changed
     const currentData = JSON.stringify({
@@ -577,20 +594,8 @@ export default function AccountPage() {
       {/* Backdrop */}
       <div
         onClick={() => {
-          const cleared = {
-            id: user?.id,
-            email: user?.email,
-            first_name: "",
-            last_name: "",
-            phone: "",
-            city: "",
-            address: "",
-            postal_code: "",
-          }
-          setFormData(cleared)
-          setProfile(cleared)
-          setSavedData(null)
-          if (user?.id) localStorage.removeItem(`profile_${user.id}`)
+          setFormData(savedData || { id: user?.id, email: user?.email })
+          setErrors({})
           setIsEditing(false)
         }}
         className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 ${isEditing ? "opacity-100" : "opacity-0 pointer-events-none"}`}
@@ -606,20 +611,8 @@ export default function AccountPage() {
           </h2>
           <button
             onClick={() => {
-              const cleared = {
-                id: user?.id,
-                email: user?.email,
-                first_name: "",
-                last_name: "",
-                phone: "",
-                city: "",
-                address: "",
-                postal_code: "",
-              }
-              setFormData(cleared)
-              setProfile(cleared)
-              setSavedData(null)
-              if (user?.id) localStorage.removeItem(`profile_${user.id}`)
+              setFormData(savedData || { id: user?.id, email: user?.email })
+              setErrors({})
               setIsEditing(false)
             }}
             className="rounded-lg p-2 transition-colors hover:bg-muted"
@@ -642,8 +635,8 @@ export default function AccountPage() {
                 name="given-name"
                 autoComplete="given-name"
                 value={formData.first_name || ""}
-                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                onChange={(e) => { setFormData({ ...formData, first_name: e.target.value }); setErrors({ ...errors, first_name: false }) }}
+                className={`w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.first_name ? "border-red-500" : "border-border"}`}
                 placeholder={lang === "ru" ? "Имя" : "Vārds"}
               />
             </div>
@@ -656,8 +649,8 @@ export default function AccountPage() {
                 name="family-name"
                 autoComplete="family-name"
                 value={formData.last_name || ""}
-                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                onChange={(e) => { setFormData({ ...formData, last_name: e.target.value }); setErrors({ ...errors, last_name: false }) }}
+                className={`w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.last_name ? "border-red-500" : "border-border"}`}
                 placeholder={lang === "ru" ? "Фамилия" : "Uzvārds"}
               />
             </div>
@@ -673,8 +666,8 @@ export default function AccountPage() {
               name="phone"
               autoComplete="tel"
               value={formData.phone || ""}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              onChange={(e) => { setFormData({ ...formData, phone: e.target.value }); setErrors({ ...errors, phone: false }) }}
+              className={`w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.phone ? "border-red-500" : "border-border"}`}
               placeholder="+371 2X XXX XXX"
             />
           </div>
@@ -714,8 +707,8 @@ export default function AccountPage() {
                 name="city"
                 autoComplete="address-level2"
                 value={formData.city || ""}
-                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                onChange={(e) => { setFormData({ ...formData, city: e.target.value }); setErrors({ ...errors, city: false }) }}
+                className={`w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.city ? "border-red-500" : "border-border"}`}
                 placeholder="Rīga"
               />
             </div>
@@ -731,8 +724,8 @@ export default function AccountPage() {
               name="street-address"
               autoComplete="street-address"
               value={formData.address || ""}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              onChange={(e) => { setFormData({ ...formData, address: e.target.value }); setErrors({ ...errors, address: false }) }}
+              className={`w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.address ? "border-red-500" : "border-border"}`}
               placeholder={lang === "ru" ? "Улица, номер дома" : "Iela, mājas numurs"}
             />
           </div>
@@ -759,21 +752,8 @@ export default function AccountPage() {
           <Button
             variant="outline"
             onClick={() => {
-              // Clear all fields except email
-              const cleared = {
-                id: user?.id,
-                email: user?.email,
-                first_name: "",
-                last_name: "",
-                phone: "",
-                city: "",
-                address: "",
-                postal_code: "",
-              }
-              setFormData(cleared)
-              setProfile(cleared)
-              setSavedData(null)
-              if (user?.id) localStorage.removeItem(`profile_${user.id}`)
+              setFormData(savedData || { id: user?.id, email: user?.email })
+              setErrors({})
               setIsEditing(false)
             }}
             className="flex-1"
