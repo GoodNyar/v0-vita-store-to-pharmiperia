@@ -62,6 +62,14 @@ export default function AccountPage() {
   const [bonusPoints, setBonusPoints] = useState(150)
   const bonusMax = 200
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([])
+  const [toast, setToast] = useState<string | null>(null)
+  const [savedData, setSavedData] = useState<Profile | null>(null)
+
+  // Show toast notification
+  const showToast = (message: string) => {
+    setToast(message)
+    setTimeout(() => setToast(null), 2000)
+  }
 
   const bonusEquivalent = (bonusPoints * 0.01).toFixed(2)
   const bonusProgress = (bonusPoints / bonusMax) * 100
@@ -88,9 +96,11 @@ export default function AccountPage() {
       if (data) {
         setProfile(data)
         setFormData(data)
+        setSavedData(data)
       } else {
         setProfile({ id: user.id })
         setFormData({ id: user.id })
+        setSavedData({ id: user.id })
       }
       setProfileLoading(false)
     }
@@ -140,55 +150,68 @@ export default function AccountPage() {
   const handleSaveProfile = async () => {
     if (!user) return
     
-    try {
-      setIsSaving(true)
-      console.log("[v0] Saving profile...", formData)
-      
-      const supabase = createClient()
-      const { data, error } = await supabase
-        .from("profiles")
-        .upsert(
-          {
-            id: user.id,
-            first_name: formData.first_name || null,
-            last_name: formData.last_name || null,
-            phone: formData.phone || null,
-          },
-          { onConflict: "id" }
-        )
-        .select()
-
-      console.log("[v0] Save response - data:", data, "error:", error)
-
-      if (error) {
-        console.error("[v0] Supabase error:", error.message)
-        alert(`Error: ${error.message}`)
-        setIsSaving(false)
-        return
-      }
-
-      // Update local state with all fields
-      setProfile({
-        id: user.id,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        phone: formData.phone,
-        email: user.email,
-        country: "Latvija",
-        city: formData.city,
-        address: formData.address,
-        postal_code: formData.postal_code,
-      })
-
+    // Check if data changed
+    const currentData = JSON.stringify({
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      phone: formData.phone,
+      city: formData.city,
+      address: formData.address,
+      postal_code: formData.postal_code,
+    })
+    const savedDataStr = JSON.stringify({
+      first_name: savedData?.first_name,
+      last_name: savedData?.last_name,
+      phone: savedData?.phone,
+      city: savedData?.city,
+      address: savedData?.address,
+      postal_code: savedData?.postal_code,
+    })
+    
+    if (currentData === savedDataStr) {
+      showToast(lang === "ru" ? "Данные уже сохранены!" : "Dati jau saglabāti!")
       setIsEditing(false)
-      alert(lang === "ru" ? "✓ Профиль сохранен!" : "✓ Profils saglabāts!")
-      
-    } catch (err: any) {
-      console.error("[v0] Exception:", err)
-      alert(`Exception: ${err?.message || "Unknown error"}`)
-    } finally {
-      setIsSaving(false)
+      return
     }
+
+    setIsSaving(true)
+    
+    const supabase = createClient()
+    const { error } = await supabase
+      .from("profiles")
+      .upsert(
+        {
+          id: user.id,
+          first_name: formData.first_name || null,
+          last_name: formData.last_name || null,
+          phone: formData.phone || null,
+        },
+        { onConflict: "id" }
+      )
+
+    setIsSaving(false)
+
+    if (error) {
+      showToast(lang === "ru" ? "Ошибка сохранения" : "Kļūda saglabājot")
+      return
+    }
+
+    // Update local state
+    const newProfile = {
+      id: user.id,
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      phone: formData.phone,
+      email: user.email,
+      country: "Latvija",
+      city: formData.city,
+      address: formData.address,
+      postal_code: formData.postal_code,
+    }
+    setProfile(newProfile)
+    setSavedData(newProfile)
+    setIsEditing(false)
+    showToast(lang === "ru" ? "Профиль обновлен!" : "Profils atjaunināts!")
   }
 
   const handleSignOut = async () => {
@@ -510,7 +533,7 @@ export default function AccountPage() {
       {/* ===== EDIT PROFILE — SLIDE-IN DRAWER (right side) ===== */}
       {/* Backdrop */}
       <div
-        onClick={() => { setFormData(profile || {}); setIsEditing(false) }}
+        onClick={() => { setFormData(savedData || {}); setIsEditing(false) }}
         className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 ${isEditing ? "opacity-100" : "opacity-0 pointer-events-none"}`}
       />
       {/* Drawer */}
@@ -523,7 +546,7 @@ export default function AccountPage() {
             {lang === "ru" ? "Редактировать профиль" : "Rediģēt profilu"}
           </h2>
           <button
-            onClick={() => { setFormData(profile || {}); setIsEditing(false) }}
+            onClick={() => { setFormData(savedData || {}); setIsEditing(false) }}
             className="rounded-lg p-2 transition-colors hover:bg-muted"
           >
             <X className="h-5 w-5" />
@@ -661,7 +684,8 @@ export default function AccountPage() {
           <Button
             variant="outline"
             onClick={() => {
-              setFormData(profile || {})
+              // Reset to last saved data
+              setFormData(savedData || {})
               setIsEditing(false)
             }}
             className="flex-1"
@@ -678,6 +702,15 @@ export default function AccountPage() {
           </Button>
         </div>
       </div>
+
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background shadow-lg">
+            {toast}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
