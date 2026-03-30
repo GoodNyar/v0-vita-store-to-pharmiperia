@@ -241,50 +241,6 @@ export default function AccountPage() {
     showToast(lang === "ru" ? "Профиль обновлен ✓" : "Profils atjaunināts ✓", e)
   }
 
-    setIsSaving(true)
-    
-    const supabase = createClient()
-    const { error } = await supabase
-      .from("profiles")
-      .upsert(
-        {
-          id: user.id,
-          first_name: formData.first_name || null,
-          last_name: formData.last_name || null,
-          phone: formData.phone || null,
-          country: "Latvija",
-          city: formData.city || null,
-          address: formData.address || null,
-          postal_code: formData.postal_code || null,
-        },
-        { onConflict: "id" }
-      )
-
-    setIsSaving(false)
-
-    if (error) {
-      showToast(lang === "ru" ? "Ошибка сохранения" : "Kļūda saglabājot", e)
-      return
-    }
-
-    // Update local state
-    const newProfile = {
-      id: user.id,
-      first_name: formData.first_name,
-      last_name: formData.last_name,
-      phone: formData.phone,
-      email: user.email,
-      country: "Latvija",
-      city: formData.city,
-      address: formData.address,
-      postal_code: formData.postal_code,
-    }
-    setProfile(newProfile)
-    setSavedData(newProfile)
-    setIsEditing(false)
-    showToast(lang === "ru" ? "Профиль обновлен" : "Profils atjaunināts", e)
-  }
-
   const handleSignOut = async () => {
     await signOut()
     router.push("/")
