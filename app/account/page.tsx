@@ -594,7 +594,6 @@ export default function AccountPage() {
       {/* Backdrop */}
       <div
         onClick={() => {
-          setFormData(savedData || { id: user?.id, email: user?.email })
           setErrors({})
           setIsEditing(false)
         }}
@@ -611,7 +610,6 @@ export default function AccountPage() {
           </h2>
           <button
             onClick={() => {
-              setFormData(savedData || { id: user?.id, email: user?.email })
               setErrors({})
               setIsEditing(false)
             }}
@@ -740,8 +738,8 @@ export default function AccountPage() {
               name="postal-code"
               autoComplete="postal-code"
               value={formData.postal_code || ""}
-              onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              onChange={(e) => { setFormData({ ...formData, postal_code: e.target.value }); setErrors({ ...errors, postal_code: false }) }}
+              className={`w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.postal_code ? "border-red-500" : "border-border"}`}
               placeholder="LV-1010"
             />
           </div>
@@ -752,21 +750,6 @@ export default function AccountPage() {
           <Button
             variant="outline"
             onClick={() => {
-              // Clear ALL fields except email
-              const cleared = {
-                id: user?.id,
-                email: user?.email,
-                first_name: "",
-                last_name: "",
-                phone: "",
-                city: "",
-                address: "",
-                postal_code: "",
-              }
-              setFormData(cleared)
-              setProfile(cleared)
-              setSavedData(null)
-              if (user?.id) localStorage.removeItem(`profile_${user.id}`)
               setErrors({})
               setIsEditing(false)
             }}
