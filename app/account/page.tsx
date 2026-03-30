@@ -286,36 +286,9 @@ export default function AccountPage() {
     router.refresh()
   }
 
-  const handleResetProfile = async (e: React.MouseEvent) => {
+  const handleResetProfile = (e: React.MouseEvent) => {
     if (!user) return
     
-    setIsSaving(true)
-    const supabase = createClient()
-    
-    // Clear profile fields except email, using empty strings instead of null
-    const clearedProfile = {
-      id: user.id,
-      first_name: "",
-      last_name: "",
-      phone: "",
-      country: "",
-      city: "",
-      address: "",
-      postal_code: "",
-    }
-
-    const { error } = await supabase
-      .from("profiles")
-      .upsert(clearedProfile, { onConflict: "id" })
-
-    setIsSaving(false)
-
-    if (error) {
-      console.error("[v0] Reset error:", error)
-      showToast(lang === "ru" ? "Ошибка при очистке" : "Kļūda notīrējot", e, "error")
-      return
-    }
-
     // Update local state - keep only id and email
     const emailOnlyProfile = {
       id: user.id,
@@ -325,12 +298,11 @@ export default function AccountPage() {
     setSavedData(emailOnlyProfile)
     setFormData(emailOnlyProfile)
     
-    // Save to localStorage
-    localStorage.setItem(`profile_${user.id}`, JSON.stringify(emailOnlyProfile))
+    // Clear localStorage
+    localStorage.removeItem(`profile_${user.id}`)
     
     setShowResetConfirm(false)
-    // Keep drawer open with empty fields, don't close it
-    showToast(lang === "ru" ? "Данные профиля очищены" : "Profila dati notīrēti", e, "success")
+    showToast(lang === "ru" ? "Данные очищены" : "Dati notīrēti", e, "success")
   }
 
   const repeatOrder = (order: Order) => {
