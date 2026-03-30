@@ -66,6 +66,7 @@ export default function AccountPage() {
   const [toastPos, setToastPos] = useState({ x: 0, y: 0 })
   const [savedData, setSavedData] = useState<Profile | null>(null)
   const [errors, setErrors] = useState<Record<string, boolean>>({})
+  const [showResetConfirm, setShowResetConfirm] = useState(false)
 
   // Show toast notification near cursor
   const showToast = (message: string, e?: React.MouseEvent, type: "success" | "error" = "success") => {
@@ -283,6 +284,53 @@ export default function AccountPage() {
     await signOut()
     router.push("/")
     router.refresh()
+  }
+
+  const handleResetProfile = async (e: React.MouseEvent) => {
+    if (!user) return
+    
+    setIsSaving(true)
+    const supabase = createClient()
+    
+    const clearedProfile = {
+      id: user.id,
+      email: user.email,
+      first_name: null,
+      last_name: null,
+      phone: null,
+      country: null,
+      city: null,
+      address: null,
+      postal_code: null,
+    }
+
+    const { error } = await supabase
+      .from("profiles")
+      .upsert(clearedProfile, { onConflict: "id" })
+
+    setIsSaving(false)
+
+    if (error) {
+      console.error("[v0] Reset error:", error)
+      showToast(lang === "ru" ? "Ошибка при очистке" : "Kļūda notīrējot", e, "error")
+      return
+    }
+
+    // Update local state
+    const emailOnlyProfile = {
+      id: user.id,
+      email: user.email,
+    }
+    setProfile(emailOnlyProfile)
+    setSavedData(emailOnlyProfile)
+    setFormData(emailOnlyProfile)
+    
+    // Save to localStorage
+    localStorage.setItem(`profile_${user.id}`, JSON.stringify(emailOnlyProfile))
+    
+    setShowResetConfirm(false)
+    setIsEditing(false)
+    showToast(lang === "ru" ? "Данные профиля очищены" : "Profila dati notīrēti", e, "success")
   }
 
   const repeatOrder = (order: Order) => {
@@ -750,27 +798,72 @@ export default function AccountPage() {
         </div>
 
         {/* Footer buttons */}
-        <div className="flex gap-3 border-t border-border px-6 py-4 flex-shrink-0">
+        <div className="flex flex-col gap-3 border-t border-border px-6 py-4 flex-shrink-0">
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setErrors({})
+                setIsEditing(false)
+              }}
+              className="flex-1"
+            >
+              {lang === "ru" ? "Отмена" : "Atcelt"}
+            </Button>
+            <Button
+              onClick={(e) => handleSaveProfile(e)}
+              disabled={isSaving}
+              className="flex-1"
+            >
+              {isSaving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              {lang === "ru" ? "Сохранить" : "Saglabāt"}
+            </Button>
+          </div>
           <Button
-            variant="outline"
-            onClick={() => {
-              setErrors({})
-              setIsEditing(false)
-            }}
-            className="flex-1"
+            variant="ghost"
+            onClick={() => setShowResetConfirm(true)}
+            className="flex-1 text-red-500 hover:bg-red-50 hover:text-red-600"
           >
-            {lang === "ru" ? "Отмена" : "Atcelt"}
-          </Button>
-          <Button
-            onClick={(e) => handleSaveProfile(e)}
-            disabled={isSaving}
-            className="flex-1"
-          >
-            {isSaving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-            {lang === "ru" ? "Сохранить" : "Saglabāt"}
+            {lang === "ru" ? "Сбросить данные" : "Notīrēt datus"}
           </Button>
         </div>
       </div>
+
+      {/* Reset confirmation dialog */}
+      {showResetConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="rounded-lg bg-card p-6 shadow-lg max-w-sm mx-4">
+            <h3 className="text-lg font-semibold mb-2">
+              {lang === "ru" ? "Очистить профиль?" : "Notīrēt profilu?"}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              {lang === "ru" 
+                ? "Вы уверены, что хотите очистить все данные профиля кроме email? Это действие нельзя отменить." 
+                : "Vai esat pārliecināts, ka vēlaties notīrēt visus profila datus, izņemot e-pastu? Šo darbību nevar atsaukt."}
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowResetConfirm(false)}
+                className="flex-1"
+              >
+                {lang === "ru" ? "Отмена" : "Atcelt"}
+              </Button>
+              <Button
+                onClick={(e) => {
+                  handleResetProfile(e)
+                  setShowResetConfirm(false)
+                }}
+                disabled={isSaving}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white"
+              >
+                {isSaving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                {lang === "ru" ? "Очистить" : "Notīrēt"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toast notification near cursor */}
       {toast && (
