@@ -637,7 +637,6 @@ export default function AccountPage() {
           </Button>
         </div>
       </div>
-      )}
     </div>
   )
 }
