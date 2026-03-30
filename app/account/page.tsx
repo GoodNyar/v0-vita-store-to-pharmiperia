@@ -143,18 +143,30 @@ export default function AccountPage() {
 
     try {
       const supabase = createClient()
-      await supabase
+      const { error } = await supabase
         .from("profiles")
         .upsert({
           id: user.id,
-          ...formData,
+          first_name: formData.first_name || null,
+          last_name: formData.last_name || null,
+          phone: formData.phone || null,
+          country: "Latvija",
+          city: formData.city || null,
+          address: formData.address || null,
+          postal_code: formData.postal_code || null,
           updated_at: new Date().toISOString(),
         })
 
-      setProfile(formData)
-      setIsEditing(false)
+      if (error) {
+        console.error("[v0] Supabase error:", error)
+        alert(lang === "ru" ? "Ошибка сохранения" : "Kļūda saglabājot")
+      } else {
+        setProfile({ ...formData, country: "Latvija" })
+        setIsEditing(false)
+      }
     } catch (error) {
-      console.error("Error saving profile:", error)
+      console.error("[v0] Save error:", error)
+      alert(lang === "ru" ? "Ошибка сохранения" : "Kļūda saglabājot")
     } finally {
       setIsSaving(false)
     }
@@ -204,26 +216,17 @@ export default function AccountPage() {
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-foreground mb-0.5">{displayName}</h1>
               <p className="text-sm text-muted-foreground">{user.email}</p>
-              {(profile?.phone || profile?.city || profile?.postal_code || profile?.country) && (
-                <div className="mt-3 space-y-0.5">
-                  {profile?.phone && (
-                    <p className="text-sm text-muted-foreground">{profile.phone}</p>
-                  )}
-                  {(profile?.country || profile?.city || profile?.postal_code) && (
-                    <p className="text-sm text-muted-foreground">
-                      {[
-                        profile?.country ? (lang === "ru" ? "Латвия" : "Latvija") : null,
-                        profile?.city,
-                        profile?.postal_code,
-                      ]
-                        .filter(Boolean)
-                        .join(", ")}
-                    </p>
-                  )}
-                  {profile?.address && (
-                    <p className="text-sm text-muted-foreground">{profile.address}</p>
-                  )}
-                </div>
+              {profile?.phone && (
+                <p className="text-sm text-muted-foreground">{profile.phone}</p>
+              )}
+              {profile?.country && (
+                <p className="text-sm text-muted-foreground">{lang === "ru" ? "Латвия" : "Latvija"}</p>
+              )}
+              {profile?.city && (
+                <p className="text-sm text-muted-foreground">{profile.city}</p>
+              )}
+              {profile?.postal_code && (
+                <p className="text-sm text-muted-foreground">{profile.postal_code}</p>
               )}
             </div>
           </div>
@@ -519,6 +522,8 @@ export default function AccountPage() {
               </label>
               <input
                 type="text"
+                name="given-name"
+                autoComplete="given-name"
                 value={formData.first_name || ""}
                 onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
@@ -531,6 +536,8 @@ export default function AccountPage() {
               </label>
               <input
                 type="text"
+                name="family-name"
+                autoComplete="family-name"
                 value={formData.last_name || ""}
                 onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
@@ -539,23 +546,20 @@ export default function AccountPage() {
             </div>
           </div>
 
-          {/* Телефон с кодом +371 */}
+          {/* Телефон */}
           <div>
             <label className="text-xs font-semibold text-foreground mb-1 block">
               {lang === "ru" ? "Мобильный телефон" : "Mobilā tālruņa numurs"} <span className="text-primary">*</span>
             </label>
-            <div className="flex rounded-lg border border-border overflow-hidden focus-within:ring-2 focus-within:ring-primary">
-              <span className="flex items-center bg-muted px-3 text-sm font-medium text-muted-foreground border-r border-border whitespace-nowrap select-none">
-                +371
-              </span>
-              <input
-                type="tel"
-                value={(formData.phone || "").replace(/^\+371\s?/, "")}
-                onChange={(e) => setFormData({ ...formData, phone: "+371 " + e.target.value })}
-                className="flex-1 bg-background px-3 py-2 text-sm focus:outline-none"
-                placeholder="2X XXX XXX"
-              />
-            </div>
+            <input
+              type="tel"
+              name="phone"
+              autoComplete="tel"
+              value={formData.phone || ""}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="+371 2X XXX XXX"
+            />
           </div>
 
           {/* Email — read only */}
@@ -590,6 +594,8 @@ export default function AccountPage() {
               </label>
               <input
                 type="text"
+                name="city"
+                autoComplete="address-level2"
                 value={formData.city || ""}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
@@ -605,6 +611,8 @@ export default function AccountPage() {
             </label>
             <input
               type="text"
+              name="street-address"
+              autoComplete="street-address"
               value={formData.address || ""}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
@@ -612,24 +620,20 @@ export default function AccountPage() {
             />
           </div>
 
-          {/* Почтовый индекс с LV- по умолчанию */}
+          {/* Почтовый индекс */}
           <div>
             <label className="text-xs font-semibold text-foreground mb-1 block">
               {lang === "ru" ? "Почтовый индекс" : "Pasta indekss"} <span className="text-primary">*</span>
             </label>
-            <div className="flex rounded-lg border border-border overflow-hidden focus-within:ring-2 focus-within:ring-primary">
-              <span className="flex items-center bg-muted px-3 text-sm font-medium text-muted-foreground border-r border-border select-none">
-                LV-
-              </span>
-              <input
-                type="text"
-                value={(formData.postal_code || "").replace(/^LV-?/, "")}
-                onChange={(e) => setFormData({ ...formData, postal_code: "LV-" + e.target.value })}
-                className="flex-1 bg-background px-3 py-2 text-sm focus:outline-none"
-                placeholder="1010"
-                maxLength={4}
-              />
-            </div>
+            <input
+              type="text"
+              name="postal-code"
+              autoComplete="postal-code"
+              value={formData.postal_code || ""}
+              onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="LV-1010"
+            />
           </div>
         </div>
 
