@@ -728,8 +728,9 @@ export default function AccountPage() {
               {lang === "ru" ? "Мобильный телефон" : "Mobilā tālruņa numurs"} <span className="text-primary">*</span>
             </label>
             <div className="flex">
-              <div className="rounded-l-lg border border-r-0 border-border bg-muted px-3 py-2 text-sm text-muted-foreground flex items-center">
-                +371
+              <div className="rounded-l-lg border border-r-0 border-border bg-muted px-3 py-2 text-sm text-muted-foreground flex items-center gap-2">
+                <span>🇱🇻</span>
+                <span>+371</span>
               </div>
               <input
                 type="tel"
