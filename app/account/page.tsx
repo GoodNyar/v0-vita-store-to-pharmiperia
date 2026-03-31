@@ -87,37 +87,51 @@ export default function AccountPage() {
     }
   }, [authLoading, user, router])
 
-  // Load profile
+  // Load profile - Supabase is single source of truth
   useEffect(() => {
     async function loadProfile() {
       if (!user) return
       
-      // First try to load from localStorage
-      const localData = localStorage.getItem(`profile_${user.id}`)
-      if (localData) {
-        const parsed = JSON.parse(localData)
-        setProfile(parsed)
-        setSavedData(parsed)
-        setProfileLoading(false)
-        return
-      }
-      
+      setProfileLoading(true)
       const supabase = createClient()
-      const { data } = await supabase
-        .from("profiles")
-        .select("id, first_name, last_name, phone, email, country, city, address, postal_code")
-        .eq("id", user.id)
-        .maybeSingle()
       
-      if (data) {
-        setProfile(data)
-        setSavedData(data)
-        localStorage.setItem(`profile_${user.id}`, JSON.stringify(data))
-      } else {
-        setProfile({ id: user.id, email: user.email })
-        setSavedData({ id: user.id, email: user.email })
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("id, first_name, last_name, phone, email, country, city, address, postal_code")
+          .eq("id", user.id)
+          .maybeSingle()
+        
+        if (error) throw error
+        
+        if (data) {
+          setProfile(data)
+          setSavedData(data)
+          // Cache to localStorage for offline support
+          localStorage.setItem(`profile_${user.id}`, JSON.stringify(data))
+        } else {
+          // New user - no profile yet
+          const emptyProfile = { id: user.id, email: user.email }
+          setProfile(emptyProfile)
+          setSavedData(emptyProfile)
+          localStorage.removeItem(`profile_${user.id}`)
+        }
+      } catch (err) {
+        console.error("[v0] Load profile error:", err)
+        // Fallback to localStorage only if Supabase fails
+        const localData = localStorage.getItem(`profile_${user.id}`)
+        if (localData) {
+          const parsed = JSON.parse(localData)
+          setProfile(parsed)
+          setSavedData(parsed)
+        } else {
+          const emptyProfile = { id: user.id, email: user.email }
+          setProfile(emptyProfile)
+          setSavedData(emptyProfile)
+        }
+      } finally {
+        setProfileLoading(false)
       }
-      setProfileLoading(false)
     }
 
     if (user) {
@@ -286,9 +300,39 @@ export default function AccountPage() {
     router.refresh()
   }
 
-  const handleResetProfile = (e: React.MouseEvent) => {
+  const handleResetProfile = async (e: React.MouseEvent) => {
     if (!user) return
     
+    setIsSaving(true)
+    const supabase = createClient()
+    
+    try {
+      // Clear in Supabase with empty strings for all editable fields
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({
+          id: user.id,
+          first_name: "",
+          last_name: "",
+          phone: "",
+          country: "",
+          city: "",
+          address: "",
+          postal_code: "",
+        }, { onConflict: "id" })
+
+      if (error && !error.message?.includes("column")) {
+        throw error
+      }
+    } catch (err) {
+      console.error("[v0] Reset error:", err)
+      showToast(lang === "ru" ? "Ошибка при очистке" : "Kļūda notīrējot", e, "error")
+      setIsSaving(false)
+      return
+    }
+
+    setIsSaving(false)
+
     // Update local state - keep only id and email
     const emailOnlyProfile = {
       id: user.id,
@@ -683,15 +727,26 @@ export default function AccountPage() {
             <label className="text-xs font-semibold text-foreground mb-1 block">
               {lang === "ru" ? "Мобильный телефон" : "Mobilā tālruņa numurs"} <span className="text-primary">*</span>
             </label>
-            <input
-              type="tel"
-              name="phone"
-              autoComplete="tel"
-              value={formData.phone || ""}
-              onChange={(e) => { setFormData({ ...formData, phone: e.target.value }); setErrors({ ...errors, phone: false }) }}
-              className={`w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.phone ? "border-red-500" : "border-border"}`}
-              placeholder="+371 2X XXX XXX"
-            />
+            <div className="flex">
+              <div className="rounded-l-lg border border-r-0 border-border bg-muted px-3 py-2 text-sm text-muted-foreground flex items-center">
+                +371
+              </div>
+              <input
+                type="tel"
+                name="phone"
+                autoComplete="tel"
+                value={(formData.phone || "").replace("+371 ", "").replace("+371", "")}
+                onChange={(e) => { 
+                  const digits = e.target.value.replace(/\D/g, "")
+                  const formatted = digits ? `+371 ${digits}` : ""
+                  setFormData({ ...formData, phone: formatted })
+                  setErrors({ ...errors, phone: false })
+                }}
+                className={`flex-1 rounded-r-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.phone ? "border-red-500" : "border-border"}`}
+                placeholder="2X XXX XXX"
+                inputMode="numeric"
+              />
+            </div>
           </div>
 
           {/* Email — read only */}
@@ -757,15 +812,27 @@ export default function AccountPage() {
             <label className="text-xs font-semibold text-foreground mb-1 block">
               {lang === "ru" ? "Почтовый индекс" : "Pasta indekss"} <span className="text-primary">*</span>
             </label>
-            <input
-              type="text"
-              name="postal-code"
-              autoComplete="postal-code"
-              value={formData.postal_code || ""}
-              onChange={(e) => { setFormData({ ...formData, postal_code: e.target.value }); setErrors({ ...errors, postal_code: false }) }}
-              className={`w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.postal_code ? "border-red-500" : "border-border"}`}
-              placeholder="LV-1010"
-            />
+            <div className="flex">
+              <div className="rounded-l-lg border border-r-0 border-border bg-muted px-3 py-2 text-sm text-muted-foreground flex items-center">
+                LV-
+              </div>
+              <input
+                type="text"
+                name="postal-code"
+                autoComplete="postal-code"
+                value={(formData.postal_code || "").replace("LV-", "")}
+                onChange={(e) => { 
+                  const digits = e.target.value.replace(/\D/g, "")
+                  const formatted = digits ? `LV-${digits}` : ""
+                  setFormData({ ...formData, postal_code: formatted })
+                  setErrors({ ...errors, postal_code: false })
+                }}
+                className={`flex-1 rounded-r-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.postal_code ? "border-red-500" : "border-border"}`}
+                placeholder="1010"
+                inputMode="numeric"
+                maxLength="4"
+              />
+            </div>
           </div>
         </div>
 
