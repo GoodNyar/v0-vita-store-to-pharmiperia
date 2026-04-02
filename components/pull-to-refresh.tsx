@@ -1,124 +1,97 @@
 "use client"
 
-import { useState, useEffect, useRef, type ReactNode } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { RefreshCw } from "lucide-react"
+import { useLang } from "@/lib/i18n"
 
-interface PullToRefreshProps {
-  children: ReactNode
-}
-
-export function PullToRefresh({ children }: PullToRefreshProps) {
+export function PullToRefresh({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const [pulling, setPulling] = useState(false)
+  const { t } = useLang()
   const [pullDistance, setPullDistance] = useState(0)
-  const [refreshing, setRefreshing] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const startY = useRef(0)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const THRESHOLD = 80 // Pull distance needed to trigger refresh
-
   useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    // Only enable on mobile
-    const isMobile = window.matchMedia("(max-width: 768px)").matches
-    if (!isMobile) return
-
-    let currentPullDistance = 0
+    if (typeof window === "undefined") return
 
     const handleTouchStart = (e: TouchEvent) => {
-      // Only start if at top of page
-      if (window.scrollY <= 0) {
+      // Only trigger if at the top of page and on mobile
+      if (window.scrollY === 0 && window.innerWidth < 768) {
         startY.current = e.touches[0].clientY
-        setPulling(true)
       }
     }
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (!pulling || window.scrollY > 0) {
-        setPulling(false)
-        setPullDistance(0)
-        return
-      }
+      if (startY.current === 0 || isRefreshing) return
 
       const currentY = e.touches[0].clientY
-      const diff = currentY - startY.current
+      const distance = currentY - startY.current
 
-      if (diff > 0) {
-        // Pulling down - apply resistance
-        currentPullDistance = Math.min(diff * 0.5, THRESHOLD * 1.5)
-        setPullDistance(currentPullDistance)
-        
-        if (diff > 10) {
-          e.preventDefault() // Prevent native scroll
-        }
+      // Only pull down, with resistance
+      if (distance > 0) {
+        setPullDistance(Math.min(distance * 0.5, 100))
       }
     }
 
     const handleTouchEnd = () => {
-      if (currentPullDistance >= THRESHOLD && !refreshing) {
+      if (pullDistance > 60 && !isRefreshing) {
         // Trigger refresh
-        setRefreshing(true)
-        setPullDistance(THRESHOLD)
+        setIsRefreshing(true)
         
-        // Navigate to home and refresh
+        // Simulate refresh
         setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: "smooth" })
           router.push("/")
           router.refresh()
-          setRefreshing(false)
+          setIsRefreshing(false)
           setPullDistance(0)
-        }, 600)
+        }, 1000)
       } else {
         setPullDistance(0)
       }
-      setPulling(false)
-      currentPullDistance = 0
+      startY.current = 0
     }
 
-    container.addEventListener("touchstart", handleTouchStart, { passive: true })
-    container.addEventListener("touchmove", handleTouchMove, { passive: false })
-    container.addEventListener("touchend", handleTouchEnd, { passive: true })
+    window.addEventListener("touchstart", handleTouchStart)
+    window.addEventListener("touchmove", handleTouchMove, { passive: true })
+    window.addEventListener("touchend", handleTouchEnd)
 
     return () => {
-      container.removeEventListener("touchstart", handleTouchStart)
-      container.removeEventListener("touchmove", handleTouchMove)
-      container.removeEventListener("touchend", handleTouchEnd)
+      window.removeEventListener("touchstart", handleTouchStart)
+      window.removeEventListener("touchmove", handleTouchMove)
+      window.removeEventListener("touchend", handleTouchEnd)
     }
-  }, [pulling, refreshing, router])
-
-  const progress = Math.min(pullDistance / THRESHOLD, 1)
-  const rotation = progress * 360
+  }, [pullDistance, isRefreshing, router])
 
   return (
-    <div ref={containerRef} className="relative min-h-screen">
+    <div ref={containerRef} style={{ transform: `translateY(${pullDistance}px)` }} className="transition-transform duration-200">
       {/* Pull indicator */}
-      <div 
-        className="fixed left-0 right-0 flex justify-center pointer-events-none z-50 transition-transform duration-200"
-        style={{ 
-          top: 0,
-          transform: `translateY(${Math.max(pullDistance - 60, -60)}px)`,
-          opacity: progress
-        }}
-      >
-        <div className="bg-card rounded-full p-3 shadow-lg border border-border">
-          <RefreshCw 
-            className={`h-6 w-6 text-primary transition-transform ${refreshing ? "animate-spin" : ""}`}
-            style={{ transform: refreshing ? undefined : `rotate(${rotation}deg)` }}
-          />
+      {(pullDistance > 0 || isRefreshing) && (
+        <div
+          className="fixed top-0 left-1/2 -translate-x-1/2 z-40 pointer-events-none md:hidden"
+          style={{
+            opacity: Math.min(pullDistance / 60, 1),
+            transform: `translateX(-50%) translateY(${Math.max(-30 + pullDistance, -30)}px)`,
+          }}
+        >
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-muted">
+              <RefreshCw
+                className={`h-6 w-6 text-muted-foreground ${isRefreshing ? "animate-spin" : ""}`}
+                style={{
+                  transform: `rotate(${Math.min(pullDistance * 3, 360)}deg)`,
+                  transition: isRefreshing ? "none" : "transform 0.1s",
+                }}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground whitespace-nowrap">{t("refresh") || "Перезагрузить"}</p>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Content with pull offset */}
-      <div 
-        style={{ 
-          transform: pullDistance > 0 ? `translateY(${pullDistance * 0.3}px)` : undefined,
-          transition: pulling ? "none" : "transform 0.2s ease-out"
-        }}
-      >
-        {children}
-      </div>
+      {children}
     </div>
   )
 }
