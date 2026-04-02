@@ -729,7 +729,13 @@ export default function AccountPage() {
             </label>
             <div className="flex">
               <div className="rounded-l-lg border border-r-0 border-border bg-muted px-3 py-2 text-sm text-muted-foreground flex items-center gap-2">
-                <span>🇱🇻</span>
+                <Image 
+                  src="/flags/latvia.svg" 
+                  alt="Latvia flag" 
+                  width={24} 
+                  height={12}
+                  className="w-6 h-3"
+                />
                 <span>+371</span>
               </div>
               <input
