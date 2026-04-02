@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import Image from "next/image"
 import { Star, Heart } from "lucide-react"
 import type { Product } from "@/lib/data"
@@ -7,7 +8,7 @@ import { useCart } from "@/components/cart-context"
 import { useLang, formatEur } from "@/lib/i18n"
 import { useFavorites } from "@/components/favorites-provider"
 
-export function ProductCard({ product }: { product: Product }) {
+function ProductCardComponent({ product }: { product: Product }) {
   const { addToCart } = useCart()
   const { t } = useLang()
   const { isFavorited, toggleFavorite } = useFavorites()
@@ -47,6 +48,8 @@ export function ProductCard({ product }: { product: Product }) {
               alt={product.name}
               fill
               className="object-contain object-center p-4"
+              loading="lazy"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           </div>
         </div>
@@ -121,3 +124,5 @@ export function ProductCard({ product }: { product: Product }) {
     </div>
   )
 }
+
+export const ProductCard = memo(ProductCardComponent)

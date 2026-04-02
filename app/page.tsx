@@ -1,5 +1,6 @@
 "use client"
 
+import { lazy, Suspense } from "react"
 import { SiteHeader } from "@/components/site-header"
 import { HeroBanner } from "@/components/hero-banner"
 import { CategoryCards } from "@/components/category-cards"
@@ -9,13 +10,42 @@ import { ProductFilters } from "@/components/product-filters"
 import { CartDrawer } from "@/components/cart-drawer"
 import { useCart } from "@/components/cart-context"
 import { SiteFooter } from "@/components/site-footer"
-import { PromoCards } from "@/components/promo-cards"
-import { WhyBuyUs } from "@/components/why-buy-us"
-import { AIRecommendations } from "@/components/ai-recommendations"
-import { LiveChat } from "@/components/live-chat"
+import { Skeleton } from "@/components/loading-skeleton"
 import { useLang, formatEur } from "@/lib/i18n"
 import { products } from "@/lib/data"
 import { Truck, Shield, RotateCcw, Flame, Leaf } from "lucide-react"
+
+// Lazy load components below the fold
+const PromoCards = lazy(() => import("@/components/promo-cards").then(m => ({ default: m.PromoCards })))
+const WhyBuyUs = lazy(() => import("@/components/why-buy-us").then(m => ({ default: m.WhyBuyUs })))
+const AIRecommendations = lazy(() => import("@/components/ai-recommendations").then(m => ({ default: m.AIRecommendations })))
+const LiveChat = lazy(() => import("@/components/live-chat").then(m => ({ default: m.LiveChat })))
+
+function PromoSkeleton() {
+  return (
+    <div className="mt-10">
+      <Skeleton className="h-8 w-32 mb-4" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {Array.from({ length: 2 }).map((_, i) => (
+          <Skeleton key={i} className="h-56 rounded-xl" />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function WhyBuyUsSkeleton() {
+  return (
+    <div className="mt-12">
+      <Skeleton className="h-8 w-48 mb-6" />
+      <div className="space-y-6">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-20 rounded-lg" />
+        ))}
+      </div>
+    </div>
+  )
+}
 
 function HomeContent() {
   const { t } = useLang()
@@ -31,8 +61,6 @@ function HomeContent() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       <CartDrawer />
-      <AIRecommendations />
-      <LiveChat />
 
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-4 py-6">
@@ -114,11 +142,14 @@ function HomeContent() {
             </div>
           </section>
 
-          {/* Promo Cards */}
-          <PromoCards />
+          {/* Lazy loaded components */}
+          <Suspense fallback={<PromoSkeleton />}>
+            <PromoCards />
+          </Suspense>
 
-          {/* Why Buy Us section */}
-          <WhyBuyUs />
+          <Suspense fallback={<WhyBuyUsSkeleton />}>
+            <WhyBuyUs />
+          </Suspense>
 
           {/* Newsletter */}
           <section className="mt-12 mb-8 rounded-xl bg-primary px-4 py-4 sm:px-6 sm:py-3.5">
@@ -150,6 +181,14 @@ function HomeContent() {
           </section>
         </div>
       </main>
+
+      <Suspense fallback={null}>
+        <AIRecommendations />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <LiveChat />
+      </Suspense>
 
       <SiteFooter />
     </div>

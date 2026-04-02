@@ -54,6 +54,8 @@ export function PromoCards() {
                 alt={t(promo.titleKey)}
                 fill
                 className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+                sizes="(max-width: 640px) 100vw, 50vw"
               />
               {/* Base gradient for text readability */}
               <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/40 to-transparent" />

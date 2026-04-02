@@ -87,14 +87,32 @@ export default function AccountPage() {
     }
   }, [authLoading, user, router])
 
-  // Load profile - Supabase is single source of truth
+  // Load profile - show cache instantly, refresh from Supabase in background
   useEffect(() => {
-    async function loadProfile() {
-      if (!user) return
-      
-      setProfileLoading(true)
+    if (!user) return
+    
+    // 1. Show cached data instantly (if exists)
+    const localData = localStorage.getItem(`profile_${user.id}`)
+    if (localData) {
+      try {
+        const parsed = JSON.parse(localData)
+        setProfile(parsed)
+        setSavedData(parsed)
+        setProfileLoading(false) // Immediate UI update with cached data
+      } catch {
+        // Corrupt cache, skip
+      }
+    } else {
+      // No cache - show empty profile
+      const emptyProfile = { id: user.id, email: user.email }
+      setProfile(emptyProfile)
+      setSavedData(emptyProfile)
+      setProfileLoading(false)
+    }
+
+    // 2. Refresh from Supabase in background (don't block UI)
+    async function refreshFromSupabase() {
       const supabase = createClient()
-      
       try {
         const { data, error } = await supabase
           .from("profiles")
@@ -107,36 +125,15 @@ export default function AccountPage() {
         if (data) {
           setProfile(data)
           setSavedData(data)
-          // Cache to localStorage for offline support
           localStorage.setItem(`profile_${user.id}`, JSON.stringify(data))
-        } else {
-          // New user - no profile yet
-          const emptyProfile = { id: user.id, email: user.email }
-          setProfile(emptyProfile)
-          setSavedData(emptyProfile)
-          localStorage.removeItem(`profile_${user.id}`)
         }
       } catch (err) {
-        console.error("[v0] Load profile error:", err)
-        // Fallback to localStorage only if Supabase fails
-        const localData = localStorage.getItem(`profile_${user.id}`)
-        if (localData) {
-          const parsed = JSON.parse(localData)
-          setProfile(parsed)
-          setSavedData(parsed)
-        } else {
-          const emptyProfile = { id: user.id, email: user.email }
-          setProfile(emptyProfile)
-          setSavedData(emptyProfile)
-        }
-      } finally {
-        setProfileLoading(false)
+        console.error("[v0] Supabase refresh error:", err)
+        // Keep cached data on error
       }
     }
 
-    if (user) {
-      loadProfile()
-    }
+    refreshFromSupabase()
   }, [user])
 
   // Sync formData with savedData when opening form
