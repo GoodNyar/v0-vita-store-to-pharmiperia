@@ -6,6 +6,7 @@ import { AuthProvider } from '@/components/auth-provider'
 import { CartProvider } from '@/components/cart-context'
 import { FavoritesProvider } from '@/components/favorites-provider'
 import { LangProvider } from '@/lib/i18n'
+import { PullToRefresh } from '@/components/pull-to-refresh'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -47,7 +48,9 @@ export default function RootLayout({
             <FavoritesProvider>
               <CartProvider>
                 <ToastProvider>
-                  {children}
+                  <PullToRefresh>
+                    {children}
+                  </PullToRefresh>
                 </ToastProvider>
               </CartProvider>
             </FavoritesProvider>
