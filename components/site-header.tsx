@@ -253,84 +253,64 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* Category Navigation — fully collapses on scroll */}
-      <nav className={`hidden border-t border-border lg:block overflow-hidden transition-all duration-300 ease-in-out ${isScrolled ? "max-h-0 opacity-0" : "max-h-12 opacity-100"}`}>
+      {/* Category Navigation — categories collapse, Specials/Popular stay visible */}
+      <nav className="hidden border-t border-border lg:block">
         <div className="mx-auto max-w-7xl px-4">
-          <ul className="flex items-center justify-center gap-0">
-            {categories.map((category) => (
-              <li
-                key={category.id}
-                className="relative"
-                onMouseEnter={() => setActiveDropdown(category.id)}
-                onMouseLeave={() => setActiveDropdown(null)}
-              >
-                <Link 
-                  href={`/category/${category.id}`}
-                  className="flex items-center gap-1 px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:text-primary whitespace-nowrap"
-                >
-                  {getCategoryName(category.id)}
-                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-                </Link>
+          <div className="flex items-center justify-between py-1">
+            {/* Left: Specials - always visible */}
+            <Link
+              href="/promotions"
+              className="px-3 py-2.5 text-sm font-medium text-destructive hover:text-destructive/80 transition-colors flex-shrink-0"
+            >
+              {t("specials")}
+            </Link>
 
-                {activeDropdown === category.id && category.subcategories.length > 0 && (
-                  <div className="absolute left-0 top-full z-50 min-w-[200px] rounded-lg border border-border bg-card py-2 shadow-lg">
-                    {category.subcategories.map((sub) => (
-                      <Link
-                        key={sub}
-                        href={isBrandName(sub) ? `/brand/${sub.toLowerCase().replace(/\s+/g, '-')}` : `/category/${category.id}?filter=${sub}`}
-                        className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
-                      >
-                        {isBrandName(sub) ? sub : t(sub as TranslationKey)}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </li>
-            ))}
-            <li>
-              <Link
-                href="/promotions"
-                className="px-3 py-2.5 text-sm font-medium text-destructive hover:text-destructive/80 transition-colors"
-              >
-                {t("specials")}
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/bestsellers"
-                className="px-3 py-2.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-              >
-                {t("bestSellers")}
-              </Link>
-            </li>
-          </ul>
+            {/* Center: Categories - collapse on scroll */}
+            <ul className={`flex items-center justify-center gap-0 overflow-hidden transition-all duration-300 ease-in-out ${isScrolled ? "max-w-0 opacity-0" : "max-w-4xl opacity-100"}`}>
+              {categories.map((category) => (
+                <li
+                  key={category.id}
+                  className="relative"
+                  onMouseEnter={() => setActiveDropdown(category.id)}
+                  onMouseLeave={() => setActiveDropdown(null)}
+                >
+                  <Link 
+                    href={`/category/${category.id}`}
+                    className="flex items-center gap-1 px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:text-primary whitespace-nowrap"
+                  >
+                    {getCategoryName(category.id)}
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  </Link>
+
+                  {activeDropdown === category.id && category.subcategories.length > 0 && (
+                    <div className="absolute left-0 top-full z-50 min-w-[200px] rounded-lg border border-border bg-card py-2 shadow-lg">
+                      {category.subcategories.map((sub) => (
+                        <Link
+                          key={sub}
+                          href={isBrandName(sub) ? `/brand/${sub.toLowerCase().replace(/\s+/g, '-')}` : `/category/${category.id}?filter=${sub}`}
+                          className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
+                        >
+                          {isBrandName(sub) ? sub : t(sub as TranslationKey)}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+
+            {/* Right: Popular - always visible */}
+            <Link
+              href="/bestsellers"
+              className="px-3 py-2.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors flex-shrink-0"
+            >
+              {t("bestSellers")}
+            </Link>
+          </div>
         </div>
       </nav>
 
     </header>
-
-    {/* Floating premium pills - appear when scrolled */}
-    <div 
-      className={`hidden lg:flex fixed right-6 z-40 flex-col gap-3 transition-all duration-500 ease-out ${
-        isScrolled 
-          ? "opacity-100 translate-y-0 pointer-events-auto" 
-          : "opacity-0 -translate-y-4 pointer-events-none"
-      }`}
-      style={{ top: "90px" }}
-    >
-      <Link
-        href="/promotions"
-        className="group flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-rose-500 to-orange-500 text-white rounded-full shadow-lg shadow-rose-500/25 hover:shadow-xl hover:shadow-rose-500/30 hover:scale-105 transition-all duration-300"
-      >
-        <span className="text-sm font-semibold tracking-wide">{t("specials")}</span>
-      </Link>
-      <Link
-        href="/bestsellers"
-        className="group flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-emerald-500 text-white rounded-full shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-105 transition-all duration-300"
-      >
-        <span className="text-sm font-semibold tracking-wide">{t("bestSellers")}</span>
-      </Link>
-    </div>
 
     {/* Sidebar Menu - slides from left */}
     {sidebarOpen && (
