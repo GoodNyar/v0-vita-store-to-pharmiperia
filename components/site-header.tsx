@@ -37,11 +37,26 @@ export function SiteHeader() {
   const { lang, setLang, t } = useLang()
   const [searchValue, setSearchValue] = useState("")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [promoVisible, setPromoVisible] = useState(true)
   const [promoIndex, setPromoIndex] = useState(0)
+  const [isScrolled, setIsScrolled] = useState(false)
 
   const promoItems = promoBarItems[lang]
+
+  // Track scroll position
+  useEffect(() => {
+    let lastScrollY = 0
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      // Hide top bar and categories when scrolling down past 50px
+      setIsScrolled(currentScrollY > 50)
+      lastScrollY = currentScrollY
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   useEffect(() => { setPromoIndex(0) }, [lang])
   useEffect(() => {
@@ -83,8 +98,8 @@ export function SiteHeader() {
         </div>
       )}
 
-      {/* Top bar — hidden on mobile */}
-      <div className="hidden border-b border-border md:block">
+      {/* Top bar — hidden on mobile, collapses on scroll */}
+      <div className={`hidden border-b border-border md:block overflow-hidden transition-all duration-300 ease-in-out ${isScrolled ? "max-h-0 opacity-0" : "max-h-12 opacity-100"}`}>
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="font-medium text-foreground">{t("deliverTo")}</span>
@@ -130,17 +145,13 @@ export function SiteHeader() {
       {/* Main header */}
       <div className="mx-auto max-w-7xl px-4 py-2.5 lg:py-3">
         <div className="flex items-center gap-3 lg:gap-6">
-          {/* Mobile: menu button only */}
+          {/* Burger menu button - visible on all screens */}
           <button
-            className="rounded-lg p-1.5 text-foreground hover:bg-muted lg:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
+            className="rounded-lg p-1.5 text-foreground hover:bg-muted"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open menu"
           >
-            {mobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
+            <Menu className="h-5 w-5" />
           </button>
 
           {/* Logo */}
@@ -242,8 +253,8 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* Category Navigation */}
-      <nav className="hidden border-t border-border lg:block">
+      {/* Category Navigation — collapses on scroll */}
+      <nav className={`hidden border-t border-border lg:block overflow-hidden transition-all duration-300 ease-in-out ${isScrolled ? "max-h-0 opacity-0" : "max-h-12 opacity-100"}`}>
         <div className="mx-auto max-w-7xl px-4">
           <ul className="flex items-center justify-center gap-0">
             {categories.map((category) => (
@@ -298,57 +309,113 @@ export function SiteHeader() {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="border-t border-border bg-card lg:hidden">
-          <div className="px-4 py-3">
-            {/* Language switcher inside menu */}
-            <div className="mb-4 flex items-center gap-2">
-              <span className="text-xs text-muted-foreground font-medium">{t("language")}:</span>
-              <div className="flex items-center rounded-lg border border-border overflow-hidden">
-                <button
-                  onClick={() => setLang("ru")}
-                  className={`px-3 py-1.5 text-sm font-semibold transition-colors ${
-                    lang === "ru"
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  RU
-                </button>
-                <button
-                  onClick={() => setLang("lv")}
-                  className={`px-3 py-1.5 text-sm font-semibold transition-colors ${
-                    lang === "lv"
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  LV
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              {categories.map((category) => (
-                <a
-                  key={category.id}
-                  href="#"
-                  className="border-b border-border/50 py-3 text-sm font-medium text-foreground transition-colors hover:text-primary"
-                >
-                  {getCategoryName(category.id)}
-                </a>
-              ))}
-              <a href="#" className="border-b border-border/50 py-3 text-sm font-medium text-destructive">
-                {t("specials")}
-              </a>
-              <a href="#" className="py-3 text-sm font-medium text-primary">
-                {t("bestSellers")}
-              </a>
-            </div>
+    </header>
+
+    {/* Sidebar Menu - slides from left */}
+    {sidebarOpen && (
+      <div 
+        className="fixed inset-0 z-50 bg-black/30" 
+        onClick={() => setSidebarOpen(false)}
+      />
+    )}
+    <div 
+      className={`fixed top-0 left-0 z-50 h-full w-72 bg-card shadow-xl transition-transform duration-300 ease-in-out ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+    >
+      {/* Sidebar header */}
+      <div className="flex items-center justify-between border-b border-border p-4">
+        <Link href="/" className="flex items-center gap-1.5" onClick={() => setSidebarOpen(false)}>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+            <Leaf className="h-4 w-4 text-primary-foreground" />
+          </div>
+          <span className="text-lg font-bold text-foreground">Pharmiperia</span>
+        </Link>
+        <button
+          onClick={() => setSidebarOpen(false)}
+          className="rounded-lg p-1.5 text-foreground hover:bg-muted"
+          aria-label="Close menu"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+
+      {/* Language switcher */}
+      <div className="border-b border-border p-4">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground font-medium">{t("language")}:</span>
+          <div className="flex items-center rounded-lg border border-border overflow-hidden">
+            <button
+              onClick={() => setLang("ru")}
+              className={`px-3 py-1.5 text-sm font-semibold transition-colors ${
+                lang === "ru"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              RU
+            </button>
+            <button
+              onClick={() => setLang("lv")}
+              className={`px-3 py-1.5 text-sm font-semibold transition-colors ${
+                lang === "lv"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              LV
+            </button>
           </div>
         </div>
-      )}
-    </header>
+      </div>
+
+      {/* Help links */}
+      <div className="border-b border-border p-4">
+        <Link 
+          href="/help" 
+          className="block py-2 text-sm text-muted-foreground hover:text-primary"
+          onClick={() => setSidebarOpen(false)}
+        >
+          {t("help")}
+        </Link>
+        <Link 
+          href="/track" 
+          className="block py-2 text-sm text-muted-foreground hover:text-primary"
+          onClick={() => setSidebarOpen(false)}
+        >
+          {t("trackOrder")}
+        </Link>
+      </div>
+
+      {/* Categories */}
+      <div className="overflow-y-auto p-4" style={{ maxHeight: "calc(100vh - 220px)" }}>
+        <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{t("categories") || "Categories"}</p>
+        <div className="flex flex-col">
+          {categories.map((category) => (
+            <Link
+              key={category.id}
+              href={`/category/${category.id}`}
+              className="border-b border-border/50 py-3 text-sm font-medium text-foreground transition-colors hover:text-primary"
+              onClick={() => setSidebarOpen(false)}
+            >
+              {getCategoryName(category.id)}
+            </Link>
+          ))}
+          <Link 
+            href="/promotions" 
+            className="border-b border-border/50 py-3 text-sm font-medium text-destructive"
+            onClick={() => setSidebarOpen(false)}
+          >
+            {t("specials")}
+          </Link>
+          <Link 
+            href="/bestsellers" 
+            className="py-3 text-sm font-medium text-primary"
+            onClick={() => setSidebarOpen(false)}
+          >
+            {t("bestSellers")}
+          </Link>
+        </div>
+      </div>
+    </div>
     </div>
   )
 }
