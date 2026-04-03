@@ -50,6 +50,8 @@ export function AuthProvider({ children, initialSession = null }: AuthProviderPr
     await supabase.auth.signOut()
     setUser(null)
     setSession(null)
+    // Redirect to home after logout
+    window.location.href = "/"
   }, [])
 
   useEffect(() => {
