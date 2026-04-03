@@ -90,21 +90,33 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       if (event === "SIGNED_IN" && session?.user) {
         setUser({ id: session.user.id })
         const localFavs = getLocalFavorites()
-        if (localFavs.length > 0) {
-          await supabase.from("favorites").insert(
-            localFavs.map((product_id) => ({ user_id: session.user.id, product_id }))
-          )
-          setLocalFavorites([])
-        }
-        const { data } = await supabase
+        
+        // First fetch existing DB favorites
+        const { data: existingData } = await supabase
           .from("favorites")
           .select("product_id")
           .eq("user_id", session.user.id)
-        setFavorites(data?.map((f: any) => f.product_id) || [])
+        const existingIds = existingData?.map((f: any) => f.product_id) || []
+        
+        // Merge local into DB (only new ones, skip duplicates)
+        if (localFavs.length > 0) {
+          const toInsert = localFavs.filter(id => !existingIds.includes(id))
+          if (toInsert.length > 0) {
+            await supabase.from("favorites").insert(
+              toInsert.map((product_id) => ({ user_id: session.user.id, product_id }))
+            )
+          }
+          setLocalFavorites([]) // Clear local after merge
+        }
+        
+        // Set merged favorites
+        const merged = [...new Set([...existingIds, ...localFavs])]
+        setFavorites(merged)
       } else if (event === "SIGNED_OUT") {
         setUser(null)
-        setFavorites([])
-        setLocalFavorites([])
+        // Keep favorites for guest use after logout - don't clear localStorage
+        // Only clear in-memory state, guest will use localStorage
+        setFavorites(getLocalFavorites())
       }
     })
 

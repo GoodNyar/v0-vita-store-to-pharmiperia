@@ -68,9 +68,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
           console.log("[v0] Merged guest cart into account:", mergedItems.length, "items")
         }
       } else if (event === "SIGNED_OUT") {
-        // Clear cart on logout
-        setItems([])
-        saveCartToStorage([])
+        // Keep cart items for guest use after logout - don't clear
+        // User can continue shopping as guest
       }
     })
 
