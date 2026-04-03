@@ -13,7 +13,6 @@ import {
   User,
   Heart,
   Menu,
-  ChevronDown,
   Leaf,
   X,
   Truck,
@@ -39,6 +38,7 @@ export function SiteHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null)
   const [promoVisible, setPromoVisible] = useState(true)
   const [promoIndex, setPromoIndex] = useState(0)
   const [isScrolled, setIsScrolled] = useState(false)
@@ -74,6 +74,19 @@ export function SiteHeader() {
   const getCategoryName = (id: string) => {
     const key = id as Parameters<typeof t>[0]
     try { return t(key) } catch { return id }
+  }
+
+  // Handle dropdown hover with delay
+  const handleCategoryMouseEnter = (categoryId: string) => {
+    if (hoverTimeout) clearTimeout(hoverTimeout)
+    setActiveDropdown(categoryId)
+  }
+
+  const handleCategoryMouseLeave = () => {
+    const timeout = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150) // 150ms delay before closing
+    setHoverTimeout(timeout)
   }
 
   return (
@@ -260,29 +273,43 @@ export function SiteHeader() {
             {categories.map((category) => (
               <li
                 key={category.id}
-                className="relative"
-                onMouseEnter={() => setActiveDropdown(category.id)}
-                onMouseLeave={() => setActiveDropdown(null)}
+                className="relative group"
+                onMouseEnter={() => handleCategoryMouseEnter(category.id)}
+                onMouseLeave={handleCategoryMouseLeave}
               >
                 <Link 
                   href={`/category/${category.id}`}
-                  className="flex items-center gap-1 px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:text-primary"
+                  className={`flex items-center px-3 py-2.5 text-sm font-medium transition-colors ${
+                    activeDropdown === category.id
+                      ? "text-primary border-b-2 border-primary"
+                      : "text-foreground hover:text-primary"
+                  }`}
                 >
                   {getCategoryName(category.id)}
-                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                 </Link>
 
+                {/* Mega Menu - appears on hover */}
                 {activeDropdown === category.id && category.subcategories.length > 0 && (
-                  <div className="absolute left-0 top-full z-50 min-w-[200px] rounded-lg border border-border bg-card py-2 shadow-lg">
-                    {category.subcategories.map((sub) => (
-                      <Link
-                        key={sub}
-                        href={isBrandName(sub) ? `/brand/${sub.toLowerCase().replace(/\s+/g, '-')}` : `/category/${category.id}?filter=${sub}`}
-                        className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
-                      >
-                        {isBrandName(sub) ? sub : t(sub as TranslationKey)}
-                      </Link>
-                    ))}
+                  <div 
+                    className="absolute left-0 top-full z-50 w-screen max-w-7xl border-t border-border bg-card shadow-lg py-6 px-4"
+                    onMouseEnter={() => handleCategoryMouseEnter(category.id)}
+                    onMouseLeave={handleCategoryMouseLeave}
+                  >
+                    {/* Calculate grid columns based on subcategories count */}
+                    <div className={`grid gap-6 ${
+                      category.subcategories.length <= 6 ? "grid-cols-3" : "grid-cols-4"
+                    }`}>
+                      {/* Split subcategories into chunks for multi-column layout */}
+                      {category.subcategories.map((sub, idx) => (
+                        <Link
+                          key={sub}
+                          href={isBrandName(sub) ? `/brand/${sub.toLowerCase().replace(/\s+/g, '-')}` : `/category/${category.id}?filter=${sub}`}
+                          className="block p-3 rounded-lg text-sm font-medium text-foreground transition-all hover:bg-secondary hover:text-secondary-foreground hover:translate-x-1"
+                        >
+                          {isBrandName(sub) ? sub : t(sub as TranslationKey)}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 )}
               </li>
