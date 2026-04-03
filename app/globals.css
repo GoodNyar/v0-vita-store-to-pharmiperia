@@ -82,11 +82,6 @@
   --warning-foreground: oklch(0.25 0.05 80);
 }
 
-/* Disable rubber-band/bounce scroll effect on macOS/iOS */
-html, body {
-  overscroll-behavior: none;
-}
-
 @theme inline {
   --font-sans: 'Geist', 'Geist Fallback';
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
