@@ -10,11 +10,13 @@ export default function AccountLayout({
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
-      <main className="flex-1">
+      <CartDrawer />
+      
+      <main className="flex-1 mx-auto max-w-6xl w-full px-4 py-8 sm:py-12">
         {children}
       </main>
+      
       <SiteFooter />
-      <CartDrawer />
     </div>
   )
 }

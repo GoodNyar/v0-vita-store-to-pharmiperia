@@ -372,7 +372,7 @@ export default function AccountPage() {
   const lastOrder = orders[0]
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:py-12">
+    <>
       {/* ===== HERO SECTION ===== */}
       <div className="mb-16 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 p-8 sm:p-12 border border-slate-200/50">
         <div className="flex flex-col gap-8 sm:gap-12 sm:flex-row sm:items-start sm:justify-between">
@@ -937,6 +937,6 @@ export default function AccountPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
