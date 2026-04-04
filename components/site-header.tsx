@@ -267,48 +267,49 @@ export function SiteHeader() {
       </div>
 
       {/* Category Navigation — collapses on scroll */}
-      <nav className={`hidden border-t border-border lg:block overflow-hidden transition-all duration-300 ease-in-out ${isScrolled ? "max-h-0 opacity-0" : "max-h-12 opacity-100"}`}>
+      <nav className={`hidden border-t border-border lg:block overflow-visible transition-[max-height,opacity] duration-300 ease-in-out ${isScrolled ? "max-h-0 opacity-0" : "max-h-12 opacity-100"}`}>
         <div className="mx-auto max-w-7xl px-4">
-          <ul className="flex items-center justify-center gap-0">
+          <ul className="flex items-center justify-center gap-0 h-10">
             {categories.map((category) => (
               <li
                 key={category.id}
-                className="relative group"
+                className="relative h-full"
                 onMouseEnter={() => handleCategoryMouseEnter(category.id)}
                 onMouseLeave={handleCategoryMouseLeave}
               >
                 <Link 
                   href={`/category/${category.id}`}
-                  className={`flex items-center px-3 py-2.5 text-sm font-medium transition-colors ${
+                  className={`flex items-center px-4 py-2 text-sm font-medium h-full transition-colors duration-200 ${
                     activeDropdown === category.id
-                      ? "text-primary border-b-2 border-primary"
+                      ? "text-primary"
                       : "text-foreground hover:text-primary"
                   }`}
                 >
                   {getCategoryName(category.id)}
                 </Link>
 
-                {/* Mega Menu - appears on hover */}
-                {activeDropdown === category.id && category.subcategories.length > 0 && (
+                {/* Mega Menu - absolute positioned dropdown */}
+                {activeDropdown === category.id && category.subcategories && category.subcategories.length > 0 && (
                   <div 
-                    className="absolute left-0 top-full z-50 w-screen max-w-7xl border-t border-border bg-card shadow-lg py-6 px-4"
+                    className="absolute left-0 top-full z-50 w-max min-w-[500px] bg-white border border-border rounded-b-lg shadow-md"
                     onMouseEnter={() => handleCategoryMouseEnter(category.id)}
                     onMouseLeave={handleCategoryMouseLeave}
                   >
-                    {/* Calculate grid columns based on subcategories count */}
-                    <div className={`grid gap-6 ${
-                      category.subcategories.length <= 6 ? "grid-cols-3" : "grid-cols-4"
-                    }`}>
-                      {/* Split subcategories into chunks for multi-column layout */}
-                      {category.subcategories.map((sub, idx) => (
-                        <Link
-                          key={sub}
-                          href={isBrandName(sub) ? `/brand/${sub.toLowerCase().replace(/\s+/g, '-')}` : `/category/${category.id}?filter=${sub}`}
-                          className="block p-3 rounded-lg text-sm font-medium text-foreground transition-all hover:bg-secondary hover:text-secondary-foreground hover:translate-x-1"
-                        >
-                          {isBrandName(sub) ? sub : t(sub as TranslationKey)}
-                        </Link>
-                      ))}
+                    <div className="px-6 py-4">
+                      {/* Grid layout: 3-4 items per column depending on total count */}
+                      <div className={`grid gap-x-8 gap-y-2 ${
+                        category.subcategories.length <= 6 ? "grid-cols-2" : "grid-cols-3"
+                      }`}>
+                        {category.subcategories.map((sub) => (
+                          <Link
+                            key={sub}
+                            href={isBrandName(sub) ? `/brand/${sub.toLowerCase().replace(/\s+/g, '-')}` : `/category/${category.id}?filter=${sub}`}
+                            className="block py-1.5 text-sm text-foreground transition-colors duration-150 hover:text-primary"
+                          >
+                            {isBrandName(sub) ? sub : t(sub as TranslationKey)}
+                          </Link>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
