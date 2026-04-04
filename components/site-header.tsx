@@ -288,28 +288,23 @@ export function SiteHeader() {
                   {getCategoryName(category.id)}
                 </Link>
 
-                {/* Mega Menu - positioned absolutely, non-intrusive */}
+                {/* Mega Menu - absolute positioned dropdown */}
                 {activeDropdown === category.id && category.subcategories && category.subcategories.length > 0 && (
                   <div 
-                    className="fixed left-0 right-0 top-[calc(var(--header-height,60px)+var(--category-nav-height,40px))] z-50 border-t border-border bg-card shadow-lg"
+                    className="absolute left-0 top-full z-50 w-max min-w-[500px] bg-white border border-border rounded-b-lg shadow-md"
                     onMouseEnter={() => handleCategoryMouseEnter(category.id)}
                     onMouseLeave={handleCategoryMouseLeave}
-                    style={{
-                      maxHeight: "60vh",
-                      overflowY: "auto",
-                    }}
                   >
-                    <div className="mx-auto max-w-7xl px-4 py-6">
-                      <div className={`grid gap-6 auto-cols-fr ${
-                        category.subcategories.length <= 4 ? "grid-cols-4" :
-                        category.subcategories.length <= 6 ? "grid-cols-5" :
-                        "grid-cols-6"
+                    <div className="px-6 py-4">
+                      {/* Grid layout: 3-4 items per column depending on total count */}
+                      <div className={`grid gap-x-8 gap-y-2 ${
+                        category.subcategories.length <= 6 ? "grid-cols-2" : "grid-cols-3"
                       }`}>
                         {category.subcategories.map((sub) => (
                           <Link
                             key={sub}
                             href={isBrandName(sub) ? `/brand/${sub.toLowerCase().replace(/\s+/g, '-')}` : `/category/${category.id}?filter=${sub}`}
-                            className="block text-sm font-medium text-foreground transition-colors duration-150 hover:text-primary"
+                            className="block py-1.5 text-sm text-foreground transition-colors duration-150 hover:text-primary"
                           >
                             {isBrandName(sub) ? sub : t(sub as TranslationKey)}
                           </Link>
