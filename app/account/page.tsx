@@ -140,7 +140,10 @@ export default function AccountPage() {
   // Sync formData with savedData when opening form
   useEffect(() => {
     if (isEditing && savedData) {
-      setFormData(savedData)
+      // Load saved data but NEVER auto-fill phone field for privacy
+      const dataToLoad = { ...savedData }
+      dataToLoad.phone = "" // Always start with empty phone field
+      setFormData(dataToLoad)
       setErrors({})
     }
   }, [isEditing])
@@ -776,7 +779,7 @@ export default function AccountPage() {
                       }
                     }
                     
-                    // Сохранить полный номер для БД
+                    // Сохранить полный номер для БД ТОЛЬКО если было введено ровно 8 цифр
                     const fullPhone = digits.length === 8 ? `+371 ${digits}` : ""
                     setFormData({ ...formData, phone: fullPhone })
                     
@@ -789,7 +792,7 @@ export default function AccountPage() {
                     setErrors({ ...errors, phone: digits.length > 0 && digits.length !== 8 })
                   }}
                   className={`flex-1 rounded-r-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.phone ? "border-red-500" : "border-border"}`}
-                  placeholder="29 952 852"
+                  placeholder="29 123 456"
                   inputMode="numeric"
                   maxLength="11"
                 />
