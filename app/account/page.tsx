@@ -51,7 +51,7 @@ interface Order {
   products: Array<{ id: string; name: string; image: string }>
 }
 
-type ActiveSection = "profile" | "orders" | "favorites" | "bonus" | "help"
+type ActiveSection = "profile" | "orders" | "favorites" | "bonus" | "addresses" | "help"
 
 export default function AccountPage() {
   const router = useRouter()
@@ -402,6 +402,7 @@ export default function AccountPage() {
     { id: "orders" as const, icon: Package, label: lang === "ru" ? "История заказов" : "Pasūtījumu vēsture" },
     { id: "favorites" as const, icon: Heart, label: lang === "ru" ? "Избранное" : "Vēlmju saraksts", count: favorites.length },
     { id: "bonus" as const, icon: CreditCard, label: lang === "ru" ? "Бонусная карта" : "Bonusa karte" },
+    { id: "addresses" as const, icon: Package, label: lang === "ru" ? "Адреса доставки" : "Piegādes adreses" },
     { id: "help" as const, icon: HelpCircle, label: lang === "ru" ? "Помощь" : "Palīdzība" },
   ]
 
@@ -448,19 +449,28 @@ export default function AccountPage() {
             {/* Help section */}
             <div className="rounded-xl border border-border bg-card p-4 space-y-3">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                {lang === "ru" ? "Помощь" : "Palīdzība"}
+                {lang === "ru" ? "Нужна помощь?" : "Vai jums nepieciešama palīdzība?"}
               </p>
-              <a href="tel:+37129952852" className="flex items-center gap-2 text-sm text-primary hover:underline">
-                <Phone className="h-4 w-4" />
-                +371 29 952 852
-              </a>
-              <a href="mailto:info@pharmiperia.com" className="flex items-center gap-2 text-sm text-primary hover:underline">
-                <Mail className="h-4 w-4" />
-                info@pharmiperia.com
-              </a>
+              <div className="space-y-2">
+                <a href="tel:+37129952852" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                  <Phone className="h-4 w-4" />
+                  +371 29 952 852
+                </a>
+                <a href="mailto:info@pharmiperia.com" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                  <Mail className="h-4 w-4" />
+                  info@pharmiperia.com
+                </a>
+              </div>
               <p className="text-xs text-muted-foreground">
                 {lang === "ru" ? "Пн-Пт: 9:00-18:00" : "P-Pk: 9:00-18:00"}
               </p>
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full justify-center"
+              >
+                {lang === "ru" ? "Связаться" : "Sazināties"}
+              </Button>
             </div>
 
             {/* Logout button */}
@@ -505,43 +515,43 @@ export default function AccountPage() {
                 </div>
 
                 {/* Profile details grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                  <div className="space-y-1.5">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                       {lang === "ru" ? "Телефон" : "Tālrunis"}
                     </p>
-                    <p className="text-sm text-foreground">
+                    <p className="text-sm font-medium text-foreground">
                       {profile?.phone 
                         ? (profile.phone.startsWith("+371") ? profile.phone : `+371 ${profile.phone}`)
                         : "—"
                       }
                     </p>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                       {lang === "ru" ? "Страна" : "Valsts"}
                     </p>
-                    <p className="text-sm text-foreground">
+                    <p className="text-sm font-medium text-foreground">
                       {profile?.country ? (lang === "ru" ? "Латвия" : "Latvija") : "—"}
                     </p>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                       {lang === "ru" ? "Город" : "Pilsēta"}
                     </p>
-                    <p className="text-sm text-foreground">{profile?.city || "—"}</p>
+                    <p className="text-sm font-medium text-foreground">{profile?.city || "—"}</p>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                       {lang === "ru" ? "Почтовый индекс" : "Pasta indekss"}
                     </p>
-                    <p className="text-sm text-foreground">{profile?.postal_code || "—"}</p>
+                    <p className="text-sm font-medium text-foreground">{profile?.postal_code || "—"}</p>
                   </div>
-                  <div className="space-y-1 sm:col-span-2">
+                  <div className="space-y-1.5 sm:col-span-2">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                       {lang === "ru" ? "Адрес" : "Adrese"}
                     </p>
-                    <p className="text-sm text-foreground">{profile?.address || "—"}</p>
+                    <p className="text-sm font-medium text-foreground">{profile?.address || "—"}</p>
                   </div>
                 </div>
               </div>
@@ -552,19 +562,30 @@ export default function AccountPage() {
                   onClick={() => repeatOrder(lastOrder)}
                   className="w-full group relative overflow-hidden rounded-xl bg-gradient-to-r from-primary to-primary/90 p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 flex-shrink-0">
-                      <RotateCcw className="h-6 w-6 text-white" />
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 flex-shrink-0">
+                        <RotateCcw className="h-6 w-6 text-white" />
+                      </div>
+                      <div className="text-right text-xs text-white/60">
+                        <span className="block">{lastOrder.date}</span>
+                      </div>
                     </div>
-                    <div className="flex-1 text-left">
-                      <h3 className="text-lg font-bold text-white">
-                        {lang === "ru" ? "Повторить последний заказ" : "Atkārtot pēdējo pasūtījumu"}
+                    <div>
+                      <h3 className="text-lg font-bold text-white text-left">
+                        {lang === "ru" ? "Повторить заказ" : "Atkārtot pasūtījumu"}
                       </h3>
-                      <p className="text-sm text-white/80">
-                        {lastOrder.orderNumber} • €{lastOrder.total.toFixed(2)}
-                      </p>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-white/60 group-hover:text-white transition-colors" />
+                    <div className="flex items-center justify-between pt-2">
+                      <div className="text-left">
+                        <p className="text-xs text-white/80">{lang === "ru" ? "№ заказа" : "Pasūtījuma nr."}</p>
+                        <p className="text-sm font-semibold text-white">{lastOrder.orderNumber}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-white/80">{lang === "ru" ? "Сумма" : "Summa"}</p>
+                        <p className="text-lg font-bold text-white">€{lastOrder.total.toFixed(2)}</p>
+                      </div>
+                    </div>
                   </div>
                 </button>
               )}
@@ -758,6 +779,22 @@ export default function AccountPage() {
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
                   1 {lang === "ru" ? "балл" : "punkts"} = 0.01 €
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* ===== ADDRESSES SECTION ===== */}
+          {activeSection === "addresses" && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold text-foreground">
+                {lang === "ru" ? "Адреса доставки" : "Piegādes adreses"}
+              </h2>
+              
+              <div className="rounded-xl border border-border bg-card p-8 text-center">
+                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">
+                  {lang === "ru" ? "Адреса доставки будут отображаться здесь" : "Piegādes adreses tiks parādītas šeit"}
                 </p>
               </div>
             </div>
