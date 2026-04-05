@@ -7,23 +7,26 @@ import Image from "next/image"
 import { useAuth } from "@/components/auth-provider"
 import { useLang } from "@/lib/i18n"
 import { useCart } from "@/components/cart-context"
+import { useFavorites } from "@/components/favorites-provider"
 import { products as allProducts, type Product } from "@/lib/data"
 import { createClient } from "@/lib/supabase/client"
 import { 
   User, 
   Heart, 
   Package, 
-  Settings, 
   LogOut, 
   ChevronRight,
   Loader2,
-  Award,
   RotateCcw,
   Plus,
   Edit2,
   X,
   Star,
-  Zap
+  Zap,
+  Phone,
+  Mail,
+  HelpCircle,
+  CreditCard
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -48,11 +51,14 @@ interface Order {
   products: Array<{ id: string; name: string; image: string }>
 }
 
+type ActiveSection = "profile" | "orders" | "favorites" | "bonus" | "help"
+
 export default function AccountPage() {
   const router = useRouter()
   const { user, isLoading: authLoading, signOut } = useAuth()
   const { lang } = useLang()
   const { addToCart } = useCart()
+  const { favorites } = useFavorites()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [profileLoading, setProfileLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
@@ -68,6 +74,7 @@ export default function AccountPage() {
   const [errors, setErrors] = useState<Record<string, boolean>>({})
   const [showResetConfirm, setShowResetConfirm] = useState(false)
   const [isResetting, setIsResetting] = useState(false)
+  const [activeSection, setActiveSection] = useState<ActiveSection>("profile")
 
   // Show toast notification near cursor
   const showToast = (message: string, e?: React.MouseEvent, type: "success" | "error" = "success") => {
@@ -386,294 +393,476 @@ export default function AccountPage() {
 
   const lastOrder = orders[0]
 
+  // Get favorite products
+  const favoriteProducts = allProducts.filter(p => favorites.includes(p.id))
+
+  // Sidebar navigation items
+  const sidebarItems = [
+    { id: "profile" as const, icon: User, label: lang === "ru" ? "Мои данные" : "Mana informācija" },
+    { id: "orders" as const, icon: Package, label: lang === "ru" ? "История заказов" : "Pasūtījumu vēsture" },
+    { id: "favorites" as const, icon: Heart, label: lang === "ru" ? "Избранное" : "Vēlmju saraksts", count: favorites.length },
+    { id: "bonus" as const, icon: CreditCard, label: lang === "ru" ? "Бонусная карта" : "Bonusa karte" },
+    { id: "help" as const, icon: HelpCircle, label: lang === "ru" ? "Помощь" : "Palīdzība" },
+  ]
+
   return (
     <>
-      {/* ===== HERO SECTION ===== */}
-      <div className="mb-16 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 p-8 sm:p-12 border border-slate-200/50">
-        <div className="flex flex-col gap-8 sm:gap-12 sm:flex-row sm:items-start sm:justify-between">
-          {/* Left: Profile Info */}
-          <div className="flex items-start gap-4">
-            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex-shrink-0">
-              <User className="h-10 w-10 text-white" />
-            </div>
-            <div className="flex-1 space-y-0.5">
-              <h1 className="text-2xl font-bold text-foreground mb-2">{displayName}</h1>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
-              {profile?.phone && (
-                <p className="text-sm text-muted-foreground">
-                  {profile.phone.startsWith("+371") ? profile.phone : `+371 ${profile.phone}`}
-                </p>
-              )}
-              {profile?.address && (
-                <p className="text-sm text-muted-foreground">{profile.address}</p>
-              )}
-              {profile?.postal_code && (
-                <p className="text-sm text-muted-foreground">{profile.postal_code}</p>
-              )}
-              {profile?.country && (
-                <p className="text-sm text-muted-foreground">{lang === "ru" ? "Латвия" : "Latvija"}</p>
-              )}
-              {profile?.city && (
-                <p className="text-sm text-muted-foreground">{profile.city}</p>
-              )}
-            </div>
-          </div>
+      {/* Page title */}
+      <h1 className="text-2xl font-bold text-foreground mb-6">
+        {lang === "ru" ? "Личный кабинет" : "Mans konts"}
+      </h1>
 
-          {/* Right: Actions */}
-          <div className="flex gap-3 sm:flex-col-reverse w-full sm:w-auto">
+      {/* 2-Column Layout */}
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+        
+        {/* ===== SIDEBAR ===== */}
+        <aside className="w-full lg:w-64 flex-shrink-0">
+          <div className="lg:sticky lg:top-24 space-y-2">
+            {/* Navigation */}
+            <nav className="rounded-xl border border-border bg-card overflow-hidden">
+              {sidebarItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveSection(item.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors border-b border-border last:border-b-0 ${
+                    activeSection === item.id 
+                      ? "bg-primary text-primary-foreground" 
+                      : "text-foreground hover:bg-muted"
+                  }`}
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span className="flex-1 text-left">{item.label}</span>
+                  {item.count !== undefined && item.count > 0 && (
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+                      activeSection === item.id 
+                        ? "bg-white/20 text-primary-foreground" 
+                        : "bg-primary/10 text-primary"
+                    }`}>
+                      {item.count}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </nav>
+
+            {/* Help section */}
+            <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                {lang === "ru" ? "Помощь" : "Palīdzība"}
+              </p>
+              <a href="tel:+37129952852" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                <Phone className="h-4 w-4" />
+                +371 29 952 852
+              </a>
+              <a href="mailto:info@pharmiperia.com" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                <Mail className="h-4 w-4" />
+                info@pharmiperia.com
+              </a>
+              <p className="text-xs text-muted-foreground">
+                {lang === "ru" ? "Пн-Пт: 9:00-18:00" : "P-Pk: 9:00-18:00"}
+              </p>
+            </div>
+
+            {/* Logout button */}
             <Button
               variant="outline"
-              size="sm"
               onClick={handleSignOut}
-              className="flex-1 sm:flex-none"
+              className="w-full justify-start gap-2"
             >
-              <LogOut className="mr-2 h-4 w-4" />
+              <LogOut className="h-4 w-4" />
               {lang === "ru" ? "Выйти" : "Iziet"}
             </Button>
-            <Button
-              size="sm"
-              onClick={() => setIsEditing(true)}
-              className="flex-1 sm:flex-none"
-            >
-              <Edit2 className="mr-2 h-4 w-4" />
-              {lang === "ru" ? "Профиль" : "Profils"}
-            </Button>
           </div>
-        </div>
-      </div>
+        </aside>
 
-      {/* ===== BONUS SECTION ===== */}
-      <div className="mb-16 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 p-8 border border-amber-200/30">
-        <div className="flex items-start justify-between gap-6 mb-8">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Zap className="h-5 w-5 text-amber-600" />
-              <h2 className="text-xl font-bold text-foreground">
-                {lang === "ru" ? "Ваши бонусы" : "Jūsu bonusi"}
-              </h2>
-            </div>
-            <p className="text-sm text-muted-foreground">1 балл = 0.01 €</p>
-          </div>
-        </div>
+        {/* ===== MAIN CONTENT ===== */}
+        <main className="flex-1 min-w-0">
+          
+          {/* ===== PROFILE SECTION ===== */}
+          {activeSection === "profile" && (
+            <div className="space-y-6">
+              {/* Profile card */}
+              <div className="rounded-xl border border-border bg-card p-6">
+                <div className="flex items-start justify-between gap-4 mb-6">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10 flex-shrink-0">
+                      <User className="h-8 w-8 text-primary" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-foreground">{displayName}</h2>
+                      <p className="text-sm text-muted-foreground">{user.email}</p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setIsEditing(true)}
+                    className="flex-shrink-0"
+                  >
+                    <Edit2 className="mr-2 h-4 w-4" />
+                    {lang === "ru" ? "Изменить" : "Rediģēt"}
+                  </Button>
+                </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-          <div className="rounded-lg bg-white/60 backdrop-blur-sm p-4 border border-white/40">
-            <p className="text-xs text-muted-foreground mb-1">{lang === "ru" ? "Баланс" : "Bilance"}</p>
-            <p className="text-3xl font-bold text-amber-600">{bonusPoints}</p>
-          </div>
-          <div className="rounded-lg bg-white/60 backdrop-blur-sm p-4 border border-white/40">
-            <p className="text-xs text-muted-foreground mb-1">{lang === "ru" ? "Значит" : "Nozīmē"}</p>
-            <p className="text-3xl font-bold text-amber-600">€{bonusEquivalent}</p>
-          </div>
-          <div className="rounded-lg bg-white/60 backdrop-blur-sm p-4 border border-white/40 col-span-2 sm:col-span-1">
-            <p className="text-xs text-muted-foreground mb-1">{lang === "ru" ? "��о следующего" : "Līdz nākamajam"}</p>
-            <p className="text-2xl font-bold text-foreground">{bonusMax - bonusPoints}</p>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="h-2 rounded-full bg-white/40 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500"
-              style={{ width: `${bonusProgress}%` }}
-            />
-          </div>
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{bonusProgress.toFixed(0)}%</span>
-            <span>{lang === "ru" ? "До следующего уровня" : "Līdz nākamajam lyģim"}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ===== MAIN CTA: REPEAT ORDER ===== */}
-      {lastOrder && (
-        <div className="mb-16">
-          <button
-            onClick={() => repeatOrder(lastOrder)}
-            className="w-full group relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-primary/95 to-primary/90 p-8 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.01] active:scale-95"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            
-            <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-6">
-              <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm flex-shrink-0">
-                <RotateCcw className="h-10 w-10 text-white" />
+                {/* Profile details grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      {lang === "ru" ? "Телефон" : "Tālrunis"}
+                    </p>
+                    <p className="text-sm text-foreground">
+                      {profile?.phone 
+                        ? (profile.phone.startsWith("+371") ? profile.phone : `+371 ${profile.phone}`)
+                        : "—"
+                      }
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      {lang === "ru" ? "Страна" : "Valsts"}
+                    </p>
+                    <p className="text-sm text-foreground">
+                      {profile?.country ? (lang === "ru" ? "Латвия" : "Latvija") : "—"}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      {lang === "ru" ? "Город" : "Pilsēta"}
+                    </p>
+                    <p className="text-sm text-foreground">{profile?.city || "—"}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      {lang === "ru" ? "Почтовый индекс" : "Pasta indekss"}
+                    </p>
+                    <p className="text-sm text-foreground">{profile?.postal_code || "—"}</p>
+                  </div>
+                  <div className="space-y-1 sm:col-span-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      {lang === "ru" ? "Адрес" : "Adrese"}
+                    </p>
+                    <p className="text-sm text-foreground">{profile?.address || "—"}</p>
+                  </div>
+                </div>
               </div>
-              
-              <div className="flex-1 text-left">
-                <h3 className="text-2xl font-bold text-white mb-2">
-                  {lang === "ru" ? "Повторить последний заказ" : "Atkārtot pēdējo pasūtījumu"}
-                </h3>
-                <div className="flex items-center gap-4">
-                  {lastOrder.products.slice(0, 3).map((p, i) => (
-                    <div
-                      key={i}
-                      className="relative h-12 w-12 rounded-lg bg-white/20 overflow-hidden ring-1 ring-white/30"
-                    >
-                      {p.image && (
-                        <Image
-                          src={p.image}
-                          alt={p.name}
-                          fill
-                          className="object-cover"
-                        />
-                      )}
+
+              {/* Repeat last order CTA */}
+              {lastOrder && (
+                <button
+                  onClick={() => repeatOrder(lastOrder)}
+                  className="w-full group relative overflow-hidden rounded-xl bg-gradient-to-r from-primary to-primary/90 p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 flex-shrink-0">
+                      <RotateCcw className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <h3 className="text-lg font-bold text-white">
+                        {lang === "ru" ? "Повторить последний заказ" : "Atkārtot pēdējo pasūtījumu"}
+                      </h3>
+                      <p className="text-sm text-white/80">
+                        {lastOrder.orderNumber} • €{lastOrder.total.toFixed(2)}
+                      </p>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-white/60 group-hover:text-white transition-colors" />
+                  </div>
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* ===== ORDERS SECTION ===== */}
+          {activeSection === "orders" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-foreground">
+                  {lang === "ru" ? "Мои заказы" : "Mani pasūtījumi"}
+                </h2>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                {lang === "ru" 
+                  ? "Здесь вы можете просмотреть историю всех ваших заказов" 
+                  : "Šeit jūs varat apskatīt visu pasūtījumu vēsturi"}
+              </p>
+
+              {orders.length === 0 ? (
+                <div className="rounded-xl border border-border bg-card p-8 text-center">
+                  <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">
+                    {lang === "ru" ? "У вас пока нет заказов" : "Jums vēl nav pasūtījumu"}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {orders.map((order) => (
+                    <div key={order.id} className="rounded-xl border border-border bg-card p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <p className="font-semibold text-foreground">{order.orderNumber}</p>
+                          <p className="text-xs text-muted-foreground">{order.date}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-foreground">€{order.total.toFixed(2)}</p>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                            order.status === "delivered" 
+                              ? "bg-green-100 text-green-700" 
+                              : order.status === "in_progress"
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-red-100 text-red-700"
+                          }`}>
+                            {order.status === "delivered" 
+                              ? (lang === "ru" ? "Доставлен" : "Piegādāts")
+                              : order.status === "in_progress"
+                              ? (lang === "ru" ? "В пути" : "Ceļā")
+                              : (lang === "ru" ? "Отменён" : "Atcelts")
+                            }
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {order.products.slice(0, 3).map((p, i) => (
+                          <div key={i} className="relative h-10 w-10 rounded-lg bg-muted overflow-hidden">
+                            {p.image && (
+                              <Image src={p.image} alt={p.name} fill className="object-cover" />
+                            )}
+                          </div>
+                        ))}
+                        {order.products.length > 3 && (
+                          <span className="text-xs text-muted-foreground">+{order.products.length - 3}</span>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => repeatOrder(order)}
+                          className="ml-auto text-primary"
+                        >
+                          <RotateCcw className="h-4 w-4 mr-1" />
+                          {lang === "ru" ? "Повторить" : "Atkārtot"}
+                        </Button>
+                      </div>
                     </div>
                   ))}
-                  {lastOrder.products.length > 3 && (
-                    <div className="text-sm font-semibold text-white">
-                      +{lastOrder.products.length - 3}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ===== FAVORITES SECTION ===== */}
+          {activeSection === "favorites" && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold text-foreground">
+                {lang === "ru" ? "Избранное" : "Vēlmju saraksts"}
+              </h2>
+
+              {favoriteProducts.length === 0 ? (
+                <div className="rounded-xl border border-border bg-card p-8 text-center">
+                  <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground mb-4">
+                    {lang === "ru" ? "У вас пока нет избранных товаров" : "Jums vēl nav izlases preču"}
+                  </p>
+                  <Link href="/products">
+                    <Button>{lang === "ru" ? "Перейти в каталог" : "Doties uz katalogu"}</Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {favoriteProducts.map((product) => (
+                    <Link
+                      key={product.id}
+                      href={`/products/${product.id}`}
+                      className="group flex flex-col rounded-xl border border-border bg-card overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-primary/50"
+                    >
+                      <div className="relative h-32 sm:h-40 bg-muted overflow-hidden">
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          fill
+                          className="object-cover transition-transform group-hover:scale-110"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1 p-3 flex-1">
+                        <p className="text-xs font-semibold text-primary">{product.brand}</p>
+                        <p className="text-sm font-bold text-foreground line-clamp-2">{product.name}</p>
+                        <div className="flex items-center justify-between mt-auto pt-2">
+                          <span className="font-bold text-foreground">€{product.price}</span>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault()
+                              addToCart(product)
+                            }}
+                            className="flex items-center justify-center rounded-lg bg-primary/10 text-primary p-2 transition-all hover:bg-primary hover:text-primary-foreground"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ===== BONUS SECTION ===== */}
+          {activeSection === "bonus" && (
+            <div className="space-y-6">
+              <h2 className="text-xl font-bold text-foreground">
+                {lang === "ru" ? "Бонусная карта" : "Bonusa karte"}
+              </h2>
+
+              {/* Bonus card visual */}
+              <div className="relative rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 text-white overflow-hidden aspect-[1.6/1] max-w-md">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+                <div className="relative h-full flex flex-col justify-between">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs text-white/60 uppercase tracking-wider mb-1">
+                        {lang === "ru" ? "Баланс" : "Bilance"}
+                      </p>
+                      <p className="text-3xl font-bold">€{bonusEquivalent}</p>
                     </div>
-                  )}
+                    <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                      <Zap className="h-5 w-5 text-amber-400" />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm text-white/80 mb-1">pharmiperia</p>
+                    <p className="text-xs text-white/40">{displayName}</p>
+                  </div>
                 </div>
               </div>
 
-              <div className="text-right flex-shrink-0">
-                <p className="text-white/80 text-sm mb-1">{lang === "ru" ? "Сумма" : "Summa"}</p>
-                <p className="text-3xl font-bold text-white mb-3">€{lastOrder.total.toFixed(2)}</p>
-                <div className="flex items-center justify-end text-white gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-sm font-semibold">{lang === "ru" ? "Повторить" : "Atkārtot"}</span>
-                  <ChevronRight className="h-4 w-4" />
+              {/* Bonus details */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <p className="text-xs text-muted-foreground mb-1">{lang === "ru" ? "Баллы" : "Punkti"}</p>
+                  <p className="text-2xl font-bold text-foreground">{bonusPoints}</p>
+                </div>
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <p className="text-xs text-muted-foreground mb-1">{lang === "ru" ? "До следующего уровня" : "Līdz nākamajam"}</p>
+                  <p className="text-2xl font-bold text-foreground">{bonusMax - bonusPoints}</p>
+                </div>
+              </div>
+
+              {/* Progress bar */}
+              <div className="rounded-xl border border-border bg-card p-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-muted-foreground">{lang === "ru" ? "Прогресс" : "Progress"}</span>
+                  <span className="font-medium text-foreground">{bonusProgress.toFixed(0)}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-500"
+                    style={{ width: `${bonusProgress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  1 {lang === "ru" ? "балл" : "punkts"} = 0.01 €
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* ===== HELP SECTION ===== */}
+          {activeSection === "help" && (
+            <div className="space-y-6">
+              <h2 className="text-xl font-bold text-foreground">
+                {lang === "ru" ? "Помощь и поддержка" : "Palīdzība un atbalsts"}
+              </h2>
+
+              <div className="grid gap-4">
+                <a 
+                  href="tel:+37129952852" 
+                  className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                    <Phone className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">{lang === "ru" ? "По телефону" : "Pa tālruni"}</p>
+                    <p className="text-sm text-primary">+371 29 952 852</p>
+                  </div>
+                </a>
+
+                <a 
+                  href="mailto:info@pharmiperia.com" 
+                  className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                    <Mail className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">{lang === "ru" ? "По e-mail" : "Pa e-pastu"}</p>
+                    <p className="text-sm text-primary">info@pharmiperia.com</p>
+                  </div>
+                </a>
+
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <p className="font-medium text-foreground mb-2">{lang === "ru" ? "Часы работы" : "Darba laiks"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {lang === "ru" ? "Понедельник - Пятница: 9:00 - 18:00" : "Pirmdiena - Piektdiena: 9:00 - 18:00"}
+                  </p>
                 </div>
               </div>
             </div>
-          </button>
-        </div>
-      )}
+          )}
 
-      {/* ===== RECOMMENDED PRODUCTS ===== */}
-      {recommendedProducts.length > 0 && (
-        <div className="mb-16">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-foreground mb-2">
-              {lang === "ru" ? "Рекомендуем вам" : "Mēs iesakām"}
-            </h2>
-            <p className="text-muted-foreground">
-              {lang === "ru" ? "Популярные товары и�� ваших категорий" : "Populāras preces no jūsu kategorijām"}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {recommendedProducts.map((product) => (
-              <Link
-                key={product.id}
-                href={`/products/${product.id}`}
-                className="group flex flex-col rounded-xl border border-border bg-card overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-primary/50"
-              >
-                <div className="relative h-40 sm:h-48 bg-muted overflow-hidden">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className="object-cover transition-transform group-hover:scale-110"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-2 p-3 sm:p-4 flex-1">
-                  <p className="text-xs font-semibold text-primary">{product.brand}</p>
-                  <p className="text-sm font-bold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                    {product.name}
-                  </p>
-                  
-                  <div className="flex items-center gap-1 mt-auto mb-2">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-3 w-3 ${
-                          i < Math.floor(product.rating)
-                            ? "fill-amber-400 text-amber-400"
-                            : "fill-gray-200 text-gray-200"
-                        }`}
-                        strokeWidth={0}
-                      />
-                    ))}
-                    <span className="text-xs text-muted-foreground ml-1">
-                      ({product.reviewCount})
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-baseline gap-1">
-                      <span className="font-bold text-foreground">€{product.price}</span>
-                      {product.originalPrice && (
-                        <span className="text-xs text-muted-foreground line-through">
-                          €{product.originalPrice}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault()
-                      addToCart(product)
-                    }}
-                    className="mt-3 w-full flex items-center justify-center gap-1 rounded-lg bg-primary/10 text-primary py-2 text-xs font-semibold transition-all hover:bg-primary hover:text-primary-foreground"
+          {/* ===== RECOMMENDED PRODUCTS (only on profile) ===== */}
+          {activeSection === "profile" && recommendedProducts.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-lg font-bold text-foreground mb-4">
+                {lang === "ru" ? "Рекомендуем вам" : "Mēs iesakām"}
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {recommendedProducts.slice(0, 4).map((product) => (
+                  <Link
+                    key={product.id}
+                    href={`/products/${product.id}`}
+                    className="group flex flex-col rounded-xl border border-border bg-card overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-primary/50"
                   >
-                    <Plus className="h-3.5 w-3.5" />
-                    {lang === "ru" ? "Добавить" : "Pievienot"}
-                  </button>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ===== QUICK ACCESS ===== */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Link
-          href="/account/orders"
-          className="group flex items-center gap-4 rounded-xl border border-border bg-card p-5 transition-all duration-300 hover:shadow-md hover:border-primary/30 hover:bg-primary/5"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/15 transition-colors">
-            <Package className="h-6 w-6 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-              {lang === "ru" ? "Мои заказы" : "Mani pasūtījumi"}
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              {lang === "ru" ? "История покупок" : "Pirkumu vēsture"}
-            </p>
-          </div>
-          <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
-        </Link>
-
-        <Link
-          href="/account/favorites"
-          className="group flex items-center gap-4 rounded-xl border border-border bg-card p-5 transition-all duration-300 hover:shadow-md hover:border-primary/30 hover:bg-primary/5"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/15 transition-colors">
-            <Heart className="h-6 w-6 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-              {lang === "ru" ? "Избранное" : "Vēlmju saraksts"}
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              {lang === "ru" ? "Сохранён��ые товары" : "Saglabātās preces"}
-            </p>
-          </div>
-          <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
-        </Link>
-
-        <Link
-          href="/account/settings"
-          className="group flex items-center gap-4 rounded-xl border border-border bg-card p-5 transition-all duration-300 hover:shadow-md hover:border-primary/30 hover:bg-primary/5"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/15 transition-colors">
-            <Settings className="h-6 w-6 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-              {lang === "ru" ? "Настройки" : "Iestatījumi"}
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              {lang === "ru" ? "Профиль и адреса" : "Profils un adreses"}
-            </p>
-          </div>
-          <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
-        </Link>
+                    <div className="relative h-32 sm:h-36 bg-muted overflow-hidden">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-110"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1 p-3 flex-1">
+                      <p className="text-xs font-semibold text-primary">{product.brand}</p>
+                      <p className="text-sm font-medium text-foreground line-clamp-2">{product.name}</p>
+                      <div className="flex items-center gap-1 mt-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-3 w-3 ${
+                              i < Math.floor(product.rating)
+                                ? "fill-amber-400 text-amber-400"
+                                : "fill-gray-200 text-gray-200"
+                            }`}
+                            strokeWidth={0}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-between mt-auto pt-2">
+                        <span className="font-bold text-foreground">€{product.price}</span>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault()
+                            addToCart(product)
+                          }}
+                          className="flex items-center justify-center rounded-lg bg-primary/10 text-primary p-1.5 text-xs transition-all hover:bg-primary hover:text-primary-foreground"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </main>
       </div>
 
       {/* ===== EDIT PROFILE — SLIDE-IN DRAWER (right side) ===== */}
@@ -705,7 +894,7 @@ export default function AccountPage() {
         </div>
 
         {/* Form — compact, no scroll needed */}
-        <div className="flex-1 px-6 py-4 space-y-3 overflow-hidden">
+        <div className="flex-1 px-6 py-4 space-y-3 overflow-y-auto">
 
           {/* Row: Имя + Фамилия */}
           <div className="grid grid-cols-2 gap-3">
@@ -761,7 +950,7 @@ export default function AccountPage() {
                   name="phone"
                   autoComplete="tel"
                   inputMode="numeric"
-                  maxLength="11"
+                  maxLength={11}
                   placeholder="29 123 456"
                   value={(formData.phone || "").replace(/\D/g, "")}
                   onChange={(e) => {
@@ -879,7 +1068,7 @@ export default function AccountPage() {
                 className={`flex-1 rounded-r-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.postal_code ? "border-red-500" : "border-border"}`}
                 placeholder="1010"
                 inputMode="numeric"
-                maxLength="4"
+                maxLength={4}
               />
             </div>
           </div>
