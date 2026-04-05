@@ -189,7 +189,9 @@ export default function AccountPage() {
     const newErrors: Record<string, boolean> = {}
     if (!formData.first_name?.trim()) newErrors.first_name = true
     if (!formData.last_name?.trim()) newErrors.last_name = true
-    if (!formData.phone?.trim()) newErrors.phone = true
+    // Phone must have exactly 8 digits (without +371 prefix)
+    const phoneDigits = (formData.phone || "").replace(/\D/g, "")
+    if (!phoneDigits || phoneDigits.length !== 8) newErrors.phone = true
     if (!formData.city?.trim()) newErrors.city = true
     if (!formData.address?.trim()) newErrors.address = true
     if (!formData.postal_code?.trim()) newErrors.postal_code = true
@@ -388,11 +390,14 @@ export default function AccountPage() {
             <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex-shrink-0">
               <User className="h-10 w-10 text-white" />
             </div>
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-foreground mb-0.5">{displayName}</h1>
+            <div className="flex-1 space-y-0.5">
+              <h1 className="text-2xl font-bold text-foreground mb-2">{displayName}</h1>
               <p className="text-sm text-muted-foreground">{user.email}</p>
               {profile?.phone && (
                 <p className="text-sm text-muted-foreground">{profile.phone}</p>
+              )}
+              {profile?.address && (
+                <p className="text-sm text-muted-foreground">{profile.address}</p>
               )}
               {profile?.country && (
                 <p className="text-sm text-muted-foreground">{lang === "ru" ? "Латвия" : "Latvija"}</p>
@@ -731,32 +736,55 @@ export default function AccountPage() {
             <label className="text-xs font-semibold text-foreground mb-1 block">
               {lang === "ru" ? "Мобильный телефон" : "Mobilā tālruņa numurs"} <span className="text-primary">*</span>
             </label>
-            <div className="flex">
-              <div className="rounded-l-lg border border-r-0 border-border bg-muted px-3 py-2 text-sm text-muted-foreground flex items-center gap-2">
-                <Image 
-                  src="/flags/latvia.svg" 
-                  alt="Latvia flag" 
-                  width={24} 
-                  height={12}
-                  className="w-6 h-3"
+            <div className="flex flex-col gap-1">
+              <div className="flex">
+                <div className="rounded-l-lg border border-r-0 border-border bg-muted px-3 py-2 text-sm text-muted-foreground flex items-center gap-2">
+                  <Image 
+                    src="/flags/latvia.svg" 
+                    alt="Latvia flag" 
+                    width={24} 
+                    height={12}
+                    className="w-6 h-3"
+                  />
+                  <span>+371</span>
+                </div>
+                <input
+                  type="tel"
+                  name="phone"
+                  autoComplete="tel"
+                  maxLength="8"
+                  value={(formData.phone || "").replace(/\+371\s?/g, "")}
+                  onChange={(e) => { 
+                    let digits = e.target.value.replace(/\D/g, "")
+                    
+                    // Убрать дублирующийся код 371 если пользователь вставил номер с кодом
+                    if (digits.startsWith("371")) {
+                      digits = digits.slice(3)
+                    }
+                    
+                    // Ограничиться 8 цифрами
+                    digits = digits.slice(0, 8)
+                    
+                    const formatted = digits.length === 8 ? `+371 ${digits}` : digits ? `+371 ${digits}` : ""
+                    setFormData({ ...formData, phone: formatted })
+                    setErrors({ ...errors, phone: digits.length > 0 && digits.length < 8 ? true : false })
+                  }}
+                  onBlur={(e) => {
+                    const digits = e.target.value.replace(/\D/g, "")
+                    if (digits.length > 0 && digits.length !== 8) {
+                      setErrors({ ...errors, phone: true })
+                    }
+                  }}
+                  className={`flex-1 rounded-r-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.phone ? "border-red-500" : "border-border"}`}
+                  placeholder="XXXXXXXX"
+                  inputMode="numeric"
                 />
-                <span>+371</span>
               </div>
-              <input
-                type="tel"
-                name="phone"
-                autoComplete="tel"
-                value={(formData.phone || "").replace("+371 ", "").replace("+371", "")}
-                onChange={(e) => { 
-                  const digits = e.target.value.replace(/\D/g, "")
-                  const formatted = digits ? `+371 ${digits}` : ""
-                  setFormData({ ...formData, phone: formatted })
-                  setErrors({ ...errors, phone: false })
-                }}
-                className={`flex-1 rounded-r-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.phone ? "border-red-500" : "border-border"}`}
-                placeholder="2X XXX XXX"
-                inputMode="numeric"
-              />
+              {errors.phone && (
+                <p className="text-xs text-red-500">
+                  {lang === "ru" ? "Введите 8 цифр без кода страны" : "Ievadiet 8 ciparus bez valsts koda"}
+                </p>
+              )}
             </div>
           </div>
 
