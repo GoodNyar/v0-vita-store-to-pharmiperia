@@ -13,6 +13,7 @@ import {
   User,
   Heart,
   Menu,
+  ChevronDown,
   Leaf,
   X,
   Truck,
@@ -38,7 +39,6 @@ export function SiteHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
-  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null)
   const [promoVisible, setPromoVisible] = useState(true)
   const [promoIndex, setPromoIndex] = useState(0)
   const [isScrolled, setIsScrolled] = useState(false)
@@ -74,19 +74,6 @@ export function SiteHeader() {
   const getCategoryName = (id: string) => {
     const key = id as Parameters<typeof t>[0]
     try { return t(key) } catch { return id }
-  }
-
-  // Handle dropdown hover with delay
-  const handleCategoryMouseEnter = (categoryId: string) => {
-    if (hoverTimeout) clearTimeout(hoverTimeout)
-    setActiveDropdown(categoryId)
-  }
-
-  const handleCategoryMouseLeave = () => {
-    const timeout = setTimeout(() => {
-      setActiveDropdown(null)
-    }, 150) // 150ms delay before closing
-    setHoverTimeout(timeout)
   }
 
   return (
@@ -267,50 +254,35 @@ export function SiteHeader() {
       </div>
 
       {/* Category Navigation — collapses on scroll */}
-      <nav className={`hidden border-t border-border lg:block overflow-visible transition-[max-height,opacity] duration-300 ease-in-out ${isScrolled ? "max-h-0 opacity-0" : "max-h-12 opacity-100"}`}>
+      <nav className={`hidden border-t border-border lg:block overflow-hidden transition-all duration-300 ease-in-out ${isScrolled ? "max-h-0 opacity-0" : "max-h-12 opacity-100"}`}>
         <div className="mx-auto max-w-7xl px-4">
-          <ul className="flex items-center justify-center gap-0 h-10">
+          <ul className="flex items-center justify-center gap-0">
             {categories.map((category) => (
               <li
                 key={category.id}
-                className="relative h-full"
-                onMouseEnter={() => handleCategoryMouseEnter(category.id)}
-                onMouseLeave={handleCategoryMouseLeave}
+                className="relative"
+                onMouseEnter={() => setActiveDropdown(category.id)}
+                onMouseLeave={() => setActiveDropdown(null)}
               >
                 <Link 
                   href={`/category/${category.id}`}
-                  className={`flex items-center px-4 py-2 text-sm font-medium h-full transition-colors duration-200 ${
-                    activeDropdown === category.id
-                      ? "text-primary"
-                      : "text-foreground hover:text-primary"
-                  }`}
+                  className="flex items-center gap-1 px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:text-primary"
                 >
                   {getCategoryName(category.id)}
+                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                 </Link>
 
-                {/* Mega Menu - absolute positioned dropdown */}
-                {activeDropdown === category.id && category.subcategories && category.subcategories.length > 0 && (
-                  <div 
-                    className="absolute left-0 top-full z-50 w-max min-w-[500px] bg-white border border-border rounded-b-lg shadow-md"
-                    onMouseEnter={() => handleCategoryMouseEnter(category.id)}
-                    onMouseLeave={handleCategoryMouseLeave}
-                  >
-                    <div className="px-6 py-4">
-                      {/* Grid layout: 3-4 items per column depending on total count */}
-                      <div className={`grid gap-x-8 gap-y-2 ${
-                        category.subcategories.length <= 6 ? "grid-cols-2" : "grid-cols-3"
-                      }`}>
-                        {category.subcategories.map((sub) => (
-                          <Link
-                            key={sub}
-                            href={isBrandName(sub) ? `/brand/${sub.toLowerCase().replace(/\s+/g, '-')}` : `/category/${category.id}?filter=${sub}`}
-                            className="block py-1.5 text-sm text-foreground transition-colors duration-150 hover:text-primary"
-                          >
-                            {isBrandName(sub) ? sub : t(sub as TranslationKey)}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
+                {activeDropdown === category.id && category.subcategories.length > 0 && (
+                  <div className="absolute left-0 top-full z-50 min-w-[200px] rounded-lg border border-border bg-card py-2 shadow-lg">
+                    {category.subcategories.map((sub) => (
+                      <Link
+                        key={sub}
+                        href={isBrandName(sub) ? `/brand/${sub.toLowerCase().replace(/\s+/g, '-')}` : `/category/${category.id}?filter=${sub}`}
+                        className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
+                      >
+                        {isBrandName(sub) ? sub : t(sub as TranslationKey)}
+                      </Link>
+                    ))}
                   </div>
                 )}
               </li>
