@@ -25,7 +25,6 @@ import {
   Zap,
   Phone,
   Mail,
-  HelpCircle,
   CreditCard
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -51,7 +50,7 @@ interface Order {
   products: Array<{ id: string; name: string; image: string }>
 }
 
-type ActiveSection = "profile" | "orders" | "favorites" | "bonus" | "addresses" | "help"
+type ActiveSection = "profile" | "orders" | "favorites" | "bonus" | "addresses" | "notifications"
 
 export default function AccountPage() {
   const router = useRouter()
@@ -75,6 +74,15 @@ export default function AccountPage() {
   const [showResetConfirm, setShowResetConfirm] = useState(false)
   const [isResetting, setIsResetting] = useState(false)
   const [activeSection, setActiveSection] = useState<ActiveSection>("profile")
+  
+  // Notifications state
+  const [notifications, setNotifications] = useState({
+    push: false,
+    email: false,
+    recommendations: false,
+    deals: false,
+    subscribed: false,
+  })
 
   // Show toast notification near cursor
   const showToast = (message: string, e?: React.MouseEvent, type: "success" | "error" = "success") => {
@@ -401,7 +409,7 @@ export default function AccountPage() {
     { id: "favorites" as const, icon: Heart, label: lang === "ru" ? "Избранное" : "Vēlmju saraksts", count: favorites.length },
     { id: "bonus" as const, icon: CreditCard, label: lang === "ru" ? "Бонусная карта" : "Bonusa karte" },
     { id: "addresses" as const, icon: Package, label: lang === "ru" ? "Адреса доставки" : "Piegādes adreses" },
-    { id: "help" as const, icon: HelpCircle, label: lang === "ru" ? "Помощь" : "Palīdzība" },
+    { id: "notifications" as const, icon: Zap, label: lang === "ru" ? "Уведомления" : "Paziņojumi" },
   ]
 
   return (
@@ -816,46 +824,133 @@ export default function AccountPage() {
             </div>
           )}
 
-          {/* ===== HELP SECTION ===== */}
-          {activeSection === "help" && (
-            <div className="space-y-6">
+          {/* ===== NOTIFICATIONS SECTION ===== */}
+          {activeSection === "notifications" && (
+            <div className="space-y-4">
               <h2 className="text-xl font-bold text-foreground">
-                {lang === "ru" ? "Помощь и поддержка" : "Palīdzība un atbalsts"}
+                {lang === "ru" ? "Уведомления" : "Paziņojumi"}
               </h2>
 
-              <div className="grid gap-4">
-                <a 
-                  href="tel:+37129952852" 
-                  className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted"
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <Phone className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">{lang === "ru" ? "По телефону" : "Pa tālruni"}</p>
-                    <p className="text-sm text-primary">+371 29 952 852</p>
-                  </div>
-                </a>
-
-                <a 
-                  href="mailto:info@pharmiperia.com" 
-                  className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted"
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <Mail className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">{lang === "ru" ? "По e-mail" : "Pa e-pastu"}</p>
-                    <p className="text-sm text-primary">info@pharmiperia.com</p>
-                  </div>
-                </a>
-
-                <div className="rounded-xl border border-border bg-card p-4">
-                  <p className="font-medium text-foreground mb-2">{lang === "ru" ? "Часы работы" : "Darba laiks"}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {lang === "ru" ? "Понедельник - Пятница: 9:00 - 18:00" : "Pirmdiena - Piektdiena: 9:00 - 18:00"}
+              {/* Push Notifications Block */}
+              <div className="rounded-xl border border-border bg-card p-4 flex items-start justify-between">
+                <div className="flex-1 pr-4">
+                  <h3 className="font-semibold text-foreground">
+                    {lang === "ru" ? "Push-уведомления" : "Push-paziņojumi"}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {lang === "ru" ? "О заказах, скидках и наличии" : "Par pasūtījumiem, atlaidēm un pieejamību"}
                   </p>
                 </div>
+                <button
+                  onClick={() => setNotifications({ ...notifications, push: !notifications.push })}
+                  className={`relative h-6 w-11 flex-shrink-0 rounded-full transition-colors ${
+                    notifications.push ? "bg-primary" : "bg-muted"
+                  }`}
+                >
+                  <div
+                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
+                      notifications.push ? "translate-x-5" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Email Notifications Block */}
+              <div className="rounded-xl border border-border bg-card p-4 flex items-start justify-between">
+                <div className="flex-1 pr-4">
+                  <h3 className="font-semibold text-foreground">
+                    {lang === "ru" ? "Email-уведомления" : "E-pasta paziņojumi"}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {lang === "ru" ? "Акции, новости и предложения" : "Akcijas, jaunumi un piedāvājumi"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setNotifications({ ...notifications, email: !notifications.email })}
+                  className={`relative h-6 w-11 flex-shrink-0 rounded-full transition-colors ${
+                    notifications.email ? "bg-primary" : "bg-muted"
+                  }`}
+                >
+                  <div
+                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
+                      notifications.email ? "translate-x-5" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Recommendations Block */}
+              <div className="rounded-xl border border-border bg-card p-4 flex items-start justify-between">
+                <div className="flex-1 pr-4">
+                  <h3 className="font-semibold text-foreground">
+                    {lang === "ru" ? "Рекомендации" : "Ieteikumi"}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {lang === "ru" ? "На основе ваших покупок" : "Pamatojoties uz jūsu pirkumiem"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setNotifications({ ...notifications, recommendations: !notifications.recommendations })}
+                  className={`relative h-6 w-11 flex-shrink-0 rounded-full transition-colors ${
+                    notifications.recommendations ? "bg-primary" : "bg-muted"
+                  }`}
+                >
+                  <div
+                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
+                      notifications.recommendations ? "translate-x-5" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Deals & Discounts Block */}
+              <div className="rounded-xl border border-border bg-card p-4 flex items-start justify-between">
+                <div className="flex-1 pr-4">
+                  <h3 className="font-semibold text-foreground">
+                    {lang === "ru" ? "Акции и скидки" : "Akcijas un atlaide"}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {lang === "ru" ? "О распродажах и спецпредложениях" : "Par izpārdošanu un īpašiem piedāvājumiem"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setNotifications({ ...notifications, deals: !notifications.deals })}
+                  className={`relative h-6 w-11 flex-shrink-0 rounded-full transition-colors ${
+                    notifications.deals ? "bg-primary" : "bg-muted"
+                  }`}
+                >
+                  <div
+                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
+                      notifications.deals ? "translate-x-5" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Bonus: Newsletter subscription card */}
+              <div className="rounded-xl bg-gradient-to-br from-primary to-primary/90 p-4 text-white mt-6">
+                <h3 className="font-bold text-lg mb-1">
+                  {lang === "ru" ? "Получите скидку 10%" : "Iegūstiet 10% atlaidi"}
+                </h3>
+                <p className="text-white/90 text-sm mb-3">
+                  {lang === "ru" ? "Подпишитесь на рассылку" : "Abonējiet mūsu biļetenu"}
+                </p>
+                <button
+                  onClick={() => {
+                    setNotifications({ ...notifications, subscribed: !notifications.subscribed })
+                    showToast(
+                      notifications.subscribed 
+                        ? (lang === "ru" ? "Отписаны от рассылки" : "Atrakstīts no biļetena")
+                        : (lang === "ru" ? "Вы подписаны!" : "Jūs esat abonējis!")
+                    )
+                  }}
+                  className="w-full bg-white text-primary font-medium py-2 rounded-lg transition-all hover:bg-white/90"
+                >
+                  {notifications.subscribed 
+                    ? (lang === "ru" ? "Вы подписаны" : "Jūs esat abonējis")
+                    : (lang === "ru" ? "Подписаться" : "Abonēt")
+                  }
+                </button>
               </div>
             </div>
           )}
