@@ -400,7 +400,9 @@ export default function AccountPage() {
               <h1 className="text-2xl font-bold text-foreground mb-2">{displayName}</h1>
               <p className="text-sm text-muted-foreground">{user.email}</p>
               {profile?.phone && (
-                <p className="text-sm text-muted-foreground">{profile.phone}</p>
+                <p className="text-sm text-muted-foreground">
+                  {profile.phone.startsWith("+371") ? profile.phone : `+371 ${profile.phone}`}
+                </p>
               )}
               {profile?.address && (
                 <p className="text-sm text-muted-foreground">{profile.address}</p>
