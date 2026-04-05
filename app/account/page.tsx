@@ -399,14 +399,14 @@ export default function AccountPage() {
               {profile?.address && (
                 <p className="text-sm text-muted-foreground">{profile.address}</p>
               )}
+              {profile?.postal_code && (
+                <p className="text-sm text-muted-foreground">{profile.postal_code}</p>
+              )}
               {profile?.country && (
                 <p className="text-sm text-muted-foreground">{lang === "ru" ? "Латвия" : "Latvija"}</p>
               )}
               {profile?.city && (
                 <p className="text-sm text-muted-foreground">{profile.city}</p>
-              )}
-              {profile?.postal_code && (
-                <p className="text-sm text-muted-foreground">{profile.postal_code}</p>
               )}
             </div>
           </div>
@@ -767,11 +767,16 @@ export default function AccountPage() {
                     
                     const formatted = digits.length === 8 ? `+371 ${digits}` : digits ? `+371 ${digits}` : ""
                     setFormData({ ...formData, phone: formatted })
+                    // Ошибка только если введено меньше 8 цифр И что-то введено
                     setErrors({ ...errors, phone: digits.length > 0 && digits.length < 8 ? true : false })
                   }}
                   onBlur={(e) => {
                     const digits = e.target.value.replace(/\D/g, "")
-                    if (digits.length > 0 && digits.length !== 8) {
+                    // Очистить ошибку если ровно 8 цифр
+                    if (digits.length === 8) {
+                      setErrors({ ...errors, phone: false })
+                    } else if (digits.length > 0 && digits.length !== 8) {
+                      // Показать ошибку если введено не 8 цифр
                       setErrors({ ...errors, phone: true })
                     }
                   }}
