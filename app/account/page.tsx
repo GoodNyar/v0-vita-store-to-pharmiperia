@@ -67,6 +67,7 @@ export default function AccountPage() {
   const [savedData, setSavedData] = useState<Profile | null>(null)
   const [errors, setErrors] = useState<Record<string, boolean>>({})
   const [showResetConfirm, setShowResetConfirm] = useState(false)
+  const [isResetting, setIsResetting] = useState(false)
 
   // Show toast notification near cursor
   const showToast = (message: string, e?: React.MouseEvent, type: "success" | "error" = "success") => {
@@ -300,7 +301,10 @@ export default function AccountPage() {
   const handleResetProfile = async (e: React.MouseEvent) => {
     if (!user) return
     
-    setIsSaving(true)
+    // Prevent double-click
+    if (isResetting) return
+    
+    setIsResetting(true)
     const supabase = createClient()
     
     try {
@@ -321,29 +325,32 @@ export default function AccountPage() {
       if (error && !error.message?.includes("column")) {
         throw error
       }
+      
+      // Update local state - keep only id and email
+      const emailOnlyProfile = {
+        id: user.id,
+        email: user.email,
+      }
+      setProfile(emailOnlyProfile)
+      setSavedData(emailOnlyProfile)
+      setFormData(emailOnlyProfile)
+      
+      // Clear localStorage
+      localStorage.removeItem(`profile_${user.id}`)
+      
+      // Close modal first, then show toast
+      setShowResetConfirm(false)
+      showToast(lang === "ru" ? "Данные очищены" : "Dati notīrēti", e, "success")
+      
     } catch (err) {
       console.error("[v0] Reset error:", err)
       showToast(lang === "ru" ? "Ошибка при очистке" : "Kļūda notīrējot", e, "error")
-      setIsSaving(false)
-      return
+      // Close modal even on error to prevent stuck state
+      setShowResetConfirm(false)
+    } finally {
+      // Always reset loading state
+      setIsResetting(false)
     }
-
-    setIsSaving(false)
-
-    // Update local state - keep only id and email
-    const emailOnlyProfile = {
-      id: user.id,
-      email: user.email,
-    }
-    setProfile(emailOnlyProfile)
-    setSavedData(emailOnlyProfile)
-    setFormData(emailOnlyProfile)
-    
-    // Clear localStorage
-    localStorage.removeItem(`profile_${user.id}`)
-    
-    setShowResetConfirm(false)
-    showToast(lang === "ru" ? "Данные очищены" : "Dati notīrēti", e, "success")
   }
 
   const repeatOrder = (order: Order) => {
@@ -877,8 +884,9 @@ export default function AccountPage() {
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
           onClick={(e) => {
-            if (e.target === e.currentTarget) {
+            if (e.target === e.currentTarget && !isResetting) {
               setShowResetConfirm(false)
+              setIsResetting(false)
             }
           }}
         >
@@ -902,7 +910,9 @@ export default function AccountPage() {
                   e.preventDefault()
                   e.stopPropagation()
                   setShowResetConfirm(false)
+                  setIsResetting(false)
                 }}
+                disabled={isResetting}
                 className="flex-1"
               >
                 {lang === "ru" ? "Отмена" : "Atcelt"}
@@ -914,10 +924,10 @@ export default function AccountPage() {
                   e.stopPropagation()
                   handleResetProfile(e)
                 }}
-                disabled={isSaving}
+                disabled={isResetting}
                 className="flex-1 bg-red-500 hover:bg-red-600 text-white"
               >
-                {isSaving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                {isResetting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                 {lang === "ru" ? "Очистить" : "Notīrēt"}
               </Button>
             </div>
