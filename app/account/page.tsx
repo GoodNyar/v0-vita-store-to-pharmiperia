@@ -795,59 +795,6 @@ export default function AccountPage() {
               )}
             </div>
           </div>
-                <input
-                  type="tel"
-                  name="phone"
-                  autoComplete="tel"
-                  value={(formData.phone || "").replace(/\+371\s?/g, "")}
-                  onChange={(e) => { 
-                    let digits = e.target.value.replace(/\D/g, "")
-                    
-                    // Убрать дублирующийся код 371 если пользователь вставил номер с кодом
-                    if (digits.startsWith("371")) {
-                      digits = digits.slice(3)
-                    }
-                    
-                    // Ограничиться 8 цифрами
-                    digits = digits.slice(0, 8)
-                    
-                    // Форматировать маской XX XXX XXX
-                    let formatted = ""
-                    if (digits.length > 0) {
-                      if (digits.length <= 2) {
-                        formatted = digits
-                      } else if (digits.length <= 5) {
-                        formatted = `${digits.slice(0, 2)} ${digits.slice(2)}`
-                      } else {
-                        formatted = `${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`
-                      }
-                    }
-                    
-                    // Сохрани��ь полный номер для БД ТОЛЬКО если было введено ровно 8 цифр
-                    const fullPhone = digits.length === 8 ? `+371 ${digits}` : ""
-                    setFormData({ ...formData, phone: fullPhone })
-                    
-                    // Ошибка только если что-то введено И не 8 цифр
-                    setErrors({ ...errors, phone: digits.length > 0 && digits.length < 8 })
-                  }}
-                  onBlur={(e) => {
-                    const digits = e.target.value.replace(/\D/g, "")
-                    // Простая валидация: если не 8 цифр И было введено - ошибка
-                    setErrors({ ...errors, phone: digits.length > 0 && digits.length !== 8 })
-                  }}
-                  className={`flex-1 rounded-r-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.phone ? "border-red-500" : "border-border"}`}
-                  placeholder="29 123 456"
-                  inputMode="numeric"
-                  maxLength="11"
-                />
-              </div>
-              {errors.phone && (
-                <p className="text-xs text-red-500">
-                  {lang === "ru" ? "Введите корректный номер телефона" : "Ievadiet korektu tālruņa numuru"}
-                </p>
-              )}
-            </div>
-          </div>
 
           {/* Email — read only */}
           <div>
