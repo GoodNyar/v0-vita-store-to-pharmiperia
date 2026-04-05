@@ -462,13 +462,13 @@ export default function AccountPage() {
               <p className="text-xs text-muted-foreground">
                 {lang === "ru" ? "Пн-Пт: 9:00-18:00" : "P-Pk: 9:00-18:00"}
               </p>
-              <a href="tel:+37129952852" className="w-full">
+              <a href="mailto:info@pharmiperia.com" className="w-full">
                 <Button
                   size="sm"
                   variant="outline"
                   className="w-full justify-center"
                 >
-                  {lang === "ru" ? "Позвонить" : "Zvanīt"}
+                  {lang === "ru" ? "Связаться" : "Sazināties"}
                 </Button>
               </a>
             </div>
