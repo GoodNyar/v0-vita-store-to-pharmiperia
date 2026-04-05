@@ -309,8 +309,6 @@ export default function AccountPage() {
 
   const handleSignOut = async () => {
     await signOut()
-    router.push("/")
-    router.refresh()
   }
 
   const handleResetProfile = async (e: React.MouseEvent) => {
@@ -464,13 +462,15 @@ export default function AccountPage() {
               <p className="text-xs text-muted-foreground">
                 {lang === "ru" ? "Пн-Пт: 9:00-18:00" : "P-Pk: 9:00-18:00"}
               </p>
-              <Button
-                size="sm"
-                variant="outline"
-                className="w-full justify-center"
-              >
-                {lang === "ru" ? "Связаться" : "Sazināties"}
-              </Button>
+              <a href="tel:+37129952852" className="w-full">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full justify-center"
+                >
+                  {lang === "ru" ? "Позвонить" : "Zvanīt"}
+                </Button>
+              </a>
             </div>
 
             {/* Logout button */}
@@ -562,27 +562,43 @@ export default function AccountPage() {
                   onClick={() => repeatOrder(lastOrder)}
                   className="w-full group relative overflow-hidden rounded-xl bg-gradient-to-r from-primary to-primary/90 p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]"
                 >
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 flex-shrink-0">
-                        <RotateCcw className="h-6 w-6 text-white" />
-                      </div>
-                      <div className="text-right text-xs text-white/60">
-                        <span className="block">{lastOrder.date}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-white text-left">
-                        {lang === "ru" ? "Повторить заказ" : "Atkārtot pasūtījumu"}
+                  <div className="space-y-4">
+                    {/* Title row */}
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base font-bold text-white">
+                        {lang === "ru" ? "Повторить последний заказ" : "Atkārtot pēdējo pasūtījumu"}
                       </h3>
+                      <span className="text-xs text-white/60">{lastOrder.date}</span>
                     </div>
-                    <div className="flex items-center justify-between pt-2">
+
+                    {/* Product thumbnails */}
+                    {lastOrder.products.length > 0 && (
+                      <div className="flex items-center gap-2">
+                        {lastOrder.products.slice(0, 4).map((p, i) => (
+                          <div key={i} className="relative h-12 w-12 rounded-lg bg-white/20 overflow-hidden flex-shrink-0 border border-white/20">
+                            {p.image ? (
+                              <Image src={p.image} alt={p.name} fill className="object-cover" />
+                            ) : (
+                              <div className="flex items-center justify-center h-full">
+                                <Package className="h-5 w-5 text-white/60" />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        {lastOrder.products.length > 4 && (
+                          <span className="text-xs text-white/70 ml-1">+{lastOrder.products.length - 4}</span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Order info row */}
+                    <div className="flex items-center justify-between pt-1 border-t border-white/20">
                       <div className="text-left">
-                        <p className="text-xs text-white/80">{lang === "ru" ? "№ заказа" : "Pasūtījuma nr."}</p>
+                        <p className="text-xs text-white/70">{lang === "ru" ? "№ заказа" : "Pasūtījuma nr."}</p>
                         <p className="text-sm font-semibold text-white">{lastOrder.orderNumber}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs text-white/80">{lang === "ru" ? "Сумма" : "Summa"}</p>
+                        <p className="text-xs text-white/70">{lang === "ru" ? "Сумма" : "Summa"}</p>
                         <p className="text-lg font-bold text-white">€{lastOrder.total.toFixed(2)}</p>
                       </div>
                     </div>
