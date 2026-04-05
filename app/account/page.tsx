@@ -192,9 +192,9 @@ export default function AccountPage() {
     const newErrors: Record<string, boolean> = {}
     if (!formData.first_name?.trim()) newErrors.first_name = true
     if (!formData.last_name?.trim()) newErrors.last_name = true
-    // Phone must have exactly 8 digits (without +371 prefix)
+    // Phone must have exactly 8 digits (stored as pure digits in state)
     const phoneDigits = (formData.phone || "").replace(/\D/g, "")
-    if (!phoneDigits || phoneDigits.length !== 8) newErrors.phone = true
+    if (phoneDigits.length !== 8) newErrors.phone = true
     if (!formData.city?.trim()) newErrors.city = true
     if (!formData.address?.trim()) newErrors.address = true
     if (!formData.postal_code?.trim()) newErrors.postal_code = true
@@ -234,6 +234,9 @@ export default function AccountPage() {
     
     const supabase = createClient()
     
+    // Format phone with +371 prefix for database storage
+    const formattedPhone = formData.phone ? `+371 ${formData.phone}` : null
+    
     // Try to save with all fields first
     let { error } = await supabase
       .from("profiles")
@@ -242,7 +245,7 @@ export default function AccountPage() {
           id: user.id,
           first_name: formData.first_name || null,
           last_name: formData.last_name || null,
-          phone: formData.phone || null,
+          phone: formattedPhone,
           country: "Latvija",
           city: formData.city || null,
           address: formData.address || null,
@@ -260,7 +263,7 @@ export default function AccountPage() {
             id: user.id,
             first_name: formData.first_name || null,
             last_name: formData.last_name || null,
-            phone: formData.phone || null,
+            phone: formattedPhone,
           },
           { onConflict: "id" }
         )
@@ -755,6 +758,47 @@ export default function AccountPage() {
                   type="tel"
                   name="phone"
                   autoComplete="tel"
+                  inputMode="numeric"
+                  maxLength="11"
+                  placeholder="29 123 456"
+                  value={(formData.phone || "").replace(/\D/g, "")}
+                  onChange={(e) => {
+                    const input = e.target.value.replace(/\D/g, "")
+                    
+                    // Убрать дублирующийся код 371 если пользователь вставил с кодом
+                    let digits = input.startsWith("371") ? input.slice(3) : input
+                    
+                    // Ограничиться 8 цифрами
+                    digits = digits.slice(0, 8)
+                    
+                    // Сохранить полный формат в state только для валидных 8 цифр
+                    // Если меньше 8 - сохранить как есть (без +371)
+                    setFormData({ ...formData, phone: digits })
+                    
+                    // Не показывать ошибку во время ввода - только на blur
+                    setErrors({ ...errors, phone: false })
+                  }}
+                  onBlur={(e) => {
+                    const digits = (formData.phone || "").replace(/\D/g, "")
+                    // Ошибка только если было что-то введено И не 8 цифр
+                    if (digits.length > 0 && digits.length !== 8) {
+                      setErrors({ ...errors, phone: true })
+                    }
+                  }}
+                  className={`flex-1 rounded-r-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.phone ? "border-red-500" : "border-border"}`}
+                />
+              </div>
+              {errors.phone && (
+                <p className="text-xs text-red-500">
+                  {lang === "ru" ? "Введите корректный номер телефона" : "Ievadiet korektu tālruņa numuru"}
+                </p>
+              )}
+            </div>
+          </div>
+                <input
+                  type="tel"
+                  name="phone"
+                  autoComplete="tel"
                   value={(formData.phone || "").replace(/\+371\s?/g, "")}
                   onChange={(e) => { 
                     let digits = e.target.value.replace(/\D/g, "")
@@ -779,7 +823,7 @@ export default function AccountPage() {
                       }
                     }
                     
-                    // Сохранить полный номер для БД ТОЛЬКО если было введено ровно 8 цифр
+                    // Сохрани��ь полный номер для БД ТОЛЬКО если было введено ровно 8 цифр
                     const fullPhone = digits.length === 8 ? `+371 ${digits}` : ""
                     setFormData({ ...formData, phone: fullPhone })
                     
