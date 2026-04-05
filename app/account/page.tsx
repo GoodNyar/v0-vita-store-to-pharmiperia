@@ -752,7 +752,6 @@ export default function AccountPage() {
                   type="tel"
                   name="phone"
                   autoComplete="tel"
-                  maxLength="8"
                   value={(formData.phone || "").replace(/\+371\s?/g, "")}
                   onChange={(e) => { 
                     let digits = e.target.value.replace(/\D/g, "")
@@ -765,29 +764,39 @@ export default function AccountPage() {
                     // Ограничиться 8 цифрами
                     digits = digits.slice(0, 8)
                     
-                    const formatted = digits.length === 8 ? `+371 ${digits}` : digits ? `+371 ${digits}` : ""
-                    setFormData({ ...formData, phone: formatted })
-                    // Ошибка только если введено меньше 8 цифр И что-то введено
-                    setErrors({ ...errors, phone: digits.length > 0 && digits.length < 8 ? true : false })
+                    // Форматировать маской XX XXX XXX
+                    let formatted = ""
+                    if (digits.length > 0) {
+                      if (digits.length <= 2) {
+                        formatted = digits
+                      } else if (digits.length <= 5) {
+                        formatted = `${digits.slice(0, 2)} ${digits.slice(2)}`
+                      } else {
+                        formatted = `${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`
+                      }
+                    }
+                    
+                    // Сохранить полный номер для БД
+                    const fullPhone = digits.length === 8 ? `+371 ${digits}` : ""
+                    setFormData({ ...formData, phone: fullPhone })
+                    
+                    // Ошибка только если что-то введено И не 8 цифр
+                    setErrors({ ...errors, phone: digits.length > 0 && digits.length < 8 })
                   }}
                   onBlur={(e) => {
                     const digits = e.target.value.replace(/\D/g, "")
-                    // Очистить ошибку если ровно 8 цифр
-                    if (digits.length === 8) {
-                      setErrors({ ...errors, phone: false })
-                    } else if (digits.length > 0 && digits.length !== 8) {
-                      // Показать ошибку если введено не 8 цифр
-                      setErrors({ ...errors, phone: true })
-                    }
+                    // Простая валидация: если не 8 цифр И было введено - ошибка
+                    setErrors({ ...errors, phone: digits.length > 0 && digits.length !== 8 })
                   }}
                   className={`flex-1 rounded-r-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.phone ? "border-red-500" : "border-border"}`}
-                  placeholder="XXXXXXXX"
+                  placeholder="29 952 852"
                   inputMode="numeric"
+                  maxLength="11"
                 />
               </div>
               {errors.phone && (
                 <p className="text-xs text-red-500">
-                  {lang === "ru" ? "Введите 8 цифр без кода страны" : "Ievadiet 8 ciparus bez valsts koda"}
+                  {lang === "ru" ? "Введите корректный номер телефона" : "Ievadiet korektu tālruņa numuru"}
                 </p>
               )}
             </div>
