@@ -2,7 +2,7 @@
 
 import { memo } from "react"
 import Image from "next/image"
-import { Star, Heart } from "lucide-react"
+import { Star, Heart, ShoppingCart } from "lucide-react"
 import type { Product } from "@/lib/data"
 import { useCart } from "@/components/cart-context"
 import { useLang, formatEur } from "@/lib/i18n"
@@ -16,10 +16,14 @@ function ProductCardComponent({ product }: { product: Product }) {
   const productHref = `/products/${product.id}`
   const isFav = isFavorited(product.id)
 
+  // Calculate discount percentage if there's an original price
+  const discountPercent =
+    product.originalPrice && product.originalPrice > product.price
+      ? Math.round((1 - product.price / product.originalPrice) * 100)
+      : 0
+
   return (
-    <div
-      className="group relative flex flex-col cursor-pointer rounded-2xl bg-white shadow-[0_6px_20px_rgba(0,0,0,0.14)] transition-all duration-200 active:translate-y-1 active:shadow-[0_3px_12px_rgba(0,0,0,0.10)]"
-    >
+    <div className="group relative flex flex-col cursor-pointer rounded-2xl bg-white ring-1 ring-border/60 shadow-[0_6px_20px_rgba(0,0,0,0.06)] transition-all duration-300 hover:ring-primary/30 hover:shadow-[0_8px_30px_rgba(0,0,0,0.10)] active:translate-y-0.5">
       {/* Favorite button */}
       <button
         onClick={(e) => {
@@ -39,26 +43,44 @@ function ProductCardComponent({ product }: { product: Product }) {
 
       {/* Clickable area — image + info (excludes the cart button row) */}
       <a href={productHref} className="flex flex-col" tabIndex={0}>
-
         {/* Image area */}
         <div className="relative overflow-hidden rounded-t-2xl bg-[#f2f3f5]">
+          {/* Badge overlay — top left */}
+          {product.badge && (
+            <span className="absolute left-2 top-2 z-10 rounded-full bg-primary px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground shadow-sm">
+              {t(product.badge as never)}
+            </span>
+          )}
+
           <div className="relative w-full" style={{ paddingBottom: "90%" }}>
             <Image
               src={product.image}
               alt={product.name}
               fill
-              className="object-contain object-center p-4"
+              className="object-contain object-center p-4 transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           </div>
+
+          {/* Discount pill — bottom left */}
+          {discountPercent > 0 && (
+            <span className="absolute bottom-2 left-2 z-10 rounded-full bg-red-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
+              {"−"}
+              {discountPercent}%
+            </span>
+          )}
         </div>
 
         {/* Text content */}
         <div className="flex flex-col px-3 pt-3 sm:px-4 sm:pt-4">
+          {/* Brand name */}
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-primary/70">
+            {product.brand}
+          </p>
 
           {/* Product name — bold, 2 lines max */}
-          <p className="line-clamp-2 text-sm font-bold leading-snug text-foreground sm:text-base">
+          <p className="mt-1 line-clamp-2 text-sm font-bold leading-snug text-foreground sm:text-base">
             {product.name}
           </p>
 
@@ -68,22 +90,10 @@ function ProductCardComponent({ product }: { product: Product }) {
           </p>
 
           {/* Star rating */}
-          <div className="mt-2 flex items-center gap-1">
-            <div className="flex items-center gap-0.5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-3 w-3 ${
-                    i < Math.floor(product.rating)
-                      ? "fill-amber-400 text-amber-400"
-                      : "fill-gray-300 text-gray-300"
-                  }`}
-                  strokeWidth={0}
-                />
-              ))}
-            </div>
-            <span className="text-xs text-muted-foreground">
-              ({product.reviewCount})
+          <div className="mt-2 flex items-center gap-1.5">
+            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" strokeWidth={0} />
+            <span className="text-xs font-medium text-foreground">
+              {product.rating} · {product.reviewCount.toLocaleString("ru")}
             </span>
           </div>
 
@@ -97,7 +107,6 @@ function ProductCardComponent({ product }: { product: Product }) {
 
           {/* Divider */}
           <div className="border-t border-border" />
-
         </div>
       </a>
 
@@ -116,8 +125,9 @@ function ProductCardComponent({ product }: { product: Product }) {
 
         <button
           onClick={() => addToCart(product)}
-          className="flex-shrink-0 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/80 sm:px-4"
+          className="flex flex-shrink-0 items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/80 sm:px-4"
         >
+          <ShoppingCart className="h-4 w-4" />
           {t("addToCart")}
         </button>
       </div>
