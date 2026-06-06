@@ -58,10 +58,6 @@ function HomeContent() {
     { icon: Leaf, label: t("pharmacyBadge"), desc: t("pharmacyBadgeDesc") },
   ]
 
-  const bestsellers = [...products]
-    .sort((a, b) => b.reviewCount - a.reviewCount)
-    .slice(0, 6)
-
   const brandSlug = (name: string) => name.toLowerCase().replace(/\s+/g, "-")
 
   return (
@@ -128,23 +124,6 @@ function HomeContent() {
               {t("shopByCategory")}
             </h2>
             <CategoryCards />
-          </section>
-
-          {/* Bestseller Row — top 6 by reviewCount */}
-          <section className="mt-8">
-            <div className="mb-3 flex items-center gap-2 sm:mb-4">
-              <Flame className="h-5 w-5 text-accent" />
-              <h2 className="text-lg font-semibold text-foreground">
-                {t("bestsellers")}
-              </h2>
-            </div>
-            <div className="flex gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-6 sm:gap-4 sm:overflow-visible sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {bestsellers.map((product) => (
-                <div key={product.id} className="w-[160px] flex-shrink-0 sm:w-auto">
-                  <ProductCard product={product} />
-                </div>
-              ))}
-            </div>
           </section>
 
           {/* Divider — full catalog */}
