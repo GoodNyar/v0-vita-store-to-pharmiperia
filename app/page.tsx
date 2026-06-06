@@ -1,6 +1,7 @@
 "use client"
 
 import { lazy, Suspense } from "react"
+import Link from "next/link"
 import { SiteHeader } from "@/components/site-header"
 import { HeroBanner } from "@/components/hero-banner"
 import { CategoryCards } from "@/components/category-cards"
@@ -12,7 +13,7 @@ import { useCart } from "@/components/cart-context"
 import { SiteFooter } from "@/components/site-footer"
 import { Skeleton } from "@/components/loading-skeleton"
 import { useLang, formatEur } from "@/lib/i18n"
-import { products } from "@/lib/data"
+import { products, BRANDS_ORDERED } from "@/lib/data"
 import { Truck, Shield, RotateCcw, Flame, Leaf } from "lucide-react"
 
 // Lazy load components below the fold
@@ -57,6 +58,12 @@ function HomeContent() {
     { icon: Leaf, label: t("pharmacyBadge"), desc: t("pharmacyBadgeDesc") },
   ]
 
+  const bestsellers = [...products]
+    .sort((a, b) => b.reviewCount - a.reviewCount)
+    .slice(0, 6)
+
+  const brandSlug = (name: string) => name.toLowerCase().replace(/\s+/g, "-")
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
@@ -100,6 +107,21 @@ function HomeContent() {
             </div>
           </section>
 
+          {/* Brand Strip — horizontal scrollable row of brand pills */}
+          <section className="mt-6">
+            <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {BRANDS_ORDERED.map((brand) => (
+                <Link
+                  key={brand}
+                  href={`/brand/${brandSlug(brand)}`}
+                  className="flex-shrink-0 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-primary/5"
+                >
+                  {brand}
+                </Link>
+              ))}
+            </div>
+          </section>
+
           {/* Quick Categories */}
           <section className="mt-6 sm:mt-8">
             <h2 className="mb-3 text-lg font-semibold text-foreground sm:mb-4">
@@ -107,6 +129,32 @@ function HomeContent() {
             </h2>
             <CategoryCards />
           </section>
+
+          {/* Bestseller Row — top 6 by reviewCount */}
+          <section className="mt-8">
+            <div className="mb-3 flex items-center gap-2 sm:mb-4">
+              <Flame className="h-5 w-5 text-accent" />
+              <h2 className="text-lg font-semibold text-foreground">
+                {t("bestsellers")}
+              </h2>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-6 sm:gap-4 sm:overflow-visible sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {bestsellers.map((product) => (
+                <div key={product.id} className="w-[160px] flex-shrink-0 sm:w-auto">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Divider — full catalog */}
+          <div className="mt-10 flex items-center gap-4">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
+              {t("fullCatalog")}
+            </span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
 
           {/* Main content: sidebar + products */}
           <section className="mt-8 flex gap-6">
@@ -154,7 +202,10 @@ function HomeContent() {
           {/* Newsletter */}
           <section className="mt-12 mb-8 rounded-xl bg-primary px-4 py-4 sm:px-6 sm:py-3.5">
             <div className="flex flex-col items-center text-center">
-              <h2 className="text-base font-bold text-primary-foreground sm:text-lg">
+              <p className="text-[10px] uppercase tracking-widest text-primary-foreground/60">
+                Pharmiperia
+              </p>
+              <h2 className="mt-1 text-base font-bold text-primary-foreground sm:text-lg">
                 {t("joinNewsletter")}
               </h2>
               <p className="mt-1 max-w-md text-xs text-primary-foreground/85 sm:text-xs">
@@ -164,12 +215,12 @@ function HomeContent() {
                 <input
                   type="email"
                   placeholder={t("emailPlaceholder")}
-                  className="h-10 w-full flex-1 rounded-full bg-primary-foreground px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
+                  className="h-10 w-full flex-1 rounded-full border border-white/20 bg-white/15 px-4 text-sm text-primary-foreground placeholder:text-primary-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
                   required
                 />
                 <button
                   type="submit"
-                  className="h-10 w-full rounded-full bg-accent px-6 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90 sm:w-auto"
+                  className="h-10 w-full rounded-full bg-white px-6 text-sm font-bold text-primary transition-colors hover:bg-white/90 sm:w-auto"
                 >
                   {t("subscribe")}
                 </button>

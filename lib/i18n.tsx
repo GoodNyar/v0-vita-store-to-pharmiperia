@@ -35,6 +35,7 @@ export const translations = {
     womencare: "Женщинам",
     brands: "Бренды",
     bestsellers: "Популярное",
+    fullCatalog: "Весь каталог",
     // Subcategories — skincare
     cleansers: "Очищение",
     toners: "Тоники",
@@ -162,7 +163,7 @@ export const translations = {
     aboutUs: "О нас",
     blog: "Блог",
     careers: "Вакансии",
-    press: "Пресса",
+    press: "Прес��а",
     affiliate: "Партнёрская программа",
     myOrders: "Мои заказы",
     myLists: "Избранное",
@@ -259,6 +260,7 @@ export const translations = {
 
     brands: "Zīmoli",
     bestsellers: "Populārais",
+    fullCatalog: "Viss katalogs",
     // Subcategories — skincare
     cleansers: "Tīrīšana",
     toners: "Toneri",
