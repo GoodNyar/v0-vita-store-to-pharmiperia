@@ -269,7 +269,7 @@ export function SiteHeader() {
 
       {/* Category Navigation — collapses on scroll */}
       <nav className="hidden border-t border-border lg:block">
-        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isScrolled ? "max-h-0 opacity-0" : "max-h-12 opacity-100"}`}>
+        <div className={`transition-all duration-300 ease-in-out ${isScrolled ? "max-h-0 opacity-0 overflow-hidden" : "max-h-12 opacity-100"}`}>
           <div className="mx-auto max-w-7xl px-4">
             <ul className="flex items-center justify-center gap-0">
             {categories.map((category) => (
