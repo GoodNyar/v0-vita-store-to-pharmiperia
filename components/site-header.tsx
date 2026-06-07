@@ -327,22 +327,26 @@ export function SiteHeader() {
               </li>
             ))}
             <li>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-sm font-medium text-destructive hover:text-destructive"
-              >
-                {t("specials")}
-              </Button>
+              <Link href="/specials">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-sm font-medium text-destructive hover:text-destructive"
+                >
+                  {t("specials")}
+                </Button>
+              </Link>
             </li>
             <li>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-sm font-medium text-primary hover:text-primary"
-              >
-                {t("bestSellers")}
-              </Button>
+              <Link href="/popular">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-sm font-medium text-primary hover:text-primary"
+                >
+                  {t("bestSellers")}
+                </Button>
+              </Link>
             </li>
           </ul>
         </div>
@@ -473,14 +477,14 @@ export function SiteHeader() {
             )
           })}
           <Link 
-            href="/promotions" 
+            href="/specials" 
             className="border-b border-border/50 py-3 text-sm font-medium text-destructive"
             onClick={() => setSidebarOpen(false)}
           >
             {t("specials")}
           </Link>
           <Link 
-            href="/bestsellers" 
+            href="/popular" 
             className="py-3 text-sm font-medium text-primary"
             onClick={() => setSidebarOpen(false)}
           >
