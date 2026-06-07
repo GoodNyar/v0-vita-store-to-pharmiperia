@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { createClient } from "@/lib/supabase/client"
+import { products as allProducts, categories, BRANDS_ORDERED } from "@/lib/data"
 import { LangProvider, useLang, formatEur } from "@/lib/i18n"
 import { CartProvider, useCart } from "@/components/cart-context"
 import { SiteHeader } from "@/components/site-header"
@@ -43,6 +43,18 @@ interface Brand {
   slug: string
 }
 
+const getBrandSlug = (brand: string): string =>
+  brand
+    .toLowerCase()
+    .replace(/[èéêë]/g, "e")
+    .replace(/[âäà]/g, "a")
+    .replace(/[ôöò]/g, "o")
+    .replace(/[ûüù]/g, "u")
+    .replace(/[ïî]/g, "i")
+    .replace(/[ç]/g, "c")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+
 function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
   const { t } = useLang()
@@ -62,48 +74,46 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
   useEffect(() => {
-    const fetchData = async () => {
-      const supabase = createClient()
+    const cat = categories.find(c => c.id === slug)
 
-      // Fetch category
-      const { data: categoryData } = await supabase
-        .from("categories")
-        .select("*")
-        .eq("slug", slug)
-        .single()
+    if (cat) {
+      const catName = t(cat.id as any)
+      setCategory({
+        id: cat.id,
+        name: catName,
+        slug: cat.id,
+        description: null,
+      })
 
-      if (categoryData) {
-        setCategory(categoryData)
+      // Filter products belonging to this category
+      const mappedProducts: Product[] = allProducts
+        .filter(p => p.category === slug)
+        .map(p => ({
+          id: String(p.id),
+          sku: p.sku ?? "",
+          name: p.name,
+          description: p.description,
+          volume: p.volume ?? "",
+          price: p.price,
+          original_price: p.originalPrice ?? null,
+          rating: p.rating,
+          review_count: p.reviewCount,
+          image_url: p.image,
+          brand: { name: p.brand, slug: getBrandSlug(p.brand) },
+          category: { name: catName, slug: cat.id },
+        }))
 
-        // Fetch products in this category
-        let query = supabase
-          .from("products")
-          .select(`
-            *,
-            brand:brands(name, slug),
-            category:categories(name, slug)
-          `)
-          .eq("category_id", categoryData.id)
-          .eq("active", true)
+      setProducts(mappedProducts)
 
-        const { data: productsData } = await query
-        
-        if (productsData) {
-          setProducts(productsData as unknown as Product[])
-          
-          // Extract unique brands from products
-          const uniqueBrands = Array.from(
-            new Map(productsData.map((p: { brand: Brand }) => [p.brand.slug, p.brand])).values()
-          ) as Brand[]
-          setBrands(uniqueBrands)
-        }
-      }
-
-      setLoading(false)
+      // Build unique brands list from the filtered products
+      const uniqueBrands = Array.from(
+        new Map(mappedProducts.map(p => [p.brand.slug, p.brand])).values()
+      ).map(b => ({ id: b.slug, name: b.name, slug: b.slug }))
+      setBrands(uniqueBrands)
     }
 
-    fetchData()
-  }, [slug])
+    setLoading(false)
+  }, [slug, t])
 
   // Filter and sort products
   const filteredProducts = products
