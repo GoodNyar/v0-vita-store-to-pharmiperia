@@ -28,6 +28,19 @@ const promoIconMap = {
 }
 
 const isBrandName = (sub: string) => BRANDS_ORDERED.includes(sub)
+
+const getBrandSlug = (brand: string): string => {
+  return brand
+    .toLowerCase()
+    .replace(/[èéêë]/g, "e")
+    .replace(/[âäà]/g, "a")
+    .replace(/[ôöò]/g, "o")
+    .replace(/[ûüù]/g, "u")
+    .replace(/[ïî]/g, "i")
+    .replace(/[ç]/g, "c")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+}
 import { Button } from "@/components/ui/button"
 
 export function SiteHeader() {
@@ -277,7 +290,7 @@ export function SiteHeader() {
                     {category.subcategories.map((sub) => (
                       <Link
                         key={sub}
-                        href={isBrandName(sub) ? `/brand/${sub.toLowerCase().replace(/\s+/g, '-')}` : `/category/${category.id}?filter=${sub}`}
+                        href={isBrandName(sub) ? `/brand/${getBrandSlug(sub)}` : `/category/${category.id}?filter=${sub}`}
                         className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
                       >
                         {isBrandName(sub) ? sub : t(sub as TranslationKey)}
