@@ -298,17 +298,29 @@ export function SiteHeader() {
                   </Link>
                 )}
 
-                {activeDropdown === category.id && category.subcategories.length > 0 && (
+                {activeDropdown === category.id && (
                   <div className="absolute left-0 top-full z-50 min-w-[200px] rounded-lg border border-border bg-card py-2 shadow-lg">
-                    {category.subcategories.map((sub) => (
-                      <Link
-                        key={sub}
-                        href={isBrandName(sub) ? `/brand/${getBrandSlug(sub)}` : `/category/${category.id}?filter=${sub}`}
-                        className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
-                      >
-                        {isBrandName(sub) ? sub : t(sub as TranslationKey)}
-                      </Link>
-                    ))}
+                    {category.id === "brands" ? (
+                      BRANDS_ORDERED.map((brand) => (
+                        <Link
+                          key={brand}
+                          href={`/brand/${getBrandSlug(brand)}`}
+                          className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
+                        >
+                          {brand}
+                        </Link>
+                      ))
+                    ) : (
+                      category.subcategories.map((sub) => (
+                        <Link
+                          key={sub}
+                          href={`/category/${category.id}?filter=${sub}`}
+                          className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
+                        >
+                          {t(sub as TranslationKey)}
+                        </Link>
+                      ))
+                    )}
                   </div>
                 )}
               </li>
