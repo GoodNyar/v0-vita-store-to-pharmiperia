@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useCart } from "@/components/cart-context"
 import { useAuth } from "@/components/auth-provider"
@@ -55,29 +55,7 @@ export function SiteHeader() {
   const [expandedBrandsSection, setExpandedBrandsSection] = useState(false)
   const [promoVisible, setPromoVisible] = useState(true)
   const [promoIndex, setPromoIndex] = useState(0)
-  const [isScrolled, setIsScrolled] = useState(false)
-
   const promoItems = promoBarItems[lang]
-
-  const lastScrollYRef = useRef(0)
-
-  // Track scroll direction
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY
-      const isScrollingDown = currentScrollY > lastScrollYRef.current
-
-      if (isScrollingDown && currentScrollY > 60) {
-        setIsScrolled(true)
-      } else if (!isScrollingDown) {
-        setIsScrolled(false)
-      }
-
-      lastScrollYRef.current = currentScrollY
-    }
-    window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
 
   useEffect(() => { setPromoIndex(0) }, [lang])
   useEffect(() => {
@@ -98,30 +76,10 @@ export function SiteHeader() {
   }
 
   return (
-    <div className="sticky top-0 z-30">
-    <header className="bg-card shadow-sm">
-      {/* Promo Bar */}
-      {promoVisible && currentPromo && (
-        <div className="flex h-9 items-center bg-primary pl-2 pr-2 text-primary-foreground sm:h-8 sm:pl-4 sm:pr-4">
-          <div className="flex min-w-0 flex-1 items-center justify-center gap-1.5 sm:gap-2">
-            {PromoIcon && <PromoIcon className="h-4 w-4 flex-shrink-0" strokeWidth={2} />}
-            <span className="whitespace-nowrap font-medium" style={{ fontSize: "clamp(10px, 3.3vw, 14px)" }}>
-              {currentPromo.text}
-            </span>
-          </div>
-          <button
-            onClick={() => setPromoVisible(false)}
-            className="ml-2 flex-shrink-0 rounded-sm p-0.5 text-primary-foreground/80 transition-colors hover:text-primary-foreground"
-            aria-label="Close promotion banner"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
-      {/* Top bar — hidden on mobile, collapses on scroll */}
-      <div className={`hidden border-b border-border md:block overflow-hidden transition-all duration-300 ease-in-out ${isScrolled ? "max-h-0 opacity-0" : "max-h-12 opacity-100"}`}>
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
+    <>
+    {/* Utility bar — NOT sticky, scrolls away naturally */}
+    <div className="hidden border-b border-border bg-card md:block">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="font-medium text-foreground">{t("deliverTo")}</span>
             <span className="text-border">|</span>
@@ -162,6 +120,10 @@ export function SiteHeader() {
           </div>
         </div>
       </div>
+
+    {/* Sticky container: PromoBar + MainBar + CategoryNav — constant height, no jitter */}
+    <div className="sticky top-0 z-30">
+    <header className="bg-card shadow-sm">
 
       {/* Main header */}
       <div className="mx-auto max-w-7xl px-4 py-2.5 lg:py-3">
@@ -274,9 +236,9 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* Category Navigation — collapses on scroll */}
+      {/* Category Navigation — always visible */}
       <nav className="hidden border-t border-border lg:block">
-        <div className={`transition-all duration-300 ease-in-out ${isScrolled ? "max-h-0 opacity-0 overflow-hidden" : "max-h-12 opacity-100"}`}>
+        <div>
           <div className="mx-auto max-w-7xl px-4">
             <ul className="flex items-center justify-center gap-0">
             {categories.map((category) => (
@@ -361,6 +323,7 @@ export function SiteHeader() {
       </nav>
 
     </header>
+    </div>{/* end sticky */}
 
     {/* Sidebar Menu - slides from left */}
     {sidebarOpen && (
@@ -500,6 +463,6 @@ export function SiteHeader() {
         </div>
       </div>
     </div>
-    </div>
+    </>
   )
 }
