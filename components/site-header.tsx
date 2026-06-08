@@ -64,8 +64,12 @@ export function SiteHeader() {
     let lastScrollY = 0
     const handleScroll = () => {
       const currentScrollY = window.scrollY
-      // Hide top bar and categories when scrolling down past 50px
-      setIsScrolled(currentScrollY > 50)
+      // Hysteresis: set isScrolled true only when scrollY > 80, false only when scrollY < 30
+      setIsScrolled((prev) => {
+        if (currentScrollY > 80) return true
+        if (currentScrollY < 30) return false
+        return prev
+      })
       lastScrollY = currentScrollY
     }
     window.addEventListener("scroll", handleScroll, { passive: true })
