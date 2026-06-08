@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useCart } from "@/components/cart-context"
 import { useAuth } from "@/components/auth-provider"
@@ -59,18 +59,21 @@ export function SiteHeader() {
 
   const promoItems = promoBarItems[lang]
 
-  // Track scroll position
+  const lastScrollYRef = useRef(0)
+
+  // Track scroll direction
   useEffect(() => {
-    let lastScrollY = 0
     const handleScroll = () => {
       const currentScrollY = window.scrollY
-      // Hysteresis: set isScrolled true only when scrollY > 80, false only when scrollY < 30
-      setIsScrolled((prev) => {
-        if (currentScrollY > 80) return true
-        if (currentScrollY < 30) return false
-        return prev
-      })
-      lastScrollY = currentScrollY
+      const isScrollingDown = currentScrollY > lastScrollYRef.current
+
+      if (isScrollingDown && currentScrollY > 60) {
+        setIsScrolled(true)
+      } else if (!isScrollingDown) {
+        setIsScrolled(false)
+      }
+
+      lastScrollYRef.current = currentScrollY
     }
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
