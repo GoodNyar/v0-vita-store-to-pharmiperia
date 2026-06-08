@@ -111,12 +111,12 @@ export function SiteHeader() {
             <span className="font-medium text-foreground">EUR</span>
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <a href="#" className="transition-colors hover:text-primary">
+            <Link href="/help" className="transition-colors hover:text-primary">
               {t("help")}
-            </a>
-            <a href="#" className="transition-colors hover:text-primary">
+            </Link>
+            <Link href="/track" className="transition-colors hover:text-primary">
               {t("trackOrder")}
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -379,6 +379,56 @@ export function SiteHeader() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* User Navigation */}
+      <div className="border-b border-border p-4 space-y-1">
+        {/* Account */}
+        <Link
+          href={user ? "/account" : "/auth/login"}
+          className="flex items-center gap-3 py-3 px-2 border-b border-border/50 text-sm font-medium text-foreground hover:text-primary transition-colors"
+          onClick={() => setSidebarOpen(false)}
+        >
+          <User className="h-5 w-5 text-muted-foreground" />
+          <div className="flex-1">
+            <div>{user ? t("account") : t("signIn")}</div>
+            {user && user.email && (
+              <div className="text-xs text-muted-foreground">{user.email}</div>
+            )}
+          </div>
+        </Link>
+
+        {/* Favorites */}
+        <Link
+          href="/account/favorites"
+          className="flex items-center gap-3 py-3 px-2 border-b border-border/50 text-sm font-medium text-foreground hover:text-primary transition-colors"
+          onClick={() => setSidebarOpen(false)}
+        >
+          <Heart className="h-5 w-5 text-muted-foreground" />
+          <span className="flex-1">{t("wishlist")}</span>
+          {favorites.length > 0 && (
+            <span className="bg-primary text-primary-foreground text-[10px] rounded-full px-1.5 py-0.5">
+              {favorites.length}
+            </span>
+          )}
+        </Link>
+
+        {/* Cart */}
+        <button
+          onClick={() => {
+            setIsCartOpen(true)
+            setSidebarOpen(false)
+          }}
+          className="w-full flex items-center gap-3 py-3 px-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
+        >
+          <ShoppingCart className="h-5 w-5 text-muted-foreground" />
+          <span className="flex-1 text-left">{t("cart")}</span>
+          {totalItems > 0 && (
+            <span className="bg-primary text-primary-foreground text-[10px] rounded-full px-1.5 py-0.5">
+              {totalItems}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Help links */}
