@@ -1,37 +1,26 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useCart } from "@/components/cart-context"
+import { useAuth } from "@/components/auth-provider"
 import { useLang, formatEur } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import { X, Plus, Minus, ShoppingBag, LogIn, UserPlus } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { createClient } from "@/lib/supabase/client"
 
 export function CartDrawer() {
   const { items, removeFromCart, updateQuantity, totalPrice, isCartOpen, setIsCartOpen } = useCart()
+  const { user } = useAuth()
   const { t } = useLang()
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
-
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setIsLoggedIn(!!user)
-    })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setIsLoggedIn(!!session?.user)
-    })
-    return () => subscription.unsubscribe()
-  }, [])
 
   if (!isCartOpen) return null
 
   return (
     <>
       <div
-        className="fixed inset-0 z-40 bg-foreground/30 backdrop-blur-sm"
+        className="fixed inset-0 z-40 bg-black/20"
         onClick={() => setIsCartOpen(false)}
       />
       <div className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-card shadow-2xl">
@@ -126,7 +115,7 @@ export function CartDrawer() {
                   {formatEur(totalPrice)}
                 </span>
               </div>
-              {isLoggedIn ? (
+              {!!user ? (
                 <Link href="/checkout" className="block">
                   <Button
                     className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
@@ -145,6 +134,14 @@ export function CartDrawer() {
                   {t("checkout")}
                 </Button>
               )}
+              <Button
+                variant="outline"
+                className="w-full mt-3 border border-border bg-transparent hover:bg-muted text-foreground"
+                size="lg"
+                onClick={() => setIsCartOpen(false)}
+              >
+                {t("continueShopping")}
+              </Button>
               <p className="mt-2 text-center text-xs text-muted-foreground">
                 {t("freeShippingCart")}
               </p>
