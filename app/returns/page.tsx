@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { LangProvider } from "@/lib/i18n"
+import { LangProvider, useLang } from "@/lib/i18n"
 import { CartProvider } from "@/components/cart-context"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
@@ -10,10 +10,9 @@ import {
   Clock, Package, MessageSquare 
 } from "lucide-react"
 
-export default function ReturnsPage() {
+function ReturnsContent() {
+  const { t } = useLang()
   return (
-    <LangProvider>
-      <CartProvider>
         <div className="flex min-h-screen flex-col bg-background">
           <SiteHeader />
           <CartDrawer />
@@ -22,18 +21,18 @@ export default function ReturnsPage() {
           <div className="border-b border-border bg-card">
             <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3 text-sm">
               <Link href="/" className="text-muted-foreground hover:text-primary">
-                Главная
+                {t("breadcrumbHome")}
               </Link>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium text-foreground">Возврат и обмен</span>
+              <span className="font-medium text-foreground">{t("returnsBreadcrumb")}</span>
             </div>
           </div>
 
           <main className="flex-1 py-12">
             <div className="mx-auto max-w-4xl px-4">
-              <h1 className="text-3xl font-bold text-foreground">Возврат и обмен</h1>
+              <h1 className="text-3xl font-bold text-foreground">{t("returnsTitle")}</h1>
               <p className="mt-4 text-muted-foreground">
-                Мы хотим, чтобы вы были полностью довольны своей покупкой
+                {t("returnsSubtitle")}
               </p>
 
               {/* Guarantee banner */}
@@ -44,10 +43,10 @@ export default function ReturnsPage() {
                   </div>
                   <div>
                     <h2 className="text-lg font-semibold text-foreground">
-                      14 дней на возврат
+                      {t("returns14Title")}
                     </h2>
                     <p className="text-muted-foreground">
-                      Вы можете вернуть товар в течение 14 дней с момента получения
+                      {t("returns14Desc")}
                     </p>
                   </div>
                 </div>
@@ -55,34 +54,34 @@ export default function ReturnsPage() {
 
               {/* Conditions */}
               <section className="mt-12">
-                <h2 className="text-xl font-semibold text-foreground">Условия возврата</h2>
+                <h2 className="text-xl font-semibold text-foreground">{t("returnsConditionsTitle")}</h2>
                 
                 <div className="mt-6 grid gap-6 md:grid-cols-2">
                   <div className="rounded-xl border border-border bg-card p-6">
                     <div className="mb-4 flex items-center gap-2">
                       <CheckCircle2 className="h-5 w-5 text-primary" />
-                      <h3 className="font-semibold text-foreground">Можно вернуть</h3>
+                      <h3 className="font-semibold text-foreground">{t("returnsCanTitle")}</h3>
                     </div>
                     <ul className="space-y-2 text-sm text-muted-foreground">
-                      <li>• Товар в оригинальной упаковке</li>
-                      <li>• Неиспользованный товар</li>
-                      <li>• Товар с сохраненными этикетками</li>
-                      <li>• Товар с чеком или подтверждением заказа</li>
-                      <li>• Товар ненадлежащего качества</li>
+                      <li>• {t("returnsCan1")}</li>
+                      <li>• {t("returnsCan2")}</li>
+                      <li>• {t("returnsCan3")}</li>
+                      <li>• {t("returnsCan4")}</li>
+                      <li>• {t("returnsCan5")}</li>
                     </ul>
                   </div>
 
                   <div className="rounded-xl border border-border bg-card p-6">
                     <div className="mb-4 flex items-center gap-2">
                       <XCircle className="h-5 w-5 text-destructive" />
-                      <h3 className="font-semibold text-foreground">Нельзя вернуть</h3>
+                      <h3 className="font-semibold text-foreground">{t("returnsCannotTitle")}</h3>
                     </div>
                     <ul className="space-y-2 text-sm text-muted-foreground">
-                      <li>• Открытую или использованную косметику</li>
-                      <li>• Товары без упаковки</li>
-                      <li>• Товары, купленные более 14 дней назад</li>
-                      <li>• Товары со следами использования</li>
-                      <li>• Товары, поврежденные покупателем</li>
+                      <li>• {t("returnsCannot1")}</li>
+                      <li>• {t("returnsCannot2")}</li>
+                      <li>• {t("returnsCannot3")}</li>
+                      <li>• {t("returnsCannot4")}</li>
+                      <li>• {t("returnsCannot5")}</li>
                     </ul>
                   </div>
                 </div>
@@ -90,7 +89,7 @@ export default function ReturnsPage() {
 
               {/* How to return */}
               <section className="mt-12">
-                <h2 className="text-xl font-semibold text-foreground">Как оформить возврат</h2>
+                <h2 className="text-xl font-semibold text-foreground">{t("returnsHowTitle")}</h2>
                 
                 <div className="mt-6 space-y-4">
                   <div className="flex items-start gap-4 rounded-xl border border-border bg-card p-6">
@@ -98,10 +97,9 @@ export default function ReturnsPage() {
                       1
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground">Свяжитесь с нами</h3>
+                      <h3 className="font-semibold text-foreground">{t("returnsHow1Title")}</h3>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Напишите на email info@pharmiperia.com или заполните форму на странице контактов. 
-                        Укажите номер заказа и причину возврата.
+                        {t("returnsHow1Desc")}
                       </p>
                     </div>
                   </div>
@@ -111,9 +109,9 @@ export default function ReturnsPage() {
                       2
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground">Получите подтверждение</h3>
+                      <h3 className="font-semibold text-foreground">{t("returnsHow2Title")}</h3>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Мы рассмотрим вашу заявку в течение 24 часов и отправим инструкции по возврату.
+                        {t("returnsHow2Desc")}
                       </p>
                     </div>
                   </div>
@@ -123,10 +121,9 @@ export default function ReturnsPage() {
                       3
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground">Отправьте товар</h3>
+                      <h3 className="font-semibold text-foreground">{t("returnsHow3Title")}</h3>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Упакуйте товар и отправьте его по указанному адресу. 
-                        Стоимость обратной доставки зависит от причины возврата.
+                        {t("returnsHow3Desc")}
                       </p>
                     </div>
                   </div>
@@ -136,10 +133,9 @@ export default function ReturnsPage() {
                       4
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground">Получите возврат</h3>
+                      <h3 className="font-semibold text-foreground">{t("returnsHow4Title")}</h3>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        После получения и проверки товара мы вернём деньги тем же способом, 
-                        которым была произведена оплата, в течение 5-7 рабочих дней.
+                        {t("returnsHow4Desc")}
                       </p>
                     </div>
                   </div>
@@ -148,21 +144,21 @@ export default function ReturnsPage() {
 
               {/* Refund info */}
               <section className="mt-12">
-                <h2 className="text-xl font-semibold text-foreground">Информация о возврате средств</h2>
+                <h2 className="text-xl font-semibold text-foreground">{t("returnsRefundTitle")}</h2>
                 <div className="mt-4 rounded-xl border border-border bg-card p-6">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="flex items-start gap-3">
                       <Clock className="mt-0.5 h-5 w-5 text-primary" />
                       <div>
-                        <p className="font-medium text-foreground">Срок возврата</p>
-                        <p className="text-sm text-muted-foreground">5-7 рабочих дней</p>
+                        <p className="font-medium text-foreground">{t("returnsRefundTerm")}</p>
+                        <p className="text-sm text-muted-foreground">{t("returnsRefundTermValue")}</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <Package className="mt-0.5 h-5 w-5 text-primary" />
                       <div>
-                        <p className="font-medium text-foreground">Стоимость доставки</p>
-                        <p className="text-sm text-muted-foreground">Возвращается при браке товара</p>
+                        <p className="font-medium text-foreground">{t("returnsRefundShipping")}</p>
+                        <p className="text-sm text-muted-foreground">{t("returnsRefundShippingValue")}</p>
                       </div>
                     </div>
                   </div>
@@ -172,12 +168,12 @@ export default function ReturnsPage() {
               {/* CTA */}
               <div className="mt-12 rounded-xl border border-border bg-card p-6 text-center">
                 <MessageSquare className="mx-auto h-8 w-8 text-primary" />
-                <h3 className="mt-4 text-lg font-semibold text-foreground">Остались вопросы?</h3>
+                <h3 className="mt-4 text-lg font-semibold text-foreground">{t("returnsQuestionsTitle")}</h3>
                 <p className="mt-2 text-muted-foreground">
-                  Наша команда поддержки готова помочь вам
+                  {t("returnsQuestionsDesc")}
                 </p>
                 <Link href="/contact">
-                  <Button className="mt-4">Связаться с нами</Button>
+                  <Button className="mt-4">{t("contactUsCta")}</Button>
                 </Link>
               </div>
             </div>
@@ -185,6 +181,14 @@ export default function ReturnsPage() {
 
           <SiteFooter />
         </div>
+  )
+}
+
+export default function ReturnsPage() {
+  return (
+    <LangProvider>
+      <CartProvider>
+        <ReturnsContent />
       </CartProvider>
     </LangProvider>
   )
