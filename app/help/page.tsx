@@ -5,32 +5,33 @@ import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
 import { CartProvider } from "@/components/cart-context"
-import { LangProvider } from "@/lib/i18n"
+import { LangProvider, useLang } from "@/lib/i18n"
 import { Package, RotateCcw, CreditCard, User, MessageCircle, ChevronRight } from "lucide-react"
 import { useState } from "react"
 
-const faqs = [
-  { q: "Как отследить мой заказ?", a: "После отправки заказа вы получите email с трек-номером. Также вы можете проверить статус в разделе «Мои заказы» в личном кабинете.", category: "Заказы" },
-  { q: "Сколько времени занимает доставка?", a: "Стандартная доставка по Латвии: 1-3 рабочих дня. В Ригу — обычно 1 день. Мы отправляем заказы в день оформления при оплате до 14:00.", category: "Доставка" },
-  { q: "Как вернуть товар?", a: "Возврат возможен в течение 14 дней с момента получения. Товар должен быть в оригинальной упаковке и не вскрытым. Напишите нам на support@pharmiperia.lv.", category: "Возврат" },
-  { q: "Мой промокод не работает. Что делать?", a: "Проверьте, соответствует ли сумма заказа минимальной. Промокод WELCOME10 требует минимальную покупку 30€ и действует только для новых покупателей.", category: "Оплата" },
-  { q: "Как накапливаются бонусные баллы?", a: "1€ покупки = 10 бонусных баллов. При регистрации вы получаете 100 приветственных баллов. Баллы можно будет обменивать на скидки — функция в разработке.", category: "Бонусы" },
-  { q: "Можно ли изменить или отменить заказ?", a: "Отменить или изменить заказ можно до момента отправки. Напишите нам как можно скорее на support@pharmiperia.lv.", category: "Заказы" },
-  { q: "Товары оригинальные?", a: "Да, 100%. Мы работаем только с официальными дистрибьюторами. У нас нет серого рынка или реплик.", category: "Качество" },
-  { q: "Как связаться с поддержкой?", a: "Email: support@pharmiperia.lv · Телефон: +371 20 000 000 · Чат на сайте (зелёная кнопка справа внизу) · Время работы: Пн-Пт 9:00–18:00", category: "Контакты" },
-]
-
-const quickLinks = [
-  { icon: Package, label: "Мои заказы", href: "/account/orders" },
-  { icon: RotateCcw, label: "Возврат", href: "/returns" },
-  { icon: CreditCard, label: "Оплата", href: "/payment-methods" },
-  { icon: User, label: "Мой аккаунт", href: "/account" },
-  { icon: MessageCircle, label: "Контакты", href: "/contact" },
-]
-
-export default function HelpPage() {
+function HelpContent() {
+  const { t } = useLang()
   const [open, setOpen] = useState<number | null>(null)
   const [search, setSearch] = useState("")
+
+  const faqs = [
+    { q: t("helpFaq1Q"), a: t("helpFaq1A") },
+    { q: t("helpFaq2Q"), a: t("helpFaq2A") },
+    { q: t("helpFaq3Q"), a: t("helpFaq3A") },
+    { q: t("helpFaq4Q"), a: t("helpFaq4A") },
+    { q: t("helpFaq5Q"), a: t("helpFaq5A") },
+    { q: t("helpFaq6Q"), a: t("helpFaq6A") },
+    { q: t("helpFaq7Q"), a: t("helpFaq7A") },
+    { q: t("helpFaq8Q"), a: t("helpFaq8A") },
+  ]
+
+  const quickLinks = [
+    { icon: Package, label: t("helpLinkOrders"), href: "/account/orders" },
+    { icon: RotateCcw, label: t("helpLinkReturns"), href: "/returns" },
+    { icon: CreditCard, label: t("helpLinkPayment"), href: "/payment-methods" },
+    { icon: User, label: t("helpLinkAccount"), href: "/account" },
+    { icon: MessageCircle, label: t("helpLinkContacts"), href: "/contact" },
+  ]
 
   const filtered = faqs.filter(f =>
     f.q.toLowerCase().includes(search.toLowerCase()) ||
@@ -38,18 +39,17 @@ export default function HelpPage() {
   )
 
   return (
-    <LangProvider>
-      <CartProvider>
+    <>
         <SiteHeader />
         <CartDrawer />
         <main className="min-h-screen bg-background">
           <div className="bg-primary/5 border-b border-border py-12">
             <div className="mx-auto max-w-2xl px-4 text-center">
-              <h1 className="text-3xl font-bold text-foreground">Как мы можем помочь?</h1>
+              <h1 className="text-3xl font-bold text-foreground">{t("helpHeroTitle")}</h1>
               <div className="mt-5 relative">
                 <input
                   type="text"
-                  placeholder="Поиск по FAQ..."
+                  placeholder={t("helpSearchPlaceholder")}
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   className="h-12 w-full rounded-full border border-border bg-background pl-5 pr-5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -74,7 +74,7 @@ export default function HelpPage() {
             </div>
 
             {/* FAQ */}
-            <h2 className="mb-4 text-xl font-bold text-foreground">Частые вопросы</h2>
+            <h2 className="mb-4 text-xl font-bold text-foreground">{t("helpFaqTitle")}</h2>
             <div className="space-y-2">
               {filtered.map((faq, i) => (
                 <div key={i} className="rounded-xl border border-border bg-card overflow-hidden">
@@ -93,12 +93,21 @@ export default function HelpPage() {
                 </div>
               ))}
               {filtered.length === 0 && (
-                <p className="py-10 text-center text-sm text-muted-foreground">Ничего не найдено. Попробуйте другой запрос или <Link href="/contact" className="text-primary hover:underline">напишите нам</Link>.</p>
+                <p className="py-10 text-center text-sm text-muted-foreground">{t("helpNoResults1")} <Link href="/contact" className="text-primary hover:underline">{t("helpNoResults2")}</Link>.</p>
               )}
             </div>
           </div>
         </main>
         <SiteFooter />
+    </>
+  )
+}
+
+export default function HelpPage() {
+  return (
+    <LangProvider>
+      <CartProvider>
+        <HelpContent />
       </CartProvider>
     </LangProvider>
   )

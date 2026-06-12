@@ -1,15 +1,15 @@
 "use client"
 
-import Link from "next/link"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
 import { CartProvider } from "@/components/cart-context"
-import { LangProvider } from "@/lib/i18n"
+import { LangProvider, useLang } from "@/lib/i18n"
 import { Gift, TrendingUp, Users, CheckCircle } from "lucide-react"
 import { useState } from "react"
 
-export default function PartnersPage() {
+function PartnersContent() {
+  const { t } = useLang()
   const [form, setForm] = useState({ name: "", email: "", website: "", audience: "", message: "" })
   const [submitted, setSubmitted] = useState(false)
 
@@ -19,20 +19,19 @@ export default function PartnersPage() {
   }
 
   return (
-    <LangProvider>
-      <CartProvider>
+    <>
         <SiteHeader />
         <CartDrawer />
         <main className="min-h-screen bg-background">
           {/* Hero */}
           <div className="bg-primary/5 border-b border-border py-14">
             <div className="mx-auto max-w-3xl px-4 text-center">
-              <span className="inline-block rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">Партнёрская программа</span>
+              <span className="inline-block rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">{t("partnersBadge")}</span>
               <h1 className="mt-4 text-3xl font-bold text-foreground md:text-4xl text-balance">
-                Зарабатывайте с Pharmiperia
+                {t("partnersHeroTitle")}
               </h1>
               <p className="mt-4 text-muted-foreground leading-relaxed">
-                Рекомендуйте аптечную косметику своей аудитории и получайте комиссию с каждой продажи. Подходит для блогеров, beauty-экспертов и всех, кто говорит о красоте и уходе за кожей.
+                {t("partnersHeroSubtitle")}
               </p>
             </div>
           </div>
@@ -41,9 +40,9 @@ export default function PartnersPage() {
             {/* Benefits */}
             <div className="grid gap-6 sm:grid-cols-3 mb-14">
               {[
-                { icon: TrendingUp, title: "До 12% комиссии", desc: "С каждой продажи по вашей реферальной ссылке. Чем больше продаж — тем выше ставка." },
-                { icon: Gift, title: "30 дней cookie", desc: "Покупатель может вернуться через месяц — вы всё равно получите комиссию." },
-                { icon: Users, title: "Любая аудитория", desc: "Блог, Instagram, YouTube, TikTok или личные рекомендации — всё работает." },
+                { icon: TrendingUp, title: t("partnersBenefit1Title"), desc: t("partnersBenefit1Desc") },
+                { icon: Gift, title: t("partnersBenefit2Title"), desc: t("partnersBenefit2Desc") },
+                { icon: Users, title: t("partnersBenefit3Title"), desc: t("partnersBenefit3Desc") },
               ].map(({ icon: Icon, title, desc }) => (
                 <div key={title} className="rounded-xl border border-border bg-card p-6 text-center">
                   <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
@@ -57,13 +56,13 @@ export default function PartnersPage() {
 
             {/* How it works */}
             <div className="mb-14">
-              <h2 className="mb-6 text-xl font-bold text-foreground">Как это работает</h2>
+              <h2 className="mb-6 text-xl font-bold text-foreground">{t("partnersHowTitle")}</h2>
               <div className="space-y-4">
                 {[
-                  { step: "1", text: "Заполните заявку — мы рассмотрим её в течение 2 рабочих дней." },
-                  { step: "2", text: "Получите уникальную реферальную ссылку и промокод для вашей аудитории." },
-                  { step: "3", text: "Делитесь ссылкой в блоге, социальных сетях или мессенджерах." },
-                  { step: "4", text: "Получайте выплаты ежемесячно на банковский счёт или PayPal." },
+                  { step: "1", text: t("partnersStep1") },
+                  { step: "2", text: t("partnersStep2") },
+                  { step: "3", text: t("partnersStep3") },
+                  { step: "4", text: t("partnersStep4") },
                 ].map(({ step, text }) => (
                   <div key={step} className="flex items-start gap-4 rounded-xl border border-border bg-card p-4">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{step}</div>
@@ -75,13 +74,13 @@ export default function PartnersPage() {
 
             {/* Requirements */}
             <div className="mb-14 rounded-xl border border-border bg-card p-6">
-              <h2 className="mb-4 text-lg font-bold text-foreground">Требования к партнёрам</h2>
+              <h2 className="mb-4 text-lg font-bold text-foreground">{t("partnersReqTitle")}</h2>
               <div className="grid gap-2 sm:grid-cols-2">
                 {[
-                  "Аудитория от 500 человек (в любом канале)",
-                  "Контент о красоте, здоровье или уходе за собой",
-                  "Активность — минимум 2 поста в месяц",
-                  "Честные рекомендации без накрутки",
+                  t("partnersReq1"),
+                  t("partnersReq2"),
+                  t("partnersReq3"),
+                  t("partnersReq4"),
                 ].map((req) => (
                   <div key={req} className="flex items-start gap-2 text-sm text-foreground">
                     <CheckCircle className="h-4 w-4 shrink-0 text-primary mt-0.5" />
@@ -93,29 +92,29 @@ export default function PartnersPage() {
 
             {/* Application Form */}
             <div className="rounded-2xl border border-border bg-card p-8">
-              <h2 className="mb-6 text-xl font-bold text-foreground">Подать заявку</h2>
+              <h2 className="mb-6 text-xl font-bold text-foreground">{t("partnersFormTitle")}</h2>
               {submitted ? (
                 <div className="py-10 text-center">
                   <CheckCircle className="mx-auto h-12 w-12 text-primary" />
-                  <h3 className="mt-4 text-lg font-bold text-foreground">Заявка отправлена!</h3>
-                  <p className="mt-2 text-muted-foreground">Мы свяжемся с вами в течение 2 рабочих дней.</p>
+                  <h3 className="mt-4 text-lg font-bold text-foreground">{t("partnersSuccessTitle")}</h3>
+                  <p className="mt-2 text-muted-foreground">{t("partnersSuccessDesc")}</p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="mb-1.5 block text-sm font-medium text-foreground">Ваше имя *</label>
+                      <label className="mb-1.5 block text-sm font-medium text-foreground">{t("partnersNameLabel")}</label>
                       <input
                         type="text"
                         required
                         value={form.name}
                         onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                         className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm focus:border-primary focus:outline-none"
-                        placeholder="Имя Фамилия"
+                        placeholder={t("partnersNamePlaceholder")}
                       />
                     </div>
                     <div>
-                      <label className="mb-1.5 block text-sm font-medium text-foreground">Email *</label>
+                      <label className="mb-1.5 block text-sm font-medium text-foreground">{t("partnersEmailLabel")}</label>
                       <input
                         type="email"
                         required
@@ -127,7 +126,7 @@ export default function PartnersPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-foreground">Ссылка на ваш блог / канал *</label>
+                    <label className="mb-1.5 block text-sm font-medium text-foreground">{t("partnersWebsiteLabel")}</label>
                     <input
                       type="url"
                       required
@@ -138,13 +137,13 @@ export default function PartnersPage() {
                     />
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-foreground">Размер аудитории</label>
+                    <label className="mb-1.5 block text-sm font-medium text-foreground">{t("partnersAudienceLabel")}</label>
                     <select
                       value={form.audience}
                       onChange={e => setForm(f => ({ ...f, audience: e.target.value }))}
                       className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm focus:border-primary focus:outline-none"
                     >
-                      <option value="">Выберите...</option>
+                      <option value="">{t("partnersAudienceSelect")}</option>
                       <option>500 — 2 000</option>
                       <option>2 000 — 10 000</option>
                       <option>10 000 — 50 000</option>
@@ -152,20 +151,20 @@ export default function PartnersPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-foreground">Расскажите о себе</label>
+                    <label className="mb-1.5 block text-sm font-medium text-foreground">{t("partnersMessageLabel")}</label>
                     <textarea
                       rows={3}
                       value={form.message}
                       onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                       className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none resize-none"
-                      placeholder="О чём ваш контент, почему хотите сотрудничать с Pharmiperia..."
+                      placeholder={t("partnersMessagePlaceholder")}
                     />
                   </div>
                   <button
                     type="submit"
                     className="h-11 w-full rounded-lg bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
                   >
-                    Отправить заявку
+                    {t("partnersSubmit")}
                   </button>
                 </form>
               )}
@@ -173,6 +172,15 @@ export default function PartnersPage() {
           </div>
         </main>
         <SiteFooter />
+    </>
+  )
+}
+
+export default function PartnersPage() {
+  return (
+    <LangProvider>
+      <CartProvider>
+        <PartnersContent />
       </CartProvider>
     </LangProvider>
   )

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { LangProvider } from "@/lib/i18n"
+import { LangProvider, useLang } from "@/lib/i18n"
 import { CartProvider } from "@/components/cart-context"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 
 function ContactContent() {
+  const { t } = useLang()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [subject, setSubject] = useState("")
@@ -45,10 +46,10 @@ function ContactContent() {
       <div className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3 text-sm">
           <Link href="/" className="text-muted-foreground hover:text-primary">
-            Главная
+            {t("breadcrumbHome")}
           </Link>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium text-foreground">Контакты</span>
+          <span className="font-medium text-foreground">{t("contactBreadcrumb")}</span>
         </div>
       </div>
 
@@ -56,10 +57,10 @@ function ContactContent() {
         <div className="mx-auto max-w-7xl px-4">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-foreground md:text-4xl">
-              Свяжитесь с нами
+              {t("contactTitle")}
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-              Мы всегда рады помочь вам с выбором продуктов или ответить на любые вопросы
+              {t("contactSubtitle")}
             </p>
           </div>
 
@@ -72,9 +73,9 @@ function ContactContent() {
                     <Phone className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-foreground">Телефон</h3>
+                    <h3 className="font-semibold text-foreground">{t("contactPhoneTitle")}</h3>
                     <p className="mt-1 text-muted-foreground">+371 20 123 456</p>
-                    <p className="text-sm text-muted-foreground">Пн-Пт: 9:00 - 18:00</p>
+                    <p className="text-sm text-muted-foreground">{t("contactPhoneHours")}</p>
                   </div>
                 </div>
               </div>
@@ -85,9 +86,9 @@ function ContactContent() {
                     <Mail className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-foreground">Email</h3>
+                    <h3 className="font-semibold text-foreground">{t("contactEmailTitle")}</h3>
                     <p className="mt-1 text-muted-foreground">info@pharmiperia.com</p>
-                    <p className="text-sm text-muted-foreground">Ответим в течение 24 часов</p>
+                    <p className="text-sm text-muted-foreground">{t("contactEmailReply")}</p>
                   </div>
                 </div>
               </div>
@@ -98,7 +99,7 @@ function ContactContent() {
                     <MapPin className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-foreground">Адрес</h3>
+                    <h3 className="font-semibold text-foreground">{t("contactAddressTitle")}</h3>
                     <p className="mt-1 text-muted-foreground">
                       Brivibas iela 100<br />
                       Riga, LV-1001<br />
@@ -114,11 +115,11 @@ function ContactContent() {
                     <Clock className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-foreground">Часы работы</h3>
+                    <h3 className="font-semibold text-foreground">{t("contactHoursTitle")}</h3>
                     <p className="mt-1 text-muted-foreground">
-                      Понедельник - Пятница: 9:00 - 18:00<br />
-                      Суббота: 10:00 - 15:00<br />
-                      Воскресенье: выходной
+                      {t("contactHoursText")}<br />
+                      {t("contactHoursSat")}<br />
+                      {t("contactHoursSun")}
                     </p>
                   </div>
                 </div>
@@ -130,7 +131,7 @@ function ContactContent() {
               <div className="rounded-xl border border-border bg-card p-6 lg:p-8">
                 <div className="mb-6 flex items-center gap-3">
                   <MessageSquare className="h-6 w-6 text-primary" />
-                  <h2 className="text-xl font-semibold text-foreground">Напишите нам</h2>
+                  <h2 className="text-xl font-semibold text-foreground">{t("contactFormTitle")}</h2>
                 </div>
 
                 {success ? (
@@ -138,16 +139,16 @@ function ContactContent() {
                     <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/20">
                       <Send className="h-6 w-6 text-primary" />
                     </div>
-                    <h3 className="text-lg font-semibold text-foreground">Сообщение отправлено!</h3>
+                    <h3 className="text-lg font-semibold text-foreground">{t("contactSuccessTitle")}</h3>
                     <p className="mt-2 text-muted-foreground">
-                      Мы ответим вам в ближайшее время
+                      {t("contactSuccessDesc")}
                     </p>
                     <Button 
                       variant="outline" 
                       className="mt-4"
                       onClick={() => setSuccess(false)}
                     >
-                      Отправить ещё
+                      {t("contactSendMore")}
                     </Button>
                   </div>
                 ) : (
@@ -155,20 +156,20 @@ function ContactContent() {
                     <div className="grid gap-5 sm:grid-cols-2">
                       <div>
                         <label className="mb-1.5 block text-sm font-medium text-foreground">
-                          Ваше имя
+                          {t("contactNameLabel")}
                         </label>
                         <input
                           type="text"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           required
-                          placeholder="Иван Иванов"
+                          placeholder={t("contactNamePlaceholder")}
                           className="h-11 w-full rounded-lg border border-border bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                         />
                       </div>
                       <div>
                         <label className="mb-1.5 block text-sm font-medium text-foreground">
-                          Email
+                          {t("contactEmailLabel")}
                         </label>
                         <input
                           type="email"
@@ -183,7 +184,7 @@ function ContactContent() {
 
                     <div>
                       <label className="mb-1.5 block text-sm font-medium text-foreground">
-                        Тема
+                        {t("contactSubjectLabel")}
                       </label>
                       <select
                         value={subject}
@@ -191,26 +192,26 @@ function ContactContent() {
                         required
                         className="h-11 w-full rounded-lg border border-border bg-background px-4 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                       >
-                        <option value="">Выберите тему</option>
-                        <option value="order">Вопрос о заказе</option>
-                        <option value="product">Вопрос о товаре</option>
-                        <option value="delivery">Доставка</option>
-                        <option value="return">Возврат</option>
-                        <option value="partnership">Сотрудничество</option>
-                        <option value="other">Другое</option>
+                        <option value="">{t("contactSubjectSelect")}</option>
+                        <option value="order">{t("contactSubjectOrder")}</option>
+                        <option value="product">{t("contactSubjectProduct")}</option>
+                        <option value="delivery">{t("contactSubjectDelivery")}</option>
+                        <option value="return">{t("contactSubjectReturn")}</option>
+                        <option value="partnership">{t("contactSubjectPartnership")}</option>
+                        <option value="other">{t("contactSubjectOther")}</option>
                       </select>
                     </div>
 
                     <div>
                       <label className="mb-1.5 block text-sm font-medium text-foreground">
-                        Сообщение
+                        {t("contactMessageLabel")}
                       </label>
                       <textarea
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         required
                         rows={5}
-                        placeholder="Опишите ваш вопрос..."
+                        placeholder={t("contactMessagePlaceholder")}
                         className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                       />
                     </div>
@@ -223,12 +224,12 @@ function ContactContent() {
                       {loading ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Отправка...
+                          {t("contactSending")}
                         </>
                       ) : (
                         <>
                           <Send className="mr-2 h-4 w-4" />
-                          Отправить сообщение
+                          {t("contactSendMessage")}
                         </>
                       )}
                     </Button>
