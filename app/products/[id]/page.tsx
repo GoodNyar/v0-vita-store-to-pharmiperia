@@ -41,7 +41,7 @@ function ProductPageContent({ product }: { product: Product }) {
   // Product-specific content (would come from CMS in real app)
   const productContent = {
     ingredients: "Aqua, PEG-6 Caprylic/Capric Glycerides, Fructooligosaccharides, Mannitol, Xylitol, Rhamnose, Cucumis Sativus (Cucumber) Fruit Extract, Propylene Glycol, Cetrimonium Bromide, Disodium EDTA.",
-    howToUse: "Нанесите на ватный диск и мягко протрите кожу лица и шеи утром и вечером. Не требует смывания водой. Подходит для ежедневного применения.",
+    howToUse: t("productHowToUseDefault"),
   }
 
   return (
@@ -110,7 +110,7 @@ function ProductPageContent({ product }: { product: Product }) {
             <div className="flex flex-col">
               {/* Brand */}
               <Link
-                href={`/brands/${product.brand.toLowerCase()}`}
+                href={`/brand/${product.brand.toLowerCase()}`}
                 className="text-sm font-semibold text-primary hover:underline"
               >
                 {product.brand}
@@ -277,8 +277,8 @@ function ProductPageContent({ product }: { product: Product }) {
             <div className="flex border-b border-border">
               {(["about", "benefits", "howToUse", "ingredients"] as const).map((tab) => {
                 const labels: Record<typeof tab, string> = {
-                  about: "О товаре",
-                  benefits: "Преимущества",
+                  about: t("productAboutTab"),
+                  benefits: t("productBenefitsTab"),
                   howToUse: t("productHowToUse"),
                   ingredients: t("productIngredients"),
                 }
@@ -304,9 +304,7 @@ function ProductPageContent({ product }: { product: Product }) {
                 <div className="prose prose-sm max-w-none text-muted-foreground">
                   <p>{product.description}</p>
                   <p className="mt-4">
-                    {product.brand} — это проверенный французский бренд аптечной косметики,
-                    известный своими инновационными формулами и бережным отношением к коже.
-                    Продукция прошла дерматологический контроль и подходит для ежедневного применения.
+                    {t("productAboutBrandText").replace("{brand}", product.brand)}
                   </p>
                 </div>
               )}
@@ -314,23 +312,23 @@ function ProductPageContent({ product }: { product: Product }) {
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-                    Дерматологически протестировано и одобрено для чувствительной кожи
+                    {t("productBenefit1")}
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-                    Формула без парабенов, без спирта и без красителей
+                    {t("productBenefit2")}
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-                    Гипоаллергенный состав, разработанный французскими фармацевтами
+                    {t("productBenefit3")}
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-                    Подходит для ежедневного использования утром и вечером
+                    {t("productBenefit4")}
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-                    100% оригинальная французская ап��ечна�� косметика
+                    {t("productBenefit5")}
                   </li>
                 </ul>
               )}

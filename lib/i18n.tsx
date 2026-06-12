@@ -190,6 +190,23 @@ export const translations = {
     productSimilar: "Похожие товары",
     backToProducts: "Назад к товарам",
     quantity: "Количество",
+    productAboutTab: "О товаре",
+    productBenefitsTab: "Преимущества",
+    productAboutBrandText:
+      "{brand} — это проверенный французский бренд аптечной косметики, известный своими инновационными формулами и бережным отношением к коже. Продукция прошла дерматологический контроль и подходит для ежедневного применения.",
+    productBenefit1: "Дерматологически протестировано и одобрено для чувствительной кожи",
+    productBenefit2: "Формула без парабенов, без спирта и без красителей",
+    productBenefit3: "Гипоаллергенный состав, разработанный французскими фармацевтами",
+    productBenefit4: "Подходит для ежедневного использования утром и вечером",
+    productBenefit5: "100% оригинальная французская аптечная косметика",
+    productHowToUseDefault:
+      "Нанесите на ватный диск и мягко протрите кожу лица и шеи утром и вечером. Не требует смывания водой. Подходит для ежедневного применения.",
+    // Cart auth modal
+    cartLoginTitle: "Войдите чтобы оформить заказ",
+    cartLoginDesc:
+      "Для оформления заказа необходимо войти в аккаунт или создать новый. Товары в корзине сохранятся.",
+    cartLoginButton: "Войти в аккаунт",
+    cartSignupButton: "Создать аккаунт",
     // Checkout page
     checkout: "Оформить заказ",
     checkoutTitle: "Оформление заказа",
@@ -222,7 +239,7 @@ export const translations = {
     reviewProduct: "Товар",
     reviewComment: "Комментарий",
     reviewSubmit: "Отправить отзыв",
-    reviewPending: "Спасибо! Ваш отзыв будет опу��ликован после проверки.",
+    reviewPending: "Сп��сибо! Ваш отзыв будет опу��ликован после проверки.",
     reviewRating: "Оценка",
     reviewNamePlaceholder: "Например: Анна К.",
     reviewProductPlaceholder: "Название товара",
@@ -415,6 +432,23 @@ export const translations = {
     productSimilar: "Līdzīgas preces",
     backToProducts: "Atpakaļ uz precēm",
     quantity: "Daudzums",
+    productAboutTab: "Par preci",
+    productBenefitsTab: "Priekšrocības",
+    productAboutBrandText:
+      "{brand} ir uzticams franču aptiekas kosmētikas zīmols, kas pazīstams ar savām inovatīvajām formulām un saudzīgu attieksmi pret ādu. Produkcija ir izgājusi dermatoloģisko kontroli un piemērota ikdienas lietošanai.",
+    productBenefit1: "Dermatoloģiski pārbaudīts un apstiprināts jutīgai ādai",
+    productBenefit2: "Formula bez parabēniem, bez spirta un bez krāsvielām",
+    productBenefit3: "Hipoalerģisks sastāvs, ko izstrādājuši franču farmaceiti",
+    productBenefit4: "Piemērots ikdienas lietošanai no rīta un vakarā",
+    productBenefit5: "100% oriģināla franču aptiekas kosmētika",
+    productHowToUseDefault:
+      "Uzklājiet uz vates diska un maigi noslaukiet sejas un kakla ādu no rīta un vakarā. Nav nepieciešama noskalošana ar ūdeni. Piemērots ikdienas lietošanai.",
+    // Cart auth modal
+    cartLoginTitle: "Pieslēdzieties, lai noformētu pasūtījumu",
+    cartLoginDesc:
+      "Lai noformētu pasūtījumu, nepieciešams pieslēgties kontam vai izveidot jaunu. Preces grozā tiks saglabātas.",
+    cartLoginButton: "Pieslēgties kontam",
+    cartSignupButton: "Izveidot kontu",
     // Checkout page
     checkout: "Pāreiti uz kasi",
     checkoutTitle: "Pasūtījuma noformēšana",
@@ -471,7 +505,7 @@ const LangContext = createContext<LangContextValue>({
 })
 
 export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("ru")
+  const [lang, setLangState] = useState<Lang>("lv")
   const [isHydrated, setIsHydrated] = useState(false)
 
   // Detect browser language on first load and manage localStorage
@@ -509,7 +543,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
   // Return default language content until hydrated to avoid hydration mismatch
   if (!isHydrated) {
     return (
-      <LangContext.Provider value={{ lang: "ru", setLang: () => {}, t: (key) => translations.ru[key] }}>
+      <LangContext.Provider value={{ lang: "lv", setLang: () => {}, t: (key) => translations.lv[key] }}>
         {children}
       </LangContext.Provider>
     )

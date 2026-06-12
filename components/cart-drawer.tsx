@@ -167,10 +167,10 @@ export function CartDrawer() {
               <ShoppingBag className="h-6 w-6 text-primary" />
             </div>
             <h3 className="text-lg font-bold text-foreground">
-              Войдите чтобы оформить заказ
+              {t("cartLoginTitle")}
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Для оформления заказа необходимо войти в аккаунт или создать новый. Товары в корзине сохранятся.
+              {t("cartLoginDesc")}
             </p>
             <div className="mt-5 flex flex-col gap-3">
               <Link
@@ -179,7 +179,7 @@ export function CartDrawer() {
                 className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 <LogIn className="h-4 w-4" />
-                Войти в аккаунт
+                {t("cartLoginButton")}
               </Link>
               <Link
                 href="/auth/sign-up"
@@ -187,7 +187,7 @@ export function CartDrawer() {
                 className="flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
               >
                 <UserPlus className="h-4 w-4" />
-                Создать аккаунт
+                {t("cartSignupButton")}
               </Link>
             </div>
           </div>
