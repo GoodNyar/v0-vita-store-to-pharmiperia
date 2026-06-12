@@ -44,8 +44,8 @@ const reviews = [
     rating: 5,
     date: { ru: "5 марта 2026", lv: "5. marts 2026" },
     text: {
-      ru: "Zakazala Hyalu B5 serum – efekt realno vidno uzhe cherez paru nedel. Kozha stala bolee gladkaja i svezhaja. Magazin ponravilsa, budu zdes brat eshe",
-      lv: "Zakazala Hyalu B5 serum – efekt realno vidno uzhe cherez paru nedel. Kozha stala bolee gladkaja i svezhaja. Magazin ponravilsa, budu zdes brat eshe",
+      ru: "Заказала сыворотку Hyalu B5 – эффект реально виден уже через пару недель. Кожа стала более гладкой и свежей. Магазин понравился, буду здесь брать ещё.",
+      lv: "Pasūtīju Hyalu B5 serumu – efekts tiešām redzams jau pēc pāris nedēļām. Āda kļuva gludāka un svaigāka. Veikals patika, ņemšu šeit vēl.",
     },
     product: "Hyalu B5 Serum",
   },
