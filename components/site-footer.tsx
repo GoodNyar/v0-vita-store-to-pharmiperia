@@ -4,57 +4,59 @@ import Link from "next/link"
 import { Leaf } from "lucide-react"
 import { useLang } from "@/lib/i18n"
 
-const footerColumns = [
-  {
-    title: "Магазин",
-    links: [
-      { label: "Лицо", href: "/category/face" },
-      { label: "Волосы", href: "/category/hair" },
-      { label: "Тело", href: "/category/body" },
-      { label: "Солнцезащита", href: "/category/suncare" },
-      { label: "Макияж", href: "/category/makeup" },
-    ],
-  },
-  {
-    title: "Помощь",
-    links: [
-      { label: "Центр помощи", href: "/help" },
-      { label: "Отследить заказ", href: "/track" },
-      { label: "Доставка", href: "/delivery" },
-      { label: "Способы оплаты", href: "/payment-methods" },
-      { label: "Возврат", href: "/returns" },
-      { label: "Контакты", href: "/contact" },
-    ],
-  },
-  {
-    title: "Компания",
-    links: [
-      { label: "Про Pharmiperia", href: "/about" },
-      { label: "Блог", href: "/blog" },
-      { label: "Отзывы покупателей", href: "/reviews" },
-      { label: "Партнёрская программа", href: "/partners" },
-      { label: "Гарантия качества", href: "/quality" },
-    ],
-  },
-  {
-    title: "Аккаунт",
-    links: [
-      { label: "Войти", href: "/auth/login" },
-      { label: "Создать аккаунт", href: "/auth/sign-up" },
-      { label: "Мои заказы", href: "/account/orders" },
-      { label: "Избранное", href: "/account/favorites" },
-      { label: "Бонусы", href: "/account/loyalty" },
-    ],
-  },
-]
-
-const legalLinks = [
-  { label: "Политика конфиденциальности", href: "/privacy" },
-  { label: "Безопасность данных", href: "/data-security" },
-  { label: "Условия покупки", href: "/terms" },
-]
-
 export function SiteFooter() {
+  const { t } = useLang()
+
+  const footerColumns = [
+    {
+      titleKey: "footerStoreTitle",
+      links: [
+        { labelKey: "footerStoreFace", href: "/category/face" },
+        { labelKey: "footerStoreHair", href: "/category/hair" },
+        { labelKey: "footerStoreBody", href: "/category/body" },
+        { labelKey: "footerStoreSuncare", href: "/category/suncare" },
+        { labelKey: "footerStoreMakeup", href: "/category/makeup" },
+      ],
+    },
+    {
+      titleKey: "footerHelpTitle",
+      links: [
+        { labelKey: "footerHelpCenter", href: "/help" },
+        { labelKey: "footerHelpTrack", href: "/track" },
+        { labelKey: "footerHelpDelivery", href: "/delivery" },
+        { labelKey: "footerHelpPayment", href: "/payment-methods" },
+        { labelKey: "footerHelpReturns", href: "/returns" },
+        { labelKey: "footerHelpContact", href: "/contact" },
+      ],
+    },
+    {
+      titleKey: "footerCompanyTitle",
+      links: [
+        { labelKey: "footerCompanyAbout", href: "/about" },
+        { labelKey: "footerCompanyBlog", href: "/blog" },
+        { labelKey: "footerCompanyReviews", href: "/reviews" },
+        { labelKey: "footerCompanyPartners", href: "/partners" },
+        { labelKey: "footerCompanyQuality", href: "/quality" },
+      ],
+    },
+    {
+      titleKey: "footerAccountTitle",
+      links: [
+        { labelKey: "footerAccountLogin", href: "/auth/login" },
+        { labelKey: "footerAccountSignUp", href: "/auth/sign-up" },
+        { labelKey: "footerAccountOrders", href: "/account/orders" },
+        { labelKey: "footerAccountFavorites", href: "/account/favorites" },
+        { labelKey: "footerAccountLoyalty", href: "/account/loyalty" },
+      ],
+    },
+  ]
+
+  const legalLinks = [
+    { labelKey: "footerPrivacy", href: "/privacy" },
+    { labelKey: "footerDataSecurity", href: "/data-security" },
+    { labelKey: "footerTerms", href: "/terms" },
+  ]
+
   return (
     <footer className="border-t border-border bg-card">
       <div className="mx-auto max-w-7xl px-4 py-10">
@@ -68,14 +70,14 @@ export function SiteFooter() {
               <span className="text-lg font-bold text-foreground">Pharmiperia</span>
             </Link>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Pharmiperia — магазин аутентичной французской аптечной косметики для клиентов в Латвии.
+              {t("footerBrandDesc")}
             </p>
           </div>
 
           {/* Link columns */}
           {footerColumns.map((col) => (
-            <div key={col.title}>
-              <h4 className="text-sm font-semibold text-foreground">{col.title}</h4>
+            <div key={col.titleKey}>
+              <h4 className="text-sm font-semibold text-foreground">{t(col.titleKey)}</h4>
               <ul className="mt-3 flex flex-col gap-2">
                 {col.links.map((link) => (
                   <li key={link.href}>
@@ -83,7 +85,7 @@ export function SiteFooter() {
                       href={link.href}
                       className="text-sm text-muted-foreground transition-colors hover:text-primary"
                     >
-                      {link.label}
+                      {t(link.labelKey)}
                     </Link>
                   </li>
                 ))}
@@ -95,7 +97,7 @@ export function SiteFooter() {
         {/* Bottom bar */}
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 md:flex-row">
           <p className="text-xs text-muted-foreground">
-            &copy; 2026 Pharmiperia. Все права защищены.
+            {t("footerCopyright")}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
             {legalLinks.map((link) => (
@@ -104,7 +106,7 @@ export function SiteFooter() {
                 href={link.href}
                 className="text-xs text-muted-foreground transition-colors hover:text-primary"
               >
-                {link.label}
+                {t(link.labelKey)}
               </Link>
             ))}
           </div>
