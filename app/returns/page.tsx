@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import { LangProvider, useLang } from "@/lib/i18n"
 import { CartProvider } from "@/components/cart-context"
