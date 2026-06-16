@@ -10,7 +10,7 @@ import { CartProvider, useCart } from "@/components/cart-context"
 import { LangProvider, useLang } from "@/lib/i18n"
 
 function SuccessContent() {
-  const { t, lang } = useLang()
+  const { t } = useLang()
   const { clearCart } = useCart()
   const [orderNumber, setOrderNumber] = useState<string>("")
 
@@ -26,20 +26,20 @@ function SuccessContent() {
   const steps = [
     {
       icon: CheckCircle,
-      title: lang === "lv" ? "Pasūtījums apstiprināts" : "Заказ подтвержден",
-      description: lang === "lv" ? "Jūsu maksājums ir veiksmīgi apstrādāts" : "Ваш платеж успешно обработан",
+      titleKey: "checkoutSuccessOrderConfirmed",
+      descriptionKey: "checkoutSuccessOrderConfirmedDesc",
       active: true,
     },
     {
       icon: Package,
-      title: lang === "lv" ? "Sagatavošana" : "Подготовка",
-      description: lang === "lv" ? "Mēs gatavojam jūsu pasūtījumu" : "Мы готовим ваш заказ",
+      titleKey: "checkoutSuccessPreparing",
+      descriptionKey: "checkoutSuccessPreparingDesc",
       active: false,
     },
     {
       icon: Truck,
-      title: lang === "lv" ? "Piegāde" : "Доставка",
-      description: lang === "lv" ? "Pasūtījums tiks nosūtīts 1-2 darba dienu laikā" : "Заказ будет отправлен в течение 1-2 рабочих дней",
+      titleKey: "checkoutSuccessShipping",
+      descriptionKey: "checkoutSuccessShippingDesc",
       active: false,
     },
   ]
@@ -61,19 +61,17 @@ function SuccessContent() {
           {/* Title */}
           <div className="mb-8 text-center">
             <h1 className="mb-2 text-2xl font-bold text-foreground">
-              {lang === "lv" ? "Paldies par pasūtījumu!" : "Спасибо за заказ!"}
+              {t("checkoutSuccessTitle")}
             </h1>
             <p className="text-muted-foreground">
-              {lang === "lv" 
-                ? "Mēs nosūtīsim apstiprinājumu uz jūsu e-pastu" 
-                : "Мы отправим подтверждение на вашу почту"}
+              {t("checkoutSuccessDesc")}
             </p>
           </div>
 
           {/* Order Number */}
           <div className="mb-8 rounded-xl border border-border bg-card p-6 text-center">
             <p className="mb-1 text-sm text-muted-foreground">
-              {lang === "lv" ? "Pasūtījuma numurs" : "Номер заказа"}
+              {t("orderNumber")}
             </p>
             <p className="text-xl font-bold text-foreground">{orderNumber}</p>
           </div>
@@ -81,7 +79,7 @@ function SuccessContent() {
           {/* Progress Steps */}
           <div className="mb-8 rounded-xl border border-border bg-card p-6">
             <h2 className="mb-4 text-sm font-semibold text-foreground">
-              {lang === "lv" ? "Pasūtījuma statuss" : "Статус заказа"}
+              {t("orderStatus")}
             </h2>
             <div className="space-y-4">
               {steps.map((step, index) => (
@@ -93,13 +91,13 @@ function SuccessContent() {
                   </div>
                   <div className="flex-1">
                     <p className={`font-medium ${step.active ? "text-foreground" : "text-muted-foreground"}`}>
-                      {step.title}
+                      {t(step.titleKey as any)}
                     </p>
-                    <p className="text-sm text-muted-foreground">{step.description}</p>
+                    <p className="text-sm text-muted-foreground">{t(step.descriptionKey as any)}</p>
                   </div>
                   {step.active && (
                     <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                      {lang === "lv" ? "Aktīvs" : "Активно"}
+                      {t("statusActive")}
                     </span>
                   )}
                 </div>
@@ -113,13 +111,13 @@ function SuccessContent() {
               href="/account/orders"
               className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-border bg-background px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
             >
-              {lang === "lv" ? "Skatīt pasūtījumus" : "Мои заказы"}
+              {t("checkoutSuccessMyOrders")}
             </Link>
             <Link
               href="/"
               className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
             >
-              {lang === "lv" ? "Turpināt iepirkties" : "Продолжить покупки"}
+              {t("continueShopping")}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -127,9 +125,9 @@ function SuccessContent() {
           {/* Help */}
           <div className="mt-8 text-center">
             <p className="text-sm text-muted-foreground">
-              {lang === "lv" ? "Jautājumi? " : "Вопросы? "}
+              {t("needHelp")} 
               <Link href="/contact" className="text-primary hover:underline">
-                {lang === "lv" ? "Sazinieties ar mums" : "Свяжитесь с нами"}
+                {t("contactUs")}
               </Link>
             </p>
           </div>

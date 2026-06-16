@@ -212,19 +212,19 @@ function CheckoutContent() {
             <div className={`flex h-8 w-8 items-center justify-center rounded-full ${step === "details" ? "bg-primary text-white" : "bg-muted"}`}>
               1
             </div>
-            <span className="hidden sm:inline">Informācija</span>
+            <span className="hidden sm:inline">{t("checkoutSteps1")}</span>
           </div>
           <div className="h-px w-8 bg-border" />
           <div className={`flex items-center gap-2 ${step === "payment" ? "text-primary" : "text-muted-foreground"}`}>
             <div className={`flex h-8 w-8 items-center justify-center rounded-full ${step === "payment" ? "bg-primary text-white" : "bg-muted"}`}>
               2
             </div>
-            <span className="hidden sm:inline">Apmaksa</span>
+            <span className="hidden sm:inline">{t("checkoutSteps2")}</span>
           </div>
         </div>
 
         <h1 className="mb-8 text-3xl font-bold text-foreground">
-          {step === "details" ? t("checkoutTitle") : "Apmaksa"}
+          {step === "details" ? t("checkoutTitle") : t("checkoutSteps2")}
         </h1>
 
         <div className="grid gap-8 lg:grid-cols-3">
@@ -333,50 +333,50 @@ function CheckoutContent() {
 
                 {/* Station Selection or Address */}
                 {isCourier ? (
-                  <section className="rounded-xl border border-border bg-card p-6">
-                    <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-card-foreground">
-                      <MapPin className="h-5 w-5" />
-                      Piegādes adrese
-                    </h2>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="sm:col-span-2">
-                        <label className="mb-2 block text-sm font-medium text-foreground">Adrese *</label>
-                        <input
-                          type="text"
-                          name="address"
-                          value={formData.address}
-                          onChange={handleInputChange}
-                          placeholder="Brīvības iela 123, dz. 45"
-                          className={`w-full rounded-lg border ${formErrors.address ? "border-red-500" : "border-border"} bg-background px-4 py-2.5 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20`}
-                        />
-                        {formErrors.address && <p className="mt-1 text-xs text-red-500">{formErrors.address}</p>}
-                      </div>
-                      <div>
-                        <label className="mb-2 block text-sm font-medium text-foreground">Pilsēta *</label>
-                        <input
-                          type="text"
-                          name="city"
-                          value={formData.city}
-                          onChange={handleInputChange}
-                          placeholder="Rīga"
-                          className={`w-full rounded-lg border ${formErrors.city ? "border-red-500" : "border-border"} bg-background px-4 py-2.5 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20`}
-                        />
-                        {formErrors.city && <p className="mt-1 text-xs text-red-500">{formErrors.city}</p>}
-                      </div>
-                      <div>
-                        <label className="mb-2 block text-sm font-medium text-foreground">Pasta indekss *</label>
-                        <input
-                          type="text"
-                          name="postalCode"
-                          value={formData.postalCode}
-                          onChange={handleInputChange}
-                          placeholder="LV-1001"
-                          className={`w-full rounded-lg border ${formErrors.postalCode ? "border-red-500" : "border-border"} bg-background px-4 py-2.5 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20`}
-                        />
-                        {formErrors.postalCode && <p className="mt-1 text-xs text-red-500">{formErrors.postalCode}</p>}
-                      </div>
+                <section className="rounded-xl border border-border bg-card p-6">
+                  <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-card-foreground">
+                    <MapPin className="h-5 w-5" />
+                    {t("deliveryAddress")}
+                  </h2>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-2">
+                      <label className="mb-2 block text-sm font-medium text-foreground">{t("addressLabel")} *</label>
+                      <input
+                        type="text"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleInputChange}
+                        placeholder={t("addressPlaceholder")}
+                        className={`w-full rounded-lg border ${formErrors.address ? "border-red-500" : "border-border"} bg-background px-4 py-2.5 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20`}
+                      />
+                      {formErrors.address && <p className="mt-1 text-xs text-red-500">{formErrors.address}</p>}
                     </div>
-                  </section>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-foreground">{t("cityLabel")} *</label>
+                      <input
+                        type="text"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleInputChange}
+                        placeholder={t("cityPlaceholder")}
+                        className={`w-full rounded-lg border ${formErrors.city ? "border-red-500" : "border-border"} bg-background px-4 py-2.5 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20`}
+                      />
+                      {formErrors.city && <p className="mt-1 text-xs text-red-500">{formErrors.city}</p>}
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-foreground">{t("postalCodeLabel")} *</label>
+                      <input
+                        type="text"
+                        name="postalCode"
+                        value={formData.postalCode}
+                        onChange={handleInputChange}
+                        placeholder={t("postalCodePlaceholder")}
+                        className={`w-full rounded-lg border ${formErrors.postalCode ? "border-red-500" : "border-border"} bg-background px-4 py-2.5 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20`}
+                      />
+                      {formErrors.postalCode && <p className="mt-1 text-xs text-red-500">{formErrors.postalCode}</p>}
+                    </div>
+                  </div>
+                </section>
                 ) : (
                   <section className="rounded-xl border border-border bg-card p-6">
                     <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-card-foreground">
@@ -403,13 +403,13 @@ function CheckoutContent() {
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="flex items-center gap-2 text-lg font-semibold text-card-foreground">
                     <CreditCard className="h-5 w-5" />
-                    Droša apmaksa
+                    {t("securePayment")}
                   </h2>
                   <button 
                     onClick={() => setStep("details")}
                     className="text-sm text-primary hover:underline"
                   >
-                    Rediģēt informāciju
+                    {t("editInformation")}
                   </button>
                 </div>
                 <StripeCheckout 

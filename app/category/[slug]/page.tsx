@@ -162,9 +162,9 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
       <div className="flex min-h-screen flex-col bg-background">
         <SiteHeader />
         <div className="flex flex-1 flex-col items-center justify-center gap-4">
-          <p className="text-lg text-muted-foreground">Категория не найдена</p>
+          <p className="text-lg text-muted-foreground">{t("categoryNotFound")}</p>
           <Link href="/">
-            <Button>На главную</Button>
+            <Button>{t("backHome")}</Button>
           </Link>
         </div>
       </div>
@@ -180,7 +180,7 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
       <div className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3 text-sm">
           <Link href="/" className="text-muted-foreground hover:text-primary">
-            Главная
+            {t("breadcrumbHome")}
           </Link>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
           <span className="font-medium text-foreground">{category.name}</span>
@@ -196,7 +196,7 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
               <p className="mt-2 text-muted-foreground">{category.description}</p>
             )}
             <p className="mt-1 text-sm text-muted-foreground">
-              {filteredProducts.length} товаров
+              {filteredProducts.length} {t("productsLabel")}
             </p>
           </div>
 
@@ -206,7 +206,7 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
               <div className="sticky top-24 space-y-6">
                 {/* Brands */}
                 <div className="rounded-xl border border-border bg-card p-4">
-                  <h3 className="mb-3 font-semibold text-foreground">Бренд</h3>
+                  <h3 className="mb-3 font-semibold text-foreground">{t("brandLabel")}</h3>
                   <div className="space-y-2">
                     {brands.map(brand => (
                       <label key={brand.slug} className="flex items-center gap-2 text-sm">
@@ -224,14 +224,14 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
 
                 {/* Price */}
                 <div className="rounded-xl border border-border bg-card p-4">
-                  <h3 className="mb-3 font-semibold text-foreground">Цена</h3>
+                  <h3 className="mb-3 font-semibold text-foreground">{t("priceLabel")}</h3>
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
                       value={priceRange[0]}
                       onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
                       className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm"
-                      placeholder="От"
+                      placeholder={t("fromLabel")}
                     />
                     <span className="text-muted-foreground">—</span>
                     <input
@@ -239,14 +239,14 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
                       value={priceRange[1]}
                       onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
                       className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm"
-                      placeholder="До"
+                      placeholder={t("toLabel")}
                     />
                   </div>
                 </div>
 
                 {/* Rating */}
                 <div className="rounded-xl border border-border bg-card p-4">
-                  <h3 className="mb-3 font-semibold text-foreground">Рейтинг</h3>
+                  <h3 className="mb-3 font-semibold text-foreground">{t("ratingLabel")}</h3>
                   <div className="space-y-2">
                     {[4, 3, 2, 1].map(rating => (
                       <label key={rating} className="flex items-center gap-2 text-sm">
@@ -264,7 +264,7 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
                               className={`h-4 w-4 ${i < rating ? "fill-yellow-400 text-yellow-400" : "text-muted"}`}
                             />
                           ))}
-                          <span className="ml-1 text-muted-foreground">и выше</span>
+                          <span className="ml-1 text-muted-foreground">{t("andAbove")}</span>
                         </div>
                       </label>
                     ))}
@@ -273,7 +273,7 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
 
                 {hasActiveFilters && (
                   <Button variant="outline" className="w-full" onClick={clearFilters}>
-                    Сбросить фильтры
+                    {t("clearFilters")}
                   </Button>
                 )}
               </div>
@@ -289,7 +289,7 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
                   onClick={() => setShowFilters(true)}
                 >
                   <SlidersHorizontal className="mr-2 h-4 w-4" />
-                  Фильтры
+                  {t("filtersLabel")}
                   {hasActiveFilters && (
                     <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
                       {selectedBrands.length + (minRating > 0 ? 1 : 0)}
@@ -303,11 +303,11 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
                     onChange={(e) => setSortBy(e.target.value)}
                     className="h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground"
                   >
-                    <option value="popular">По популярности</option>
-                    <option value="price-asc">Сначала дешевле</option>
-                    <option value="price-desc">Сначала дороже</option>
-                    <option value="rating">По рейтингу</option>
-                    <option value="newest">Новинки</option>
+                    <option value="popular">{t("sortByPopular")}</option>
+                    <option value="price-asc">{t("sortByPriceAsc")}</option>
+                    <option value="price-desc">{t("sortByPriceDesc")}</option>
+                    <option value="rating">{t("sortByRating")}</option>
+                    <option value="newest">{t("newest")}</option>
                   </select>
 
                   <div className="hidden items-center gap-1 rounded-lg border border-border p-1 md:flex">
@@ -330,11 +330,11 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
               {/* Products */}
               {filteredProducts.length === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16">
-                  <p className="text-lg font-medium text-foreground">Товары не найдены</p>
-                  <p className="mt-1 text-sm text-muted-foreground">Попробуйте изменить фильтры</p>
+                  <p className="text-lg font-medium text-foreground">{t("productsNotFound")}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{t("tryChangeFilters")}</p>
                   {hasActiveFilters && (
                     <Button variant="outline" className="mt-4" onClick={clearFilters}>
-                      Сбросить фильтры
+                      {t("clearFilters")}
                     </Button>
                   )}
                 </div>

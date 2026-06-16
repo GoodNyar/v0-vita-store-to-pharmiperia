@@ -11,8 +11,7 @@ import { useLang } from "@/lib/i18n"
 
 export default function SignUpPage() {
   const router = useRouter()
-  const { refreshAuth } = useAuth()
-  const { lang } = useLang()
+  const { t } = useLang()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -43,7 +42,7 @@ export default function SignUpPage() {
     setError(null)
 
     if (password.length < 6) {
-      setError(lang === "ru" ? "Пароль должен содержать минимум 6 символов" : "Parolei jābūt vismaz 6 rakstzīmēm")
+      setError(t("signUpPasswordMin"))
       return
     }
 
@@ -75,45 +74,6 @@ export default function SignUpPage() {
     }
   }
 
-  const texts = {
-    ru: {
-      title: "Создать аккаунт",
-      subtitle: "Уже есть аккаунт?",
-      login: "Войти",
-      googleButton: "Войти через Google",
-      or: "или",
-      emailLabel: "Email",
-      emailPlaceholder: "example@email.com",
-      passwordLabel: "Пароль",
-      passwordPlaceholder: "Минимум 6 символов",
-      createButton: "Создать аккаунт",
-      creating: "Создание...",
-      termsText: "Регистрируясь, вы соглашаетесь с",
-      termsLink: "Условиями использования",
-      and: "и",
-      privacyLink: "Политикой конфиденциальности",
-    },
-    lv: {
-      title: "Izveidot kontu",
-      subtitle: "Jau ir konts?",
-      login: "Ieiet",
-      googleButton: "Ieiet ar Google",
-      or: "vai",
-      emailLabel: "E-pasts",
-      emailPlaceholder: "example@email.com",
-      passwordLabel: "Parole",
-      passwordPlaceholder: "Vismaz 6 rakstzīmes",
-      createButton: "Izveidot kontu",
-      creating: "Izveido...",
-      termsText: "Reģistrējoties, jūs piekrītat",
-      termsLink: "Lietošanas noteikumiem",
-      and: "un",
-      privacyLink: "Privātuma politikai",
-    },
-  }
-
-  const txt = texts[lang]
-
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
       {/* Header */}
@@ -134,11 +94,11 @@ export default function SignUpPage() {
           <div className="rounded-2xl border border-border bg-card p-5 sm:p-8 shadow-sm">
             {/* Title */}
             <div className="mb-5 text-center">
-              <h1 className="text-xl sm:text-2xl font-bold text-foreground">{txt.title}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t("signUpTitle")}</h1>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                {txt.subtitle}{" "}
+                {t("signUpSubtitle")}{" "}
                 <Link href="/auth/login" className="font-semibold text-foreground hover:underline">
-                  {txt.login}
+                  {t("signUpLogin")}
                 </Link>
               </p>
             </div>
@@ -179,7 +139,7 @@ export default function SignUpPage() {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  {txt.googleButton}
+                  {t("signUpGoogleButton")}
                 </>
               )}
             </button>
@@ -187,7 +147,7 @@ export default function SignUpPage() {
             {/* Divider */}
             <div className="my-5 flex items-center gap-3">
               <div className="h-px flex-1 bg-border" />
-              <span className="text-xs text-muted-foreground">{txt.or}</span>
+              <span className="text-xs text-muted-foreground">{t("signUpOr")}</span>
               <div className="h-px flex-1 bg-border" />
             </div>
 
@@ -195,14 +155,14 @@ export default function SignUpPage() {
             <form onSubmit={handleSignUp} className="space-y-4">
               <div>
                 <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-foreground">
-                  {txt.emailLabel}
+                  {t("signUpEmailLabel")}
                 </label>
                 <input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={txt.emailPlaceholder}
+                  placeholder={t("signUpEmailPlaceholder")}
                   required
                   className="h-11 w-full rounded-lg border border-border bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
@@ -210,7 +170,7 @@ export default function SignUpPage() {
 
               <div>
                 <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-foreground">
-                  {txt.passwordLabel}
+                  {t("signUpPasswordLabel")}
                 </label>
                 <div className="relative">
                   <input
@@ -218,7 +178,7 @@ export default function SignUpPage() {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder={txt.passwordPlaceholder}
+                    placeholder={t("signUpPasswordPlaceholder")}
                     required
                     className="h-11 w-full rounded-lg border border-border bg-background px-4 pr-11 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
@@ -240,23 +200,23 @@ export default function SignUpPage() {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {txt.creating}
+                    {t("signUpCreating")}
                   </>
                 ) : (
-                  txt.createButton
+                  t("signUpCreateButton")
                 )}
               </Button>
             </form>
 
             {/* Terms text */}
             <p className="mt-5 text-center text-xs text-muted-foreground leading-relaxed">
-              {txt.termsText}{" "}
+              {t("signUpTermsText")}{" "}
               <Link href="/terms" className="text-foreground underline hover:text-primary">
-                {txt.termsLink}
+                {t("signUpTermsLink")}
               </Link>{" "}
-              {txt.and}{" "}
+              {t("signUpAnd")}{" "}
               <Link href="/privacy" className="text-foreground underline hover:text-primary">
-                {txt.privacyLink}
+                {t("signUpPrivacyLink")}
               </Link>
             </p>
           </div>

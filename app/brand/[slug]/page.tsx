@@ -12,7 +12,7 @@ import { ProductCard } from "@/components/product-card"
 
 export default function BrandPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
-  const { lang } = useLang()
+  const { t } = useLang()
 
   // Convert slug back to a readable brand name (e.g. "la-roche-posay" -> "La Roche Posay")
   const brandName = slug
@@ -38,7 +38,7 @@ export default function BrandPage({ params }: { params: Promise<{ slug: string }
       <div className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3 text-sm">
           <Link href="/" className="text-muted-foreground hover:text-primary">
-            {lang === "ru" ? "Главная" : "Sākums"}
+            {t("breadcrumbHome")}
           </Link>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
           <span className="font-medium text-foreground">{displayBrand}</span>
@@ -50,11 +50,11 @@ export default function BrandPage({ params }: { params: Promise<{ slug: string }
           {/* Header */}
           <div className="mb-6">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-primary/70">
-              {lang === "ru" ? "Бренд" : "Zīmols"}
+              {t("brandLabel")}
             </p>
             <h1 className="mt-1 text-2xl font-bold text-foreground md:text-3xl">{displayBrand}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {brandProducts.length} {lang === "ru" ? "товаров" : "produkti"}
+              {brandProducts.length} {t("productsLabel")}
             </p>
           </div>
 
@@ -62,9 +62,7 @@ export default function BrandPage({ params }: { params: Promise<{ slug: string }
           {brandProducts.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16">
               <p className="text-center text-lg font-medium text-foreground">
-                {lang === "ru"
-                  ? "Товары этого бренда скоро появятся"
-                  : "Šī zīmola produkti drīzumā būs pieejami"}
+                {t("productsSoonAvailable")}
               </p>
             </div>
           ) : (

@@ -84,10 +84,10 @@ function SearchContent() {
       <div className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3 text-sm">
           <Link href="/" className="text-muted-foreground hover:text-primary">
-            Главная
+            {t("breadcrumbHome")}
           </Link>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium text-foreground">Поиск</span>
+          <span className="font-medium text-foreground">{t("searchTitle")}</span>
         </div>
       </div>
 
@@ -101,7 +101,7 @@ function SearchContent() {
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Поиск товаров..."
+                placeholder={t("searchPlaceholder")}
                 className="h-14 w-full rounded-full border border-border bg-card pl-12 pr-12 text-lg text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
               {searchInput && (
@@ -124,23 +124,23 @@ function SearchContent() {
           ) : !query ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <Search className="mb-4 h-16 w-16 text-muted-foreground/50" />
-              <h2 className="text-xl font-semibold text-foreground">Начните поиск</h2>
+              <h2 className="text-xl font-semibold text-foreground">{t("searchStartSearch")}</h2>
               <p className="mt-2 text-muted-foreground">
-                Введите название товара, бренда или категории
+                {t("searchStartSearchDesc")}
               </p>
             </div>
           ) : products.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <Search className="mb-4 h-16 w-16 text-muted-foreground/50" />
               <h2 className="text-xl font-semibold text-foreground">
-                По запросу «{query}» ничего не найдено
+                {t("searchNotFound1")} «{query}» {t("searchNotFound2")}
               </h2>
               <p className="mt-2 text-muted-foreground">
-                Попробуйте изменить поисковый запрос
+                {t("searchNotFoundDesc")}
               </p>
               <div className="mt-6">
                 <Link href="/">
-                  <Button>Перейти на главную</Button>
+                  <Button>{t("continueShopping")}</Button>
                 </Link>
               </div>
             </div>
@@ -148,10 +148,10 @@ function SearchContent() {
             <>
               <div className="mb-6">
                 <h1 className="text-xl font-semibold text-foreground">
-                  Результаты поиска: «{query}»
+                  {t("searchResults")} «{query}»
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  Найдено {products.length} товаров
+                  {t("searchFound")} {products.length} {t("searchFoundProducts")}
                 </p>
               </div>
 
@@ -219,7 +219,7 @@ function SearchContent() {
                             brand: product.brand.name
                           })}
                         >
-                          В корзину
+                          {t("addToCart")}
                         </Button>
                       </div>
                     </div>

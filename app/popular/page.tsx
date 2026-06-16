@@ -13,10 +13,8 @@ import { ProductCard } from "@/components/product-card"
 import { ChevronRight } from "lucide-react"
 
 function PopularPageContent() {
-  const { lang } = useLang()
+  const { t } = useLang()
   const [sortBy, setSortBy] = useState("popular")
-
-  const title = lang === "ru" ? "Популярное" : "Populārie"
 
   const popular = useMemo(() => {
     // Products explicitly marked as popular or bestSeller
@@ -53,10 +51,10 @@ function PopularPageContent() {
       <div className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3 text-sm">
           <Link href="/" className="text-muted-foreground hover:text-primary">
-            {lang === "ru" ? "Главная" : "Sākums"}
+            {t("breadcrumbHome")}
           </Link>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium text-foreground">{title}</span>
+          <span className="font-medium text-foreground">{t("popularTitle")}</span>
         </div>
       </div>
 
@@ -65,9 +63,9 @@ function PopularPageContent() {
           {/* Header */}
           <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-foreground md:text-3xl">{title}</h1>
+              <h1 className="text-2xl font-bold text-foreground md:text-3xl">{t("popularTitle")}</h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                {popular.length} {lang === "ru" ? "товаров" : "preces"}
+                {popular.length} {t("productsLabel")}
               </p>
             </div>
 
@@ -76,10 +74,10 @@ function PopularPageContent() {
               onChange={(e) => setSortBy(e.target.value)}
               className="h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground"
             >
-              <option value="popular">{lang === "ru" ? "По популярности" : "Pēc popularitātes"}</option>
-              <option value="price-asc">{lang === "ru" ? "Сначала дешевле" : "Vispirms lētākie"}</option>
-              <option value="price-desc">{lang === "ru" ? "Сначала дороже" : "Vispirms dārgākie"}</option>
-              <option value="rating">{lang === "ru" ? "По рейтингу" : "Pēc vērtējuma"}</option>
+              <option value="popular">{t("sortByPopular")}</option>
+              <option value="price-asc">{t("sortByPriceAsc")}</option>
+              <option value="price-desc">{t("sortByPriceDesc")}</option>
+              <option value="rating">{t("sortByRating")}</option>
             </select>
           </div>
 
@@ -87,7 +85,7 @@ function PopularPageContent() {
           {popular.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16">
               <p className="text-lg font-medium text-foreground">
-                {lang === "ru" ? "Товары не найдены" : "Preces nav atrastas"}
+                {t("productsNotFound")}
               </p>
             </div>
           ) : (

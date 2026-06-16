@@ -103,7 +103,33 @@ export default function LoginPage() {
     },
   }
 
-  const txt = texts[lang]
+  const { t } = useLang()
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (error) {
+      const errorMsg = error.message === "Invalid login credentials" 
+        ? t("invalidEmailPassword")
+        : error.message
+      setError(errorMsg)
+      setLoading(false)
+      return
+    }
+
+    // Refresh auth state in provider before redirecting
+    await refreshAuth()
+    router.push("/account")
+    router.refresh()
+  }
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
@@ -125,11 +151,11 @@ export default function LoginPage() {
           <div className="rounded-2xl border border-border bg-card p-5 sm:p-8 shadow-sm">
             {/* Title */}
             <div className="mb-5 text-center">
-              <h1 className="text-xl sm:text-2xl font-bold text-foreground">{txt.title}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t("loginTitle")}</h1>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                {txt.subtitle}{" "}
+                {t("loginSubtitle")}{" "}
                 <Link href="/auth/sign-up" className="font-semibold text-foreground hover:underline">
-                  {txt.register}
+                  {t("loginRegister")}
                 </Link>
               </p>
             </div>
@@ -170,7 +196,7 @@ export default function LoginPage() {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  {txt.googleButton}
+                  {t("loginGoogleButton")}
                 </>
               )}
             </button>
@@ -178,7 +204,7 @@ export default function LoginPage() {
             {/* Divider */}
             <div className="my-5 flex items-center gap-3">
               <div className="h-px flex-1 bg-border" />
-              <span className="text-xs text-muted-foreground">{txt.or}</span>
+              <span className="text-xs text-muted-foreground">{t("loginOr")}</span>
               <div className="h-px flex-1 bg-border" />
             </div>
 
@@ -186,14 +212,14 @@ export default function LoginPage() {
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-foreground">
-                  {txt.emailLabel}
+                  {t("loginEmailLabel")}
                 </label>
                 <input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={txt.emailPlaceholder}
+                  placeholder={t("loginEmailPlaceholder")}
                   required
                   className="h-11 w-full rounded-lg border border-border bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
@@ -201,7 +227,7 @@ export default function LoginPage() {
 
               <div>
                 <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-foreground">
-                  {txt.passwordLabel}
+                  {t("loginPasswordLabel")}
                 </label>
                 <div className="relative">
                   <input
@@ -209,7 +235,7 @@ export default function LoginPage() {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder={txt.passwordPlaceholder}
+                    placeholder={t("loginPasswordPlaceholder")}
                     required
                     className="h-11 w-full rounded-lg border border-border bg-background px-4 pr-11 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
@@ -225,7 +251,7 @@ export default function LoginPage() {
 
               <div className="flex justify-end">
                 <Link href="/auth/reset-password" className="text-sm text-primary hover:underline">
-                  {txt.forgotPassword}
+                  {t("loginForgotPassword")}
                 </Link>
               </div>
 
@@ -237,23 +263,23 @@ export default function LoginPage() {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {txt.loggingIn}
+                    {t("loginLoggingIn")}
                   </>
                 ) : (
-                  txt.loginButton
+                  t("loginButton")
                 )}
               </Button>
             </form>
 
             {/* Terms text */}
             <p className="mt-5 text-center text-xs text-muted-foreground leading-relaxed">
-              {txt.termsText}{" "}
+              {t("loginTermsText")}{" "}
               <Link href="/terms" className="text-foreground underline hover:text-primary">
-                {txt.termsLink}
+                {t("loginTermsLink")}
               </Link>{" "}
-              {txt.and}{" "}
+              {t("loginAnd")}{" "}
               <Link href="/privacy" className="text-foreground underline hover:text-primary">
-                {txt.privacyLink}
+                {t("loginPrivacyLink")}
               </Link>
             </p>
           </div>
