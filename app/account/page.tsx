@@ -55,7 +55,7 @@ type ActiveSection = "profile" | "orders" | "favorites" | "bonus" | "addresses" 
 export default function AccountPage() {
   const router = useRouter()
   const { user, isLoading: authLoading, signOut } = useAuth()
-  const { lang } = useLang()
+  const { t } = useLang()
   const { addToCart } = useCart()
   const { favorites } = useFavorites()
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -468,7 +468,7 @@ export default function AccountPage() {
                 </a>
               </div>
               <p className="text-xs text-muted-foreground">
-                {lang === "ru" ? "Пн-Пт: 9:00-18:00" : "P-Pk: 9:00-18:00"}
+                {lang === "ru" ? "Пн-П��: 9:00-18:00" : "P-Pk: 9:00-18:00"}
               </p>
               <a href="mailto:info@pharmiperia.com" className="w-full">
                 <Button
@@ -1048,7 +1048,7 @@ export default function AccountPage() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-semibold text-foreground mb-1 block">
-                {lang === "ru" ? "Имя" : "Vārds"} <span className="text-primary">*</span>
+                {t("firstName")} <span className="text-primary">*</span>
               </label>
               <input
                 type="text"
@@ -1057,7 +1057,7 @@ export default function AccountPage() {
                 value={formData.first_name || ""}
                 onChange={(e) => { setFormData({ ...formData, first_name: e.target.value }); setErrors({ ...errors, first_name: false }) }}
                 className={`w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.first_name ? "border-red-500" : "border-border"}`}
-                placeholder={lang === "ru" ? "Имя" : "Vārds"}
+                placeholder={t("firstName")}
               />
             </div>
             <div>
@@ -1241,7 +1241,7 @@ export default function AccountPage() {
               className="flex-1"
             >
               {isSaving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              {lang === "ru" ? "Сохранить" : "Saglabāt"}
+              {t("save")}
             </Button>
           </div>
           <Button

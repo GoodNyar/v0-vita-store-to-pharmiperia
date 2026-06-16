@@ -102,7 +102,7 @@ export default function SettingsPage() {
         <div className="flex items-center gap-3 mb-2">
           <Settings className="h-6 w-6 text-primary" />
           <h1 className="text-2xl font-bold text-foreground">
-            {lang === "ru" ? "Настройки" : "Iestatījumi"}
+            {t("accountSettings")}
           </h1>
         </div>
       </div>
@@ -110,14 +110,14 @@ export default function SettingsPage() {
       {/* Profile section */}
       <div className="rounded-2xl border border-border bg-card p-6 mb-6">
         <h2 className="text-lg font-semibold text-foreground mb-6">
-          {lang === "ru" ? "Данные профиля" : "Profila dati"}
+          {t("profileData")}
         </h2>
 
         {/* Email - read only */}
         <div className="mb-6">
           <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
             <Mail className="h-4 w-4" />
-            {lang === "ru" ? "Email" : "E-pasts"}
+            {t("email")}
           </label>
           <input
             type="email"
@@ -126,7 +126,7 @@ export default function SettingsPage() {
             className="w-full rounded-lg border border-border bg-muted px-4 py-2.5 text-foreground disabled:opacity-50"
           />
           <p className="text-xs text-muted-foreground mt-1">
-            {lang === "ru" ? "Email нельзя изменить" : "E-pastu nevar mainīt"}
+            {t("cannotChangeEmail")}
           </p>
         </div>
 
@@ -134,14 +134,14 @@ export default function SettingsPage() {
         <div className="mb-6">
           <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
             <UserIcon className="h-4 w-4" />
-            {lang === "ru" ? "Имя" : "Vārds"}
+            {t("firstName")}
           </label>
           <input
             type="text"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            placeholder={lang === "ru" ? "Ваше имя" : "Jūsu vārds"}
+            placeholder={t("yourName")}
           />
         </div>
 
@@ -154,18 +154,18 @@ export default function SettingsPage() {
             {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {lang === "ru" ? "Сохранение..." : "Saglabāšana..."}
+                {t("saving")}
               </>
             ) : (
               <>
                 <Check className="mr-2 h-4 w-4" />
-                {lang === "ru" ? "Сохранить" : "Saglabāt"}
+                {t("save")}
               </>
             )}
           </Button>
           {saveSuccess && (
             <span className="text-sm text-green-600 font-medium">
-              {lang === "ru" ? "Сохранено" : "Saglabāts"}
+              {t("saved")}
             </span>
           )}
         </div>
@@ -174,7 +174,7 @@ export default function SettingsPage() {
       {/* Security section */}
       <div className="rounded-2xl border border-border bg-card p-6 mb-6">
         <h2 className="text-lg font-semibold text-foreground mb-4">
-          {lang === "ru" ? "Безопасность" : "Drošība"}
+          {t("security")}
         </h2>
         <p className="text-sm text-muted-foreground mb-6">
           {lang === "ru"
@@ -187,7 +187,7 @@ export default function SettingsPage() {
           className="border-destructive text-destructive hover:bg-destructive/10"
         >
           <LogOut className="mr-2 h-4 w-4" />
-          {lang === "ru" ? "Выйти из аккаунта" : "Izrakstīties no konta"}
+          {t("logOutAccount")}
         </Button>
       </div>
 

@@ -11,7 +11,7 @@ import { products as allProducts, type Product } from "@/lib/data"
 import { Heart, Star, Loader2, ChevronLeft, Trash2, ShoppingCart, LogIn } from "lucide-react"
 
 export default function FavoritesPage() {
-  const { t, lang } = useLang()
+  const { t } = useLang()
   const { addToCart } = useCart()
   const { user } = useAuth()
   const { favorites, isLoading, toggleFavorite } = useFavorites()
@@ -45,7 +45,7 @@ export default function FavoritesPage() {
         className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ChevronLeft className="h-4 w-4" />
-        {lang === "ru" ? "Назад в аккаунт" : "Atpakaļ uz kontu"}
+        {t("backHome")}
       </Link>
 
       <div className="mb-8 flex items-center justify-between">
@@ -55,8 +55,8 @@ export default function FavoritesPage() {
           </h1>
           <p className="mt-1 text-muted-foreground">
             {products.length > 0
-              ? `${products.length} ${products.length === 1 ? (lang === "ru" ? "товар" : "prece") : products.length < 5 ? (lang === "ru" ? "товара" : "preces") : (lang === "ru" ? "товаров" : "preces")}`
-              : lang === "ru" ? "Нет избранных товаров" : "Nav izlases preču"}
+              ? `${products.length} ${products.length === 1 ? (t("product")) : products.length < 5 ? (t("products")) : (t("productsLabel"))}`
+              : t("noFavorites")}
           </p>
         </div>
       </div>
@@ -66,7 +66,7 @@ export default function FavoritesPage() {
         <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl border border-primary/20 bg-primary/5 px-5 py-4">
           <div>
             <p className="text-sm font-semibold text-foreground">
-              {lang === "ru" ? "Войдите чтобы сохранить избранное навсегда" : "Ieejiet, lai saglabātu izlasi uz visiem laikiem"}
+              {t("loginToSaveFavorites")}
             </p>
             <p className="text-xs text-muted-foreground">
               {lang === "ru" 
@@ -79,7 +79,7 @@ export default function FavoritesPage() {
             className="flex shrink-0 items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             <LogIn className="h-4 w-4" />
-            {lang === "ru" ? "Войти" : "Ieiet"}
+            {t("signIn")}
           </Link>
         </div>
       )}
@@ -89,7 +89,7 @@ export default function FavoritesPage() {
         <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-card py-16">
           <Heart className="h-16 w-16 text-muted-foreground/20" />
           <h2 className="mt-4 text-lg font-semibold text-foreground">
-            {lang === "ru" ? "Нет избранных товаров" : "Nav izlases preču"}
+            {t("noFavorites")}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground text-center px-4">
             {lang === "ru" 
