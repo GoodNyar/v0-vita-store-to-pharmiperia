@@ -92,9 +92,7 @@ export default function FavoritesPage() {
             {t("noFavorites")}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground text-center px-4">
-            {lang === "ru" 
-              ? "Нажмите на сердечко на товаре чтобы добавить в избранное" 
-              : "Noklikšķiniet uz sirsniņas uz preces, lai pievienotu izlasei"}
+            {t("noFavoritesText")}
           </p>
           <Link
             href="/"

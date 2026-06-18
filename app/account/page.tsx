@@ -216,7 +216,7 @@ export default function AccountPage() {
     
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
-      showToast(lang === "ru" ? "Заполните все поля" : "Aizpildiet visus laukus", e, "error")
+      showToast(t("fillAllFields"), e, "error")
       return
     }
     setErrors({})
@@ -240,7 +240,7 @@ export default function AccountPage() {
     })
     
     if (currentData === savedDataStr) {
-      showToast(lang === "ru" ? "Данные уже сохранены" : "Dati jau saglabāti", e)
+      showToast(t("alreadySaved"), e)
       setIsEditing(false)
       return
     }
@@ -289,7 +289,7 @@ export default function AccountPage() {
 
     if (error) {
       console.error("[v0] Save error:", error)
-      showToast(lang === "ru" ? "Ошибка сохранения" : "Kļūda saglabājot", e)
+      showToast(t("savingError"), e)
       return
     }
 
@@ -312,7 +312,7 @@ export default function AccountPage() {
     localStorage.setItem(`profile_${user.id}`, JSON.stringify(newProfile))
     
     setIsEditing(false)
-    showToast(lang === "ru" ? "Данные сохранены" : "Dati saglabāti", e)
+    showToast(t("dataSaved"), e)
   }
 
   const handleSignOut = async () => {
@@ -361,11 +361,11 @@ export default function AccountPage() {
       
       // Close modal first, then show toast
       setShowResetConfirm(false)
-      showToast(lang === "ru" ? "Данные очищены" : "Dati notīrēti", e, "success")
+      showToast(t("dataCleared"), e, "success")
       
     } catch (err) {
       console.error("[v0] Reset error:", err)
-      showToast(lang === "ru" ? "Ошибка при очистке" : "Kļūda notīrējot", e, "error")
+      showToast(t("clearingError"), e, "error")
       // Close modal even on error to prevent stuck state
       setShowResetConfirm(false)
     } finally {
@@ -404,19 +404,19 @@ export default function AccountPage() {
 
   // Sidebar navigation items
   const sidebarItems = [
-    { id: "profile" as const, icon: User, label: lang === "ru" ? "Мои данные" : "Mana informācija" },
-    { id: "orders" as const, icon: Package, label: lang === "ru" ? "История заказов" : "Pasūtījumu vēsture" },
-    { id: "favorites" as const, icon: Heart, label: lang === "ru" ? "Избранное" : "Vēlmju saraksts", count: favorites.length },
-    { id: "bonus" as const, icon: CreditCard, label: lang === "ru" ? "Бонусная карта" : "Bonusa karte" },
-    { id: "addresses" as const, icon: Package, label: lang === "ru" ? "Адреса доставки" : "Piegādes adreses" },
-    { id: "notifications" as const, icon: Zap, label: lang === "ru" ? "Уведомления" : "Paziņojumi" },
+    { id: "profile" as const, icon: User, label: t("myData") },
+    { id: "orders" as const, icon: Package, label: t("orderHistory") },
+    { id: "favorites" as const, icon: Heart, label: t("favorites"), count: favorites.length },
+    { id: "bonus" as const, icon: CreditCard, label: t("loyaltyCard") },
+    { id: "addresses" as const, icon: Package, label: t("deliveryAddresses") },
+    { id: "notifications" as const, icon: Zap, label: t("notifications") },
   ]
 
   return (
     <>
       {/* Page title */}
       <h1 className="text-2xl font-bold text-foreground mb-6">
-        {lang === "ru" ? "Личный кабинет" : "Mans konts"}
+        {t("accountTitle")}
       </h1>
 
       {/* 2-Column Layout */}
@@ -455,7 +455,7 @@ export default function AccountPage() {
             {/* Help section */}
             <div className="rounded-xl border border-border bg-card p-4 space-y-3">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                {lang === "ru" ? "Нужна помощь?" : "Vai jums nepieciešama palīdzība?"}
+                {t("needHelp")}
               </p>
               <div className="space-y-2">
                 <a href="tel:+37129952852" className="flex items-center gap-2 text-sm text-primary hover:underline">
@@ -476,7 +476,7 @@ export default function AccountPage() {
                   variant="outline"
                   className="w-full justify-center"
                 >
-                  {lang === "ru" ? "Связаться" : "Sazināties"}
+                  {t("contact")}
                 </Button>
               </a>
             </div>
@@ -488,7 +488,7 @@ export default function AccountPage() {
               className="w-full justify-start gap-2"
             >
               <LogOut className="h-4 w-4" />
-              {lang === "ru" ? "Выйти" : "Iziet"}
+              {t("logOut")}
             </Button>
           </div>
         </aside>
@@ -518,7 +518,7 @@ export default function AccountPage() {
                     className="flex-shrink-0"
                   >
                     <Edit2 className="mr-2 h-4 w-4" />
-                    {lang === "ru" ? "Изменить" : "Rediģēt"}
+                    {t("edit")}
                   </Button>
                 </div>
 
@@ -526,7 +526,7 @@ export default function AccountPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                   <div className="space-y-1.5">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      {lang === "ru" ? "Телефон" : "Tālrunis"}
+                      {t("phone")}
                     </p>
                     <p className="text-sm font-medium text-foreground">
                       {profile?.phone 
@@ -537,7 +537,7 @@ export default function AccountPage() {
                   </div>
                   <div className="space-y-1.5">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      {lang === "ru" ? "Страна" : "Valsts"}
+                      {t("country")}
                     </p>
                     <p className="text-sm font-medium text-foreground">
                       {profile?.country ? (lang === "ru" ? "Латвия" : "Latvija") : "—"}
@@ -545,19 +545,19 @@ export default function AccountPage() {
                   </div>
                   <div className="space-y-1.5">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      {lang === "ru" ? "Город" : "Pilsēta"}
+                      {t("city")}
                     </p>
                     <p className="text-sm font-medium text-foreground">{profile?.city || "—"}</p>
                   </div>
                   <div className="space-y-1.5">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      {lang === "ru" ? "Почтовый индекс" : "Pasta indekss"}
+                      {t("postalCode")}
                     </p>
                     <p className="text-sm font-medium text-foreground">{profile?.postal_code || "—"}</p>
                   </div>
                   <div className="space-y-1.5 sm:col-span-2">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      {lang === "ru" ? "Адрес" : "Adrese"}
+                      {t("address")}
                     </p>
                     <p className="text-sm font-medium text-foreground">{profile?.address || "—"}</p>
                   </div>
@@ -574,7 +574,7 @@ export default function AccountPage() {
                     {/* Title row */}
                     <div className="flex items-center justify-between">
                       <h3 className="text-base font-bold text-white">
-                        {lang === "ru" ? "Повторить последний заказ" : "Atkārtot pēdējo pasūtījumu"}
+                        {t("repeatLastOrder")}
                       </h3>
                       <span className="text-xs text-white/60">{lastOrder.date}</span>
                     </div>
@@ -602,11 +602,11 @@ export default function AccountPage() {
                     {/* Order info row */}
                     <div className="flex items-center justify-between pt-1 border-t border-white/20">
                       <div className="text-left">
-                        <p className="text-xs text-white/70">{lang === "ru" ? "№ заказа" : "Pasūtījuma nr."}</p>
+                        <p className="text-xs text-white/70">{t("orderNumber")}</p>
                         <p className="text-sm font-semibold text-white">{lastOrder.orderNumber}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs text-white/70">{lang === "ru" ? "Сумма" : "Summa"}</p>
+                        <p className="text-xs text-white/70">{t("total")}</p>
                         <p className="text-lg font-bold text-white">€{lastOrder.total.toFixed(2)}</p>
                       </div>
                     </div>
@@ -621,20 +621,18 @@ export default function AccountPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-foreground">
-                  {lang === "ru" ? "Мои заказы" : "Mani pasūtījumi"}
+                  {t("myOrders")}
                 </h2>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
-                {lang === "ru" 
-                  ? "Здесь вы можете просмотреть историю всех ваших заказов" 
-                  : "Šeit jūs varat apskatīt visu pasūtījumu vēsturi"}
+                {t("orderHistoryDesc")}
               </p>
 
               {orders.length === 0 ? (
                 <div className="rounded-xl border border-border bg-card p-8 text-center">
                   <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground">
-                    {lang === "ru" ? "У вас пока нет заказов" : "Jums vēl nav pasūtījumu"}
+                    {t("noOrdersText")}
                   </p>
                 </div>
               ) : (
@@ -1152,18 +1150,18 @@ export default function AccountPage() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-semibold text-foreground mb-1 block">
-                {lang === "ru" ? "Страна" : "Valsts"} <span className="text-primary">*</span>
+                {t("country")} <span className="text-primary">*</span>
               </label>
               <input
                 type="text"
-                value={lang === "ru" ? "Латвия" : "Latvija"}
+                value={t("latvia")}
                 disabled
                 className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm text-muted-foreground cursor-not-allowed"
               />
             </div>
             <div>
               <label className="text-xs font-semibold text-foreground mb-1 block">
-                {lang === "ru" ? "Город" : "Pilsēta"} <span className="text-primary">*</span>
+                {t("city")} <span className="text-primary">*</span>
               </label>
               <input
                 type="text"
@@ -1180,7 +1178,7 @@ export default function AccountPage() {
           {/* Адрес */}
           <div>
             <label className="text-xs font-semibold text-foreground mb-1 block">
-              {lang === "ru" ? "Адрес" : "Adrese"} <span className="text-primary">*</span>
+              {t("address")} <span className="text-primary">*</span>
             </label>
             <input
               type="text"
@@ -1196,7 +1194,7 @@ export default function AccountPage() {
           {/* Почтовый индекс */}
           <div>
             <label className="text-xs font-semibold text-foreground mb-1 block">
-              {lang === "ru" ? "Почтовый индекс" : "Pasta indekss"} <span className="text-primary">*</span>
+              {t("postalCode")} <span className="text-primary">*</span>
             </label>
             <div className="flex">
               <div className="rounded-l-lg border border-r-0 border-border bg-muted px-3 py-2 text-sm text-muted-foreground flex items-center">
