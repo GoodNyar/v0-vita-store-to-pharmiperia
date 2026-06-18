@@ -69,9 +69,7 @@ export default function FavoritesPage() {
               {t("loginToSaveFavorites")}
             </p>
             <p className="text-xs text-muted-foreground">
-              {lang === "ru" 
-                ? "Сейчас список сохранён в браузере. После входа он синхронизируется с аккаунтом." 
-                : "Pašlaik saraksts ir saglabāts pārlūkprogrammā. Pēc pieteikšanās tas tiks sinhronizēts ar kontu."}
+              {t("favoritesLocalSync")}
             </p>
           </div>
           <Link
