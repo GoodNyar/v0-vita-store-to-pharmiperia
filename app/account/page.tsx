@@ -468,7 +468,7 @@ export default function AccountPage() {
                 </a>
               </div>
               <p className="text-xs text-muted-foreground">
-                {lang === "ru" ? "Пн-П��: 9:00-18:00" : "P-Pk: 9:00-18:00"}
+                {t("workingHours")}
               </p>
               <a href="mailto:info@pharmiperia.com" className="w-full">
                 <Button
@@ -540,7 +540,7 @@ export default function AccountPage() {
                       {t("country")}
                     </p>
                     <p className="text-sm font-medium text-foreground">
-                      {profile?.country ? (lang === "ru" ? "Латвия" : "Latvija") : "—"}
+                      {profile?.country ? (t("latvia")) : "—"}
                     </p>
                   </div>
                   <div className="space-y-1.5">
@@ -654,10 +654,10 @@ export default function AccountPage() {
                               : "bg-red-100 text-red-700"
                           }`}>
                             {order.status === "delivered" 
-                              ? (lang === "ru" ? "Доставлен" : "Piegādāts")
+                              ? (t("orderDelivered"))
                               : order.status === "in_progress"
-                              ? (lang === "ru" ? "В пути" : "Ceļā")
-                              : (lang === "ru" ? "Отменён" : "Atcelts")
+                              ? (t("orderInProgress"))
+                              : (t("orderCancelled"))
                             }
                           </span>
                         </div>
@@ -680,7 +680,7 @@ export default function AccountPage() {
                           className="ml-auto text-primary"
                         >
                           <RotateCcw className="h-4 w-4 mr-1" />
-                          {lang === "ru" ? "Повторить" : "Atkārtot"}
+                          {t("repeat")}
                         </Button>
                       </div>
                     </div>
@@ -694,17 +694,17 @@ export default function AccountPage() {
           {activeSection === "favorites" && (
             <div className="space-y-4">
               <h2 className="text-xl font-bold text-foreground">
-                {lang === "ru" ? "Избранное" : "Vēlmju saraksts"}
+                {t("favorites")}
               </h2>
 
               {favoriteProducts.length === 0 ? (
                 <div className="rounded-xl border border-border bg-card p-8 text-center">
                   <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground mb-4">
-                    {lang === "ru" ? "У вас пока нет избранных товаров" : "Jums vēl nav izlases preču"}
+                    {t("noFavoritesText")}
                   </p>
                   <Link href="/products">
-                    <Button>{lang === "ru" ? "Перейти в каталог" : "Doties uz katalogu"}</Button>
+                    <Button>{t("goToCatalog")}</Button>
                   </Link>
                 </div>
               ) : (
@@ -750,7 +750,7 @@ export default function AccountPage() {
           {activeSection === "bonus" && (
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-foreground">
-                {lang === "ru" ? "Бонусная карта" : "Bonusa karte"}
+                {t("loyaltyCard")}
               </h2>
 
               {/* Bonus card visual */}
@@ -760,7 +760,7 @@ export default function AccountPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-xs text-white/60 uppercase tracking-wider mb-1">
-                        {lang === "ru" ? "Баланс" : "Bilance"}
+                        {t("balance")}
                       </p>
                       <p className="text-3xl font-bold">€{bonusEquivalent}</p>
                     </div>
@@ -778,11 +778,11 @@ export default function AccountPage() {
               {/* Bonus details */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="rounded-xl border border-border bg-card p-4">
-                  <p className="text-xs text-muted-foreground mb-1">{lang === "ru" ? "Баллы" : "Punkti"}</p>
+                  <p className="text-xs text-muted-foreground mb-1">{t("points")}</p>
                   <p className="text-2xl font-bold text-foreground">{bonusPoints}</p>
                 </div>
                 <div className="rounded-xl border border-border bg-card p-4">
-                  <p className="text-xs text-muted-foreground mb-1">{lang === "ru" ? "До следующего уровня" : "Līdz nākamajam"}</p>
+                  <p className="text-xs text-muted-foreground mb-1">{t("toNextLevel")}</p>
                   <p className="text-2xl font-bold text-foreground">{bonusMax - bonusPoints}</p>
                 </div>
               </div>
@@ -790,7 +790,7 @@ export default function AccountPage() {
               {/* Progress bar */}
               <div className="rounded-xl border border-border bg-card p-4">
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-muted-foreground">{lang === "ru" ? "Прогресс" : "Progress"}</span>
+                  <span className="text-muted-foreground">{t("progress")}</span>
                   <span className="font-medium text-foreground">{bonusProgress.toFixed(0)}%</span>
                 </div>
                 <div className="h-2 rounded-full bg-muted overflow-hidden">
@@ -800,7 +800,7 @@ export default function AccountPage() {
                   />
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  1 {lang === "ru" ? "балл" : "punkts"} = 0.01 €
+                  1 {t("pointUnit")} = 0.01 €
                 </p>
               </div>
             </div>
@@ -810,13 +810,13 @@ export default function AccountPage() {
           {activeSection === "addresses" && (
             <div className="space-y-4">
               <h2 className="text-xl font-bold text-foreground">
-                {lang === "ru" ? "Адреса доставки" : "Piegādes adreses"}
+                {t("deliveryAddresses")}
               </h2>
               
               <div className="rounded-xl border border-border bg-card p-8 text-center">
                 <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">
-                  {lang === "ru" ? "Адреса доставки будут отображаться здесь" : "Piegādes adreses tiks parādītas šeit"}
+                  {t("noAddressesText")}
                 </p>
               </div>
             </div>
@@ -826,17 +826,17 @@ export default function AccountPage() {
           {activeSection === "notifications" && (
             <div className="space-y-4">
               <h2 className="text-xl font-bold text-foreground">
-                {lang === "ru" ? "Уведомления" : "Paziņojumi"}
+                {t("notifications")}
               </h2>
 
               {/* Push Notifications Block */}
               <div className="rounded-xl border border-border bg-card p-4 flex items-start justify-between">
                 <div className="flex-1 pr-4">
                   <h3 className="font-semibold text-foreground">
-                    {lang === "ru" ? "Push-уведомления" : "Push-paziņojumi"}
+                    {t("pushNotifications")}
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {lang === "ru" ? "О заказах, скидках и наличии" : "Par pasūtījumiem, atlaidēm un pieejamību"}
+                    {t("notificationDesc")}
                   </p>
                 </div>
                 <button
@@ -857,10 +857,10 @@ export default function AccountPage() {
               <div className="rounded-xl border border-border bg-card p-4 flex items-start justify-between">
                 <div className="flex-1 pr-4">
                   <h3 className="font-semibold text-foreground">
-                    {lang === "ru" ? "Email-уведомления" : "E-pasta paziņojumi"}
+                    {t("emailNotifications")}
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {lang === "ru" ? "Акции, новости и предложения" : "Akcijas, jaunumi un piedāvājumi"}
+                    {t("offersAndNews")}
                   </p>
                 </div>
                 <button
@@ -881,10 +881,10 @@ export default function AccountPage() {
               <div className="rounded-xl border border-border bg-card p-4 flex items-start justify-between">
                 <div className="flex-1 pr-4">
                   <h3 className="font-semibold text-foreground">
-                    {lang === "ru" ? "Рекомендации" : "Ieteikumi"}
+                    {t("recommendations")}
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {lang === "ru" ? "На основе ваших покупок" : "Pamatojoties uz jūsu pirkumiem"}
+                    {t("basedOnPurchases")}
                   </p>
                 </div>
                 <button
@@ -905,10 +905,10 @@ export default function AccountPage() {
               <div className="rounded-xl border border-border bg-card p-4 flex items-start justify-between">
                 <div className="flex-1 pr-4">
                   <h3 className="font-semibold text-foreground">
-                    {lang === "ru" ? "Акции и скидки" : "Akcijas un atlaide"}
+                    {t("dealsAndDiscounts")}
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {lang === "ru" ? "О распродажах и спецпредложениях" : "Par izpārdošanu un īpašiem piedāvājumiem"}
+                    {t("salesAndSpecial")}
                   </p>
                 </div>
                 <button
@@ -928,26 +928,22 @@ export default function AccountPage() {
               {/* Bonus: Newsletter subscription card */}
               <div className="rounded-xl bg-gradient-to-br from-primary to-primary/90 p-4 text-white mt-6">
                 <h3 className="font-bold text-lg mb-1">
-                  {lang === "ru" ? "Получите скидку 10%" : "Iegūstiet 10% atlaidi"}
+                  {t("get10Off")}
                 </h3>
                 <p className="text-white/90 text-sm mb-3">
-                  {lang === "ru" ? "Подпишитесь на рассылку" : "Abonējiet mūsu biļetenu"}
+                  {t("subscribeNewsletter")}
                 </p>
                 <button
                   onClick={() => {
                     setNotifications({ ...notifications, subscribed: !notifications.subscribed })
                     showToast(
                       notifications.subscribed 
-                        ? (lang === "ru" ? "Отписаны от рассылки" : "Atrakstīts no biļetena")
-                        : (lang === "ru" ? "Вы подписаны!" : "Jūs esat abonējis!")
+                        ? t("unsubscribedFromNewsletter")
+                        : t("youAreSubscribed")
                     )
                   }}
-                  className="w-full bg-white text-primary font-medium py-2 rounded-lg transition-all hover:bg-white/90"
                 >
-                  {notifications.subscribed 
-                    ? (lang === "ru" ? "Вы подписаны" : "Jūs esat abonējis")
-                    : (lang === "ru" ? "Подписаться" : "Abonēt")
-                  }
+                  {notifications.subscribed ? t("subscribed") : t("subscribe")}
                 </button>
               </div>
             </div>
@@ -957,7 +953,7 @@ export default function AccountPage() {
           {activeSection === "profile" && recommendedProducts.length > 0 && (
             <div className="mt-8">
               <h3 className="text-lg font-bold text-foreground mb-4">
-                {lang === "ru" ? "Рекомендуем вам" : "Mēs iesakām"}
+                {t("weRecommend")}
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {recommendedProducts.slice(0, 4).map((product) => (
@@ -1026,7 +1022,7 @@ export default function AccountPage() {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-6 py-4 flex-shrink-0">
           <h2 className="text-lg font-bold text-foreground">
-            {lang === "ru" ? "Редактировать профиль" : "Rediģēt profilu"}
+            {t("editProfile")}
           </h2>
           <button
             onClick={() => {
@@ -1060,7 +1056,7 @@ export default function AccountPage() {
             </div>
             <div>
               <label className="text-xs font-semibold text-foreground mb-1 block">
-                {lang === "ru" ? "Фамилия" : "Uzvārds"} <span className="text-primary">*</span>
+                {t("lastName")} <span className="text-primary">*</span>
               </label>
               <input
                 type="text"
@@ -1069,7 +1065,7 @@ export default function AccountPage() {
                 value={formData.last_name || ""}
                 onChange={(e) => { setFormData({ ...formData, last_name: e.target.value }); setErrors({ ...errors, last_name: false }) }}
                 className={`w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.last_name ? "border-red-500" : "border-border"}`}
-                placeholder={lang === "ru" ? "Фамилия" : "Uzvārds"}
+                placeholder={t("lastName")}
               />
             </div>
           </div>
@@ -1077,7 +1073,7 @@ export default function AccountPage() {
           {/* Телефон */}
           <div>
             <label className="text-xs font-semibold text-foreground mb-1 block">
-              {lang === "ru" ? "Мобильный телефон" : "Mobilā tālruņa numurs"} <span className="text-primary">*</span>
+              {t("mobilePhone")} <span className="text-primary">*</span>
             </label>
             <div className="flex flex-col gap-1">
               <div className="flex">
@@ -1127,7 +1123,7 @@ export default function AccountPage() {
               </div>
               {errors.phone && (
                 <p className="text-xs text-red-500">
-                  {lang === "ru" ? "Введите корректный номер телефона" : "Ievadiet korektu tālruņa numuru"}
+                  {t("invalidPhoneNumber")}
                 </p>
               )}
             </div>
@@ -1136,7 +1132,7 @@ export default function AccountPage() {
           {/* Email — read only */}
           <div>
             <label className="text-xs font-semibold text-foreground mb-1 block">
-              {lang === "ru" ? "E-mail" : "E-pasta adrese"} <span className="text-primary">*</span>
+              {t("email")} <span className="text-primary">*</span>
             </label>
             <input
               type="email"
@@ -1187,7 +1183,7 @@ export default function AccountPage() {
               value={formData.address || ""}
               onChange={(e) => { setFormData({ ...formData, address: e.target.value }); setErrors({ ...errors, address: false }) }}
               className={`w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary ${errors.address ? "border-red-500" : "border-border"}`}
-              placeholder={lang === "ru" ? "Улица, номер дома" : "Iela, mājas numurs"}
+              placeholder={t("streetAddress")}
             />
           </div>
 
@@ -1231,7 +1227,7 @@ export default function AccountPage() {
               }}
               className="flex-1"
             >
-              {lang === "ru" ? "Отмена" : "Atcelt"}
+              {t("cancel")}
             </Button>
             <Button
               onClick={(e) => handleSaveProfile(e)}
@@ -1247,7 +1243,7 @@ export default function AccountPage() {
             onClick={() => setShowResetConfirm(true)}
             className="flex-1 text-red-500 hover:bg-red-50 hover:text-red-600"
           >
-            {lang === "ru" ? "Сбросить данные" : "Notīrēt datus"}
+            {t("resetData")}
           </Button>
         </div>
       </div>
@@ -1268,12 +1264,10 @@ export default function AccountPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-semibold mb-2">
-              {lang === "ru" ? "Очистить профиль?" : "Notīrēt profilu?"}
+              {t("clearProfile")}
             </h3>
             <p className="text-sm text-muted-foreground mb-6">
-              {lang === "ru" 
-                ? "Вы действительно хотите стереть данные профиля?" 
-                : "Vai esat pārliecināts, ka vēlaties dzēst profila datus?"}
+              {t("clearProfileConfirm")}
             </p>
             <div className="flex gap-3">
               <Button
@@ -1288,7 +1282,7 @@ export default function AccountPage() {
                 disabled={isResetting}
                 className="flex-1"
               >
-                {lang === "ru" ? "Отмена" : "Atcelt"}
+                {t("cancel")}
               </Button>
               <Button
                 type="button"
@@ -1301,7 +1295,7 @@ export default function AccountPage() {
                 className="flex-1 bg-red-500 hover:bg-red-600 text-white"
               >
                 {isResetting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                {lang === "ru" ? "Очистить" : "Notīrēt"}
+                {t("clear")}
               </Button>
             </div>
           </div>
