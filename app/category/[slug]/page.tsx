@@ -9,7 +9,6 @@ import { CartProvider, useCart } from "@/components/cart-context"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { BrandsShowcase } from "@/components/brands-showcase"
 import { Button } from "@/components/ui/button"
 import { 
   ChevronDown, ChevronRight, Filter, X, Star, 
@@ -505,23 +504,11 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
   )
 }
 
-function CategoryRouter({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params)
-
-  // The "brands" category is a dedicated, curated brands landing page rather
-  // than a plain product catalog.
-  if (slug === "brands") {
-    return <BrandsShowcase />
-  }
-
-  return <CategoryPageContent params={params} />
-}
-
 export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   return (
     <LangProvider>
       <CartProvider>
-        <CategoryRouter params={params} />
+        <CategoryPageContent params={params} />
       </CartProvider>
     </LangProvider>
   )
