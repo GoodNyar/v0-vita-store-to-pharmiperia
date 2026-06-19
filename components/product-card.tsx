@@ -2,18 +2,21 @@
 
 import { memo } from "react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { Star, Heart, ShoppingCart } from "lucide-react"
-import type { Product } from "@/lib/data"
+import { getBrandSlug, type Product } from "@/lib/data"
 import { useCart } from "@/components/cart-context"
 import { useLang, formatEur } from "@/lib/i18n"
 import { useFavorites } from "@/components/favorites-provider"
 
 function ProductCardComponent({ product }: { product: Product }) {
+  const router = useRouter()
   const { addToCart } = useCart()
   const { t } = useLang()
   const { isFavorited, toggleFavorite } = useFavorites()
 
   const productHref = `/products/${product.id}`
+  const brandHref = `/brand/${getBrandSlug(product.brand)}`
   const isFav = isFavorited(product.id)
 
   // Calculate discount percentage if there's an original price
@@ -74,10 +77,26 @@ function ProductCardComponent({ product }: { product: Product }) {
 
         {/* Text content */}
         <div className="flex flex-col px-3 pt-3 sm:px-4 sm:pt-4">
-          {/* Brand name */}
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-primary/70">
+          {/* Brand name — clickable, navigates to the brand page */}
+          <span
+            role="link"
+            tabIndex={0}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              router.push(brandHref)
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault()
+                e.stopPropagation()
+                router.push(brandHref)
+              }
+            }}
+            className="inline-block w-fit text-[10px] font-semibold uppercase tracking-widest text-primary/70 transition-colors hover:text-primary hover:underline"
+          >
             {product.brand}
-          </p>
+          </span>
 
           {/* Product name — bold, 2 lines max */}
           <p className="mt-1 line-clamp-2 text-sm font-bold leading-snug text-foreground sm:text-base">

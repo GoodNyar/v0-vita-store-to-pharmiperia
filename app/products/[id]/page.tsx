@@ -12,7 +12,7 @@ import { ProductCard } from "@/components/product-card"
 import { ProductReviews } from "@/components/product-reviews"
 import { CartProvider, useCart } from "@/components/cart-context"
 import { LangProvider, useLang, formatEur } from "@/lib/i18n"
-import { products, type Product } from "@/lib/data"
+import { products, getBrandSlug, type Product } from "@/lib/data"
 import { useState } from "react"
 import { useFavorites } from "@/components/favorites-provider"
 
@@ -110,7 +110,7 @@ function ProductPageContent({ product }: { product: Product }) {
             <div className="flex flex-col">
               {/* Brand */}
               <Link
-                href={`/brand/${product.brand.toLowerCase()}`}
+                href={`/brand/${getBrandSlug(product.brand)}`}
                 className="text-sm font-semibold text-primary hover:underline"
               >
                 {product.brand}

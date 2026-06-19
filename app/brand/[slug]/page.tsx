@@ -2,10 +2,12 @@
 
 import { use, useMemo, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { ChevronRight, Sparkles, Package } from "lucide-react"
 import {
   getProductsByBrandSlug,
   getBrandNameFromSlug,
+  getBrandLogo,
   type Product,
 } from "@/lib/data"
 import { useLang } from "@/lib/i18n"
@@ -22,6 +24,7 @@ export default function BrandPage({ params }: { params: Promise<{ slug: string }
   const [sortBy, setSortBy] = useState<SortOption>("popular")
 
   const displayBrand = getBrandNameFromSlug(slug)
+  const brandLogo = getBrandLogo(slug)
 
   const sortedProducts = useMemo(() => {
     const brandProducts: Product[] = getProductsByBrandSlug(slug)
@@ -67,11 +70,24 @@ export default function BrandPage({ params }: { params: Promise<{ slug: string }
       <main className="flex-1">
         {/* Brand hero header */}
         <section className="border-b border-border bg-gradient-to-b from-primary/5 to-transparent">
-          <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 py-10 text-center sm:flex-row sm:gap-6 sm:text-left">
-            {/* Monogram */}
-            <span className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-3xl bg-primary/10 text-3xl font-bold text-primary">
-              {displayBrand.charAt(0)}
-            </span>
+          <div className="mx-auto flex max-w-7xl flex-col items-center gap-5 px-4 py-12 text-center sm:flex-row sm:gap-8 sm:text-left">
+            {/* Logo card (or monogram fallback) */}
+            {brandLogo ? (
+              <div className="flex h-28 w-44 flex-shrink-0 items-center justify-center rounded-3xl border border-border/60 bg-white p-5 shadow-sm">
+                <Image
+                  src={brandLogo || "/placeholder.svg"}
+                  alt={displayBrand}
+                  width={200}
+                  height={90}
+                  priority
+                  className="max-h-[72px] w-auto max-w-full object-contain"
+                />
+              </div>
+            ) : (
+              <span className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-3xl bg-primary/10 text-3xl font-bold text-primary">
+                {displayBrand.charAt(0)}
+              </span>
+            )}
 
             <div className="flex-1">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-primary">

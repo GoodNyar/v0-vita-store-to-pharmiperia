@@ -414,16 +414,39 @@ export const getBrandNameFromSlug = (slug: string): string => {
     .join(" ")
 }
 
+// Brands that ship with a real transparent-PNG logo in /public/brands.
+const BRAND_LOGO_SLUGS = new Set([
+  "bioderma",
+  "vichy",
+  "biotherm",
+  "evian",
+  "clinique",
+  "nuxe",
+  "avene",
+  "uriage",
+  "caudalie",
+  "la-roche-posay",
+])
+
+/** Path to a brand's logo PNG, or null when we only have a name (fallback to monogram). */
+export const getBrandLogo = (slug: string): string | null =>
+  BRAND_LOGO_SLUGS.has(slug) ? `/brands/${slug}.png` : null
+
 export interface BrandInfo {
   name: string
   slug: string
   productCount: number
+  logo: string | null
 }
 
-/** Brand list in curated order, each with its product count. */
+/** Brand list in curated order, each with its product count and logo. */
 export const getBrandsWithCounts = (): BrandInfo[] =>
-  BRANDS_ORDERED.map((name) => ({
-    name,
-    slug: getBrandSlug(name),
-    productCount: getBrandProductCount(name),
-  }))
+  BRANDS_ORDERED.map((name) => {
+    const slug = getBrandSlug(name)
+    return {
+      name,
+      slug,
+      productCount: getBrandProductCount(name),
+      logo: getBrandLogo(slug),
+    }
+  })

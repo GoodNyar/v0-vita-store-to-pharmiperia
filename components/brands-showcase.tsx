@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { ChevronRight, ArrowRight, Sparkles } from "lucide-react"
 import { getBrandsWithCounts } from "@/lib/data"
 import { useLang } from "@/lib/i18n"
@@ -55,12 +56,24 @@ export function BrandsShowcase() {
               <Link
                 key={brand.slug}
                 href={`/brand/${brand.slug}`}
-                className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-border bg-card p-5 transition-all duration-300 hover:border-primary/40 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]"
+                className="group relative flex items-center gap-5 overflow-hidden rounded-2xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_12px_36px_rgba(0,0,0,0.10)]"
               >
-                {/* Monogram */}
-                <span className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-2xl font-bold text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
-                  {brand.name.charAt(0)}
-                </span>
+                {/* Logo (or monogram fallback) */}
+                <div className="flex h-20 w-24 flex-shrink-0 items-center justify-center rounded-2xl border border-border/60 bg-white p-3">
+                  {brand.logo ? (
+                    <Image
+                      src={brand.logo || "/placeholder.svg"}
+                      alt={brand.name}
+                      width={120}
+                      height={56}
+                      className="max-h-14 w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                    />
+                  ) : (
+                    <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-2xl font-bold text-primary">
+                      {brand.name.charAt(0)}
+                    </span>
+                  )}
+                </div>
 
                 {/* Info */}
                 <div className="min-w-0 flex-1">

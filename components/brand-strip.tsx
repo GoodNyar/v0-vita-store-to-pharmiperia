@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 import { getBrandsWithCounts } from "@/lib/data"
 import { useLang } from "@/lib/i18n"
@@ -34,12 +35,24 @@ export function BrandStrip() {
           <Link
             key={brand.slug}
             href={`/brand/${brand.slug}`}
-            className="group relative flex flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border border-border bg-card px-4 py-6 text-center transition-all duration-300 hover:border-primary/40 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]"
+            className="group relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-2xl border border-border bg-white px-4 py-6 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_12px_36px_rgba(0,0,0,0.10)]"
           >
-            {/* Monogram badge */}
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
-              {brand.name.charAt(0)}
-            </span>
+            {/* Logo (or monogram fallback) */}
+            <div className="flex h-12 w-full items-center justify-center">
+              {brand.logo ? (
+                <Image
+                  src={brand.logo || "/placeholder.svg"}
+                  alt={brand.name}
+                  width={140}
+                  height={48}
+                  className="max-h-12 w-auto max-w-[80%] object-contain opacity-90 transition-all duration-300 group-hover:scale-105 group-hover:opacity-100"
+                />
+              ) : (
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+                  {brand.name.charAt(0)}
+                </span>
+              )}
+            </div>
 
             {/* Brand name */}
             <span className="text-sm font-semibold leading-tight text-foreground">
