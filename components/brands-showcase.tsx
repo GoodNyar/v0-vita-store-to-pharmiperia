@@ -50,38 +50,41 @@ export function BrandsShowcase() {
         </section>
 
         {/* Brand cards */}
-        <section className="mx-auto max-w-7xl px-4 py-8 sm:py-10">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="mx-auto max-w-7xl px-4 py-10 sm:py-12">
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4 xl:grid-cols-5">
             {brands.map((brand) => (
               <Link
                 key={brand.slug}
                 href={`/brand/${brand.slug}`}
-                className="group relative flex items-center gap-5 overflow-hidden rounded-2xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_12px_36px_rgba(0,0,0,0.10)]"
+                aria-label={`${brand.name} — ${brand.productCount} ${t("productsLabel")}`}
+                className="group flex flex-col items-center justify-between gap-5 rounded-3xl border border-border/60 bg-white px-5 py-7 text-center shadow-[0_2px_12px_rgba(0,0,0,0.05)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:scale-[1.03] hover:border-primary/30 hover:shadow-[0_18px_44px_rgba(0,0,0,0.13)]"
               >
-                {/* Logo (or monogram fallback) */}
-                <div className="flex h-20 w-24 flex-shrink-0 items-center justify-center rounded-2xl border border-border/60 bg-white p-3">
+                {/* Large centered logo (or monogram fallback) */}
+                <div className="flex h-24 w-full items-center justify-center">
                   {brand.logo ? (
                     <Image
                       src={brand.logo || "/placeholder.svg"}
                       alt={brand.name}
-                      width={120}
-                      height={56}
-                      className="max-h-14 w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                      width={200}
+                      height={96}
+                      className="max-h-24 w-auto max-w-[85%] object-contain transition-transform duration-300 ease-out group-hover:scale-105"
                     />
                   ) : (
-                    <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-2xl font-bold text-primary">
+                    <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-2xl font-bold text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
                       {brand.name.charAt(0)}
                     </span>
                   )}
                 </div>
 
-                {/* Info */}
-                <div className="min-w-0 flex-1">
-                  <h2 className="truncate text-lg font-bold text-foreground">{brand.name}</h2>
-                  <p className="mt-0.5 text-sm text-muted-foreground">
+                {/* Brand name + product counter + CTA */}
+                <div className="flex flex-col items-center gap-1.5">
+                  <span className="text-base font-bold leading-tight text-foreground">
+                    {brand.name}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
                     {brand.productCount} {t("brandProductsCount")}
-                  </p>
-                  <span className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary">
+                  </span>
+                  <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-primary">
                     {t("viewBrandProducts")}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                   </span>

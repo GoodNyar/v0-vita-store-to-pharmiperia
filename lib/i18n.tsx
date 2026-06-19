@@ -441,7 +441,7 @@ export const translations = {
     helpFaq8Q: "Как связаться с поддержкой?",
     helpFaq8A: "Email: support@pharmiperia.lv · Телефон: +371 20 000 000 · Чат на сайте (зелёная кнопка справа внизу) · Время работы: Пн-Пт 9:00–18:00",
     // Partners page
-    partnersBadge: "Партнёрская програ��м���",
+    partnersBadge: "Партнёрская про��ра��м���",
     partnersHeroTitle: "Зарабатывайте с Pharmiperia",
     partnersHeroSubtitle: "Рекомендуйте аптечную косметику своей аудитории и получайте комиссию с каждой продажи. Подходит для блогеров, beauty-экспертов и всех, кто говорит о красоте и уходе за кожей.",
     partnersBenefit1Title: "До 12% комиссии",
@@ -499,7 +499,7 @@ export const translations = {
     terms3Title: "3. Цены и оплата",
     terms3Text: "Все цены указаны в евро (€) и включают НДС. Оплата производится банковской картой через защищённый процессор Stripe. Pharmiperia не хранит данные банковских карт. Принимаем Visa, Mastercard, Maestro и American Express.",
     terms4Title: "4. Доставка",
-    terms4Text: "Доставка осуществляется по всей территории Латвии через Omniva, DPD и Latvijas Pasts. Стандартный срок доставки �� 1-3 раб����ч��х дня. Бесплатная доставка при заказе от 40€. Подробнее на странице Доставка.",
+    terms4Text: "Доставка осуществляется по всей территории Латвии через Omniva, DPD и Latvijas Pasts. Стандартный срок доста��ки �� 1-3 раб����ч��х дня. Бесплатная доставка при заказе от 40€. Подробнее на странице Доставка.",
     terms5Title: "5. Возврат и обмен",
     terms5Text: "Вы можете вернуть товар надлежащего качества в течение 14 дней с момента получения. Товар должен быть в оригинальной упаковке, не вскрытый. Возврат средств осуществляется в течение 7 рабочих дней на карту, которой производилась оплата. Подробнее на странице Возврат.",
     terms6Title: "6. Гарантии",
@@ -815,7 +815,7 @@ export const translations = {
     newest: "Новинки",
     // Brands page & strip
     brandsPageTitle: "Все бренды",
-    brandsPageSubtitle: "Аутентичная французская дермо-косметика от ведущих аптечных брендов",
+    brandsPageSubtitle: "Аутентичная французская косметика от ведущих аптечных брендов",
     brandsCountLabel: "брендов",
     exploreBrandsTitle: "Наши бренды",
     exploreBrandsSubtitle: "Проверенные европейские марки в наличии",
@@ -1608,7 +1608,7 @@ export const translations = {
     brandLabel: "Zīmols",
     categoryLabel: "Kategorija",
     productsLabel: "produkti",
-    productsSoonAvailable: "Šī zīmola produkti dr��zumā būs pieejami",
+    productsSoonAvailable: "Šī zīmola produkti dr����zumā būs pieejami",
     // Specials and Popular pages
     specialsTitle: "Akcijas",
     popularTitle: "Populārie",
@@ -1640,7 +1640,7 @@ export const translations = {
     newest: "Jaunākais",
     // Brands page & strip
     brandsPageTitle: "Visi zīmoli",
-    brandsPageSubtitle: "Autentiska franču dermokosmētika no vadošajiem aptieku zīmoliem",
+    brandsPageSubtitle: "Autentiska franču kosmētika no vadošajiem aptieku zīmoliem",
     brandsCountLabel: "zīmoli",
     exploreBrandsTitle: "Mūsu zīmoli",
     exploreBrandsSubtitle: "Pārbaudīti Eiropas zīmoli noliktavā",
