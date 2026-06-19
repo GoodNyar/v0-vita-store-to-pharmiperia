@@ -60,7 +60,7 @@ export function CategoryCards() {
             <a
               key={cat.id}
               href="#"
-              className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-card px-2 py-3 transition-all hover:border-primary/30 hover:shadow-md"
+              className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-card px-2 py-3 shadow-[0_2px_12px_rgba(0,0,0,0.05)] transition-all duration-500 ease-out hover:-translate-y-0.5 hover:scale-[1.01] hover:border-primary/30 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)]"
             >
               <div
                 className={`flex h-9 w-9 items-center justify-center rounded-full ${color}`}
@@ -84,7 +84,7 @@ export function CategoryCards() {
             <a
               key={cat.id}
               href="#"
-              className="flex flex-col items-center gap-2 rounded-lg border border-border bg-card p-3 transition-all hover:border-primary/30 hover:shadow-md"
+              className="flex flex-col items-center gap-2 rounded-lg border border-border bg-card p-3 shadow-[0_2px_12px_rgba(0,0,0,0.05)] transition-all duration-500 ease-out hover:-translate-y-0.5 hover:scale-[1.01] hover:border-primary/30 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)]"
             >
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full ${color}`}
