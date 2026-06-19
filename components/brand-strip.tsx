@@ -30,39 +30,40 @@ export function BrandStrip() {
       </div>
 
       {/* Brand grid */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 sm:gap-6 lg:grid-cols-5">
         {brands.map((brand) => (
           <Link
             key={brand.slug}
             href={`/brand/${brand.slug}`}
-            className="group relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-2xl border border-border bg-white px-4 py-6 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_12px_36px_rgba(0,0,0,0.10)]"
+            aria-label={`${brand.name} — ${brand.productCount} ${t("productsLabel")}`}
+            className="group flex flex-col items-center justify-between gap-5 rounded-3xl border border-border/60 bg-white px-5 py-7 text-center shadow-[0_2px_12px_rgba(0,0,0,0.05)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:scale-[1.03] hover:border-primary/30 hover:shadow-[0_18px_44px_rgba(0,0,0,0.13)]"
           >
-            {/* Logo (or monogram fallback) */}
-            <div className="flex h-12 w-full items-center justify-center">
+            {/* Large centered logo (or monogram fallback) */}
+            <div className="flex h-20 w-full items-center justify-center">
               {brand.logo ? (
                 <Image
                   src={brand.logo || "/placeholder.svg"}
                   alt={brand.name}
-                  width={140}
-                  height={48}
-                  className="max-h-12 w-auto max-w-[80%] object-contain opacity-90 transition-all duration-300 group-hover:scale-105 group-hover:opacity-100"
+                  width={180}
+                  height={80}
+                  className="max-h-20 w-auto max-w-[85%] object-contain transition-transform duration-300 ease-out group-hover:scale-105"
                 />
               ) : (
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+                <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-2xl font-bold text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
                   {brand.name.charAt(0)}
                 </span>
               )}
             </div>
 
-            {/* Brand name */}
-            <span className="text-sm font-semibold leading-tight text-foreground">
-              {brand.name}
-            </span>
-
-            {/* Product counter */}
-            <span className="text-[11px] text-muted-foreground">
-              {brand.productCount} {t("productsLabel")}
-            </span>
+            {/* Brand name + product counter */}
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-base font-bold leading-tight text-foreground">
+                {brand.name}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {brand.productCount} {t("productsLabel")}
+              </span>
+            </div>
           </Link>
         ))}
       </div>
