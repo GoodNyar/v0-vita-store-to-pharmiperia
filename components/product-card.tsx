@@ -31,7 +31,7 @@ function ProductCardComponent({ product }: { product: Product }) {
       : 0
 
   return (
-    <div className="group relative flex flex-col cursor-pointer rounded-2xl bg-white ring-1 ring-border/60 shadow-[0_6px_20px_rgba(0,0,0,0.06)] transition-all duration-300 hover:ring-primary/30 hover:shadow-[0_8px_30px_rgba(0,0,0,0.10)] active:translate-y-0.5">
+    <div className="group relative flex flex-col cursor-pointer rounded-2xl bg-white ring-1 ring-border/60 shadow-[0_2px_12px_rgba(0,0,0,0.05)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:scale-[1.03] hover:ring-primary/30 hover:shadow-[0_18px_44px_rgba(0,0,0,0.13)] active:translate-y-0.5">
       {/* Favorite button */}
       <button
         onClick={(e) => {
