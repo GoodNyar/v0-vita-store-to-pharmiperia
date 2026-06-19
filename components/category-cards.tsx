@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { categories } from "@/lib/data"
 import { useLang, type TranslationKey } from "@/lib/i18n"
 import {
@@ -57,9 +58,9 @@ export function CategoryCards() {
           const Icon = iconMap[cat.icon]
           const color = colorMap[cat.id] ?? "bg-primary/10 text-primary"
           return (
-            <a
+            <Link
               key={cat.id}
-              href="#"
+              href={`/category/${cat.id}`}
               className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-card px-2 py-3 shadow-[0_2px_12px_rgba(0,0,0,0.05)] transition-all duration-500 ease-out hover:-translate-y-0.5 hover:scale-[1.01] hover:border-primary/30 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)]"
             >
               <div
@@ -70,7 +71,7 @@ export function CategoryCards() {
               <span className="line-clamp-2 text-center text-[11px] font-medium leading-tight text-card-foreground">
                 {t(cat.id as TranslationKey)}
               </span>
-            </a>
+            </Link>
           )
         })}
       </div>
@@ -81,9 +82,9 @@ export function CategoryCards() {
           const Icon = iconMap[cat.icon]
           const color = colorMap[cat.id] ?? "bg-primary/10 text-primary"
           return (
-            <a
+            <Link
               key={cat.id}
-              href="#"
+              href={`/category/${cat.id}`}
               className="flex flex-col items-center gap-2 rounded-lg border border-border bg-card p-3 shadow-[0_2px_12px_rgba(0,0,0,0.05)] transition-all duration-500 ease-out hover:-translate-y-0.5 hover:scale-[1.01] hover:border-primary/30 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)]"
             >
               <div
@@ -94,7 +95,7 @@ export function CategoryCards() {
               <span className="text-center text-xs font-medium text-card-foreground">
                 {t(cat.id as TranslationKey)}
               </span>
-            </a>
+            </Link>
           )
         })}
       </div>
