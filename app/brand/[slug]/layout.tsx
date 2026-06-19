@@ -1,13 +1,10 @@
 import type { Metadata } from 'next'
-import { BRANDS_ORDERED } from '@/lib/data'
+import { BRANDS_ORDERED, getBrandSlug, getBrandNameFromSlug } from '@/lib/data'
 
 const SITE_URL = 'https://pharmiperia.lv'
 
 function slugToName(slug: string): string {
-  return slug
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
+  return getBrandNameFromSlug(slug)
 }
 
 interface Props {
@@ -43,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export async function generateStaticParams() {
   return BRANDS_ORDERED.map((brand) => ({
-    slug: brand.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+    slug: getBrandSlug(brand),
   }))
 }
 

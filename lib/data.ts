@@ -377,3 +377,53 @@ export const promoBarItems: Record<
     { icon: "Sparkles", text: "Jaunumi no Bioderma, Vichy un Avène jau pieejami" },
   ],
 }
+
+// ---------------------------------------------------------------------------
+// Brand helpers — single source of truth for brand slugs so links (header,
+// brand strip, brands page) and brand-page filtering always agree, including
+// for accented names like "Avène" or hyphenated ones like "La Roche-Posay".
+// ---------------------------------------------------------------------------
+
+export const getBrandSlug = (brand: string): string =>
+  brand
+    .toLowerCase()
+    .replace(/[èéêë]/g, "e")
+    .replace(/[âäà]/g, "a")
+    .replace(/[ôöò]/g, "o")
+    .replace(/[ûüù]/g, "u")
+    .replace(/[ïî]/g, "i")
+    .replace(/[ç]/g, "c")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+
+/** Number of products that belong to a given brand name. */
+export const getBrandProductCount = (brand: string): number =>
+  products.filter((p) => p.brand === brand).length
+
+/** All products for a brand identified by its slug. */
+export const getProductsByBrandSlug = (slug: string): Product[] =>
+  products.filter((p) => getBrandSlug(p.brand) === slug)
+
+/** Resolve the canonical brand display name from a slug (falls back to title-case). */
+export const getBrandNameFromSlug = (slug: string): string => {
+  const match = BRANDS_ORDERED.find((b) => getBrandSlug(b) === slug)
+  if (match) return match
+  return slug
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ")
+}
+
+export interface BrandInfo {
+  name: string
+  slug: string
+  productCount: number
+}
+
+/** Brand list in curated order, each with its product count. */
+export const getBrandsWithCounts = (): BrandInfo[] =>
+  BRANDS_ORDERED.map((name) => ({
+    name,
+    slug: getBrandSlug(name),
+    productCount: getBrandProductCount(name),
+  }))

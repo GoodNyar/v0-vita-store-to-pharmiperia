@@ -4,6 +4,7 @@ import { lazy, Suspense } from "react"
 import { SiteHeader } from "@/components/site-header"
 import { HeroBanner } from "@/components/hero-banner"
 import { CategoryCards } from "@/components/category-cards"
+import { BrandStrip } from "@/components/brand-strip"
 import { ProductCard } from "@/components/product-card"
 import { ProductFilters } from "@/components/product-filters"
 import { CartDrawer } from "@/components/cart-drawer"
@@ -147,6 +148,9 @@ function HomeContent() {
               </div>
             </div>
           </section>
+
+          {/* Brand strip */}
+          <BrandStrip />
 
           {/* Lazy loaded components */}
           <Suspense fallback={<PromoSkeleton />}>
