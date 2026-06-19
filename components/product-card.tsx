@@ -6,18 +6,23 @@ import { useRouter } from "next/navigation"
 import { Star, Heart, ShoppingCart } from "lucide-react"
 import { getBrandSlug, type Product } from "@/lib/data"
 import { useCart } from "@/components/cart-context"
-import { useLang, formatEur } from "@/lib/i18n"
+import { useLang, formatEur, productDescriptions } from "@/lib/i18n"
 import { useFavorites } from "@/components/favorites-provider"
 
 function ProductCardComponent({ product }: { product: Product }) {
   const router = useRouter()
   const { addToCart } = useCart()
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const { isFavorited, toggleFavorite } = useFavorites()
 
   const productHref = `/products/${product.id}`
   const brandHref = `/brand/${getBrandSlug(product.brand)}`
   const isFav = isFavorited(product.id)
+
+  // Get localized description — fall back to product.description if not found
+  const productDesc =
+    productDescriptions[product.id as keyof typeof productDescriptions]?.[lang as "lv" | "ru"] ||
+    product.description
 
   // Calculate discount percentage if there's an original price
   const discountPercent =
@@ -105,7 +110,7 @@ function ProductCardComponent({ product }: { product: Product }) {
 
           {/* Short description — 1 line */}
           <p className="mt-1.5 line-clamp-1 text-xs leading-relaxed text-muted-foreground">
-            {product.description}
+            {productDesc}
           </p>
 
           {/* Star rating */}

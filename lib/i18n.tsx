@@ -499,7 +499,7 @@ export const translations = {
     terms3Title: "3. Цены и оплата",
     terms3Text: "Все цены указаны в евро (€) и включают НДС. Оплата производится банковской картой через защищённый процессор Stripe. Pharmiperia не хранит данные банковских карт. Принимаем Visa, Mastercard, Maestro и American Express.",
     terms4Title: "4. Доставка",
-    terms4Text: "Доставка осуществляется по всей территории Латвии через Omniva, DPD и Latvijas Pasts. Стандартный срок доставки — 1-3 раб����ч��х дня. Бесплатная доставка при заказе от 40€. Подробнее на странице Доставка.",
+    terms4Text: "Доставка осуществляется по всей территории Латвии через Omniva, DPD и Latvijas Pasts. Стандартный срок доставки �� 1-3 раб����ч��х дня. Бесплатная доставка при заказе от 40€. Подробнее на странице Доставка.",
     terms5Title: "5. Возврат и обмен",
     terms5Text: "Вы можете вернуть товар надлежащего качества в течение 14 дней с момента получения. Товар должен быть в оригинальной упаковке, не вскрытый. Возврат средств осуществляется в течение 7 рабочих дней на карту, которой производилась оплата. Подробнее на странице Возврат.",
     terms6Title: "6. Гарантии",
@@ -519,7 +519,7 @@ export const translations = {
     dataSec3Title: "Что мы собираем",
     dataSec3Text: "Только необходимое: имя, email, адрес доставки и история заказов. Мы не собираем биометрические данные, геолокацию или данные о поведении на других сайтах.",
     dataSec4Title: "Ваши права (GDPR)",
-    dataSec4Text: "Вы можете в любой момент запросить удаление аккаунта и всех данных, получить копию своих данных, исправить неточные данные или отозвать согласие на обработку. Пишите: support@pharmiperia.lv",
+    dataSec4Text: "Вы можете в любой момент запросить удаление аккаунта и всех данных, получить копию своих данных, исправить неточные данные или отозвать со��ласие на обработку. Пишите: support@pharmiperia.lv",
     // Track page
     trackTitle: "Отследить заказ",
     trackSubtitle: "Введите номер заказа или трек-номер из письма",
@@ -912,7 +912,7 @@ export const translations = {
     discount: "Atlaide",
     // Page
     shopByCategory: "Kategorijas",
-    trendingProducts: "Populār��kie produkti",
+    trendingProducts: "Populārie produkti",
     bestSellersSection: "Populārais",
     loadMore: "Ielādēt vairāk",
     viewAllPopular: "Skatīt visus populāros produktus",
@@ -1608,7 +1608,7 @@ export const translations = {
     brandLabel: "Zīmols",
     categoryLabel: "Kategorija",
     productsLabel: "produkti",
-    productsSoonAvailable: "Šī zīmola produkti drīzumā būs pieejami",
+    productsSoonAvailable: "Šī zīmola produkti dr��zumā būs pieejami",
     // Specials and Popular pages
     specialsTitle: "Akcijas",
     popularTitle: "Populārie",
@@ -1653,6 +1653,59 @@ export const translations = {
     productsMany: "produktu",
     backToBrands: "Visi zīmoli",
     brandsHeroBadge: "Oficiālais izplatītājs",
+  },
+} as const
+
+// Product descriptions by ID — LV is primary, RU is fallback
+export const productDescriptions = {
+  // Key = product ID as string, Value = { lv: "...", ru: "..." }
+  "1": {
+    lv: "Attīroša micellu ūdens jūtīgai ādai",
+    ru: "Очищающая мицеллярная вода для чувствительной кожи",
+  },
+  "2": {
+    lv: "Nomierinošs tūlīšus ar termālo ūdeni",
+    ru: "Успокаивающий спрей с термальной водой",
+  },
+  "3": {
+    lv: "Mitrinošs serums ar hialuronu skābi",
+    ru: "Увлажняющая сыворотка с гиалуроновой кислотой",
+  },
+  "4": {
+    lv: "Aktīvs serums pret ādas novecošanu",
+    ru: "Активная сыворотка против старения кожи",
+  },
+  "5": {
+    lv: "Mitrinošs krēms uz 100 stundam",
+    ru: "Увлажняющий крем на 100 часов",
+  },
+  "6": {
+    lv: "Universāls sausais eļļas sejas un ķermenim",
+    ru: "Универсальное сухое масло для лица и тела",
+  },
+  "7": {
+    lv: "Barīgs lūpu balzams ar medu",
+    ru: "Питательный бальзам для губ с медом",
+  },
+  "8": {
+    lv: "Saules aizsardzības šķidrums sejai SPF 50+",
+    ru: "Солнцезащитный флюид для лица SPF 50+",
+  },
+  "9": {
+    lv: "Nomierinošs viegls krēms jūtīgai ādai",
+    ru: "Успокаивающий легкий крем для чувствительной кожи",
+  },
+  "10": {
+    lv: "Nomierinošs tūlīšus ar Eviānas termālo ūdeni",
+    ru: "Успокаивающий спрей с термальной водой Эвиана",
+  },
+  "11": {
+    lv: "Barojošs esence ar jūras planktoniem",
+    ru: "Питающая эссенция с морским планктоном",
+  },
+  "12": {
+    lv: "Maigs tīrīšanas gels ar termālo ūdeni",
+    ru: "Мягкий гель для очищения с термальной водой",
   },
 } as const
 
