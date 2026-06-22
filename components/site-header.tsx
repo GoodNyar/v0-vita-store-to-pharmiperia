@@ -52,6 +52,7 @@ export function SiteHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [expandedBrandsSection, setExpandedBrandsSection] = useState(false)
   const [promoVisible, setPromoVisible] = useState(true)
   const [promoIndex, setPromoIndex] = useState(0)
   const promoItems = promoBarItems[lang]
@@ -256,9 +257,20 @@ export function SiteHeader() {
                   <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                 </Link>
 
-                {activeDropdown === category.id && category.subcategories && category.subcategories.length > 0 && (
+                {activeDropdown === category.id && (
                   <div className="absolute left-0 top-full z-50 min-w-[200px] rounded-lg border border-border bg-card py-2 shadow-lg">
-                    {category.subcategories.map((sub) => (
+                    {category.id === "brands" ? (
+                      BRANDS_ORDERED.map((brand) => (
+                        <Link
+                          key={brand}
+                          href={`/brand/${getBrandSlug(brand)}`}
+                          className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
+                        >
+                          {brand}
+                        </Link>
+                      ))
+                    ) : (
+                      category.subcategories.map((sub) => (
                         <Link
                           key={sub}
                           href={`/category/${category.id}?filter=${sub}`}
@@ -266,7 +278,8 @@ export function SiteHeader() {
                         >
                           {t(sub as TranslationKey)}
                         </Link>
-                      ))}
+                      ))
+                    )}
                   </div>
                 )}
               </li>
@@ -429,16 +442,49 @@ export function SiteHeader() {
       <div className="overflow-y-auto p-4" style={{ maxHeight: "calc(100vh - 220px)" }}>
         <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{t("categories") || "Categories"}</p>
         <div className="flex flex-col">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={`/category/${category.id}`}
-              className="border-b border-border/50 py-3 text-sm font-medium text-foreground transition-colors hover:text-primary"
-              onClick={() => setSidebarOpen(false)}
-            >
-              {getCategoryName(category.id)}
-            </Link>
-          ))}
+          {categories.map((category) => {
+            if (category.id === "brands") {
+              return (
+                <div key={category.id} className="border-b border-border/50">
+                  {/* Brands section header — expandable */}
+                  <button
+                    onClick={() => setExpandedBrandsSection(!expandedBrandsSection)}
+                    className="w-full py-3 text-sm font-medium text-foreground transition-colors hover:text-primary flex items-center justify-between"
+                  >
+                    {getCategoryName(category.id)}
+                    <ChevronDown 
+                      className={`h-4 w-4 transition-transform ${expandedBrandsSection ? "rotate-180" : ""}`} 
+                    />
+                  </button>
+                  {/* Brands list — collapsible */}
+                  {expandedBrandsSection && (
+                    <div className="bg-secondary/30 py-2 px-2 rounded-lg mb-2">
+                      {BRANDS_ORDERED.map((brand) => (
+                        <Link
+                          key={brand}
+                          href={`/brand/${getBrandSlug(brand)}`}
+                          className="block py-2 pl-3 text-sm text-foreground/80 hover:text-primary transition-colors"
+                          onClick={() => setSidebarOpen(false)}
+                        >
+                          {brand}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            }
+            return (
+              <Link
+                key={category.id}
+                href={`/category/${category.id}`}
+                className="border-b border-border/50 py-3 text-sm font-medium text-foreground transition-colors hover:text-primary"
+                onClick={() => setSidebarOpen(false)}
+              >
+                {getCategoryName(category.id)}
+              </Link>
+            )
+          })}
           <Link 
             href="/specials" 
             className="border-b border-border/50 py-3 text-sm font-medium text-destructive"
