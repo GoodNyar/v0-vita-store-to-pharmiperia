@@ -11,6 +11,15 @@ export const BRANDS_ORDERED = [
   "La Roche-Posay",
 ]
 
+/** Active ingredient highlight shown in the product card education block.
+ *  Both fields store i18n translation keys (LV primary, RU fallback). */
+export interface ActiveIngredient {
+  /** i18n key for the ingredient title, e.g. "ingRetinolName" */
+  name: string
+  /** i18n key for the short benefit description, e.g. "ingRetinolDesc" */
+  shortDescription: string
+}
+
 export interface Product {
   id: number
   sku: string
@@ -26,6 +35,10 @@ export interface Product {
   category: string
   badge?: string
   inStock: boolean
+  /** i18n keys for skin-type + benefit pill badges */
+  tags?: string[]
+  /** highlighted active ingredient (i18n keys) */
+  activeIngredient?: ActiveIngredient
 }
 
 export interface Category {
@@ -142,6 +155,8 @@ export const products: Product[] = [
     rating: 4.9,
     reviewCount: 24560,
     image: "/images/products/bioderma-sensibio.jpg",
+    tags: ["tagSensitive", "tagCleansing"],
+    activeIngredient: { name: "ingMicellesName", shortDescription: "ingMicellesDesc" },
     category: "skincare",
     badge: "bestSeller",
     inStock: true,
@@ -157,6 +172,8 @@ export const products: Product[] = [
     rating: 4.8,
     reviewCount: 18340,
     image: "/images/products/avene-thermal.jpg",
+    tags: ["tagSensitive", "tagSoothing"],
+    activeIngredient: { name: "ingThermalName", shortDescription: "ingThermalDesc" },
     category: "skincare",
     badge: "popular",
     inStock: true,
@@ -173,6 +190,8 @@ export const products: Product[] = [
     rating: 4.8,
     reviewCount: 15890,
     image: "/images/products/vichy-mineral89.jpg",
+    tags: ["tagAllSkin", "tagHydration"],
+    activeIngredient: { name: "ingHyaluronicName", shortDescription: "ingHyaluronicDesc" },
     category: "skincare",
     badge: "topRated",
     inStock: true,
@@ -189,6 +208,8 @@ export const products: Product[] = [
     rating: 4.7,
     reviewCount: 9210,
     image: "/images/products/biotherm-serum.jpg",
+    tags: ["tagNormalDry", "tagAntiAge"],
+    activeIngredient: { name: "ingRetinolName", shortDescription: "ingRetinolDesc" },
     category: "skincare",
     badge: "discount",
     inStock: true,
@@ -204,6 +225,8 @@ export const products: Product[] = [
     rating: 4.6,
     reviewCount: 11450,
     image: "/images/products/clinique-moisture.jpg",
+    tags: ["tagAllSkin", "tagHydration"],
+    activeIngredient: { name: "ingHyaluronicName", shortDescription: "ingHyaluronicDesc" },
     category: "skincare",
     inStock: true,
   },
@@ -219,6 +242,8 @@ export const products: Product[] = [
     rating: 4.9,
     reviewCount: 20130,
     image: "/images/products/nuxe-huile.jpg",
+    tags: ["tagAllSkin", "tagNourishing"],
+    activeIngredient: { name: "ingArganName", shortDescription: "ingArganDesc" },
     category: "bodycare",
     badge: "bestSeller",
     inStock: true,
@@ -234,6 +259,8 @@ export const products: Product[] = [
     rating: 4.8,
     reviewCount: 31200,
     image: "/images/products/nuxe-lip-balm.jpg",
+    tags: ["tagDrySensitive", "tagNourishing"],
+    activeIngredient: { name: "ingHoneyName", shortDescription: "ingHoneyDesc" },
     category: "makeup",
     badge: "popular",
     inStock: true,
@@ -249,6 +276,8 @@ export const products: Product[] = [
     rating: 4.7,
     reviewCount: 8760,
     image: "/images/products/vichy-sunscreen.jpg",
+    tags: ["tagAllSkin", "tagProtection"],
+    activeIngredient: { name: "ingMineralFilterName", shortDescription: "ingMineralFilterDesc" },
     category: "sunprotection",
     inStock: true,
   },
@@ -264,6 +293,8 @@ export const products: Product[] = [
     rating: 4.7,
     reviewCount: 7430,
     image: "/images/products/bioderma-sensibio-cream.jpg",
+    tags: ["tagSensitive", "tagSoothing"],
+    activeIngredient: { name: "ingGlycerinName", shortDescription: "ingGlycerinDesc" },
     category: "skincare",
     badge: "discount",
     inStock: true,
@@ -279,6 +310,8 @@ export const products: Product[] = [
     rating: 4.5,
     reviewCount: 14200,
     image: "/images/products/evian-spray.jpg",
+    tags: ["tagAllSkin", "tagSoothing"],
+    activeIngredient: { name: "ingThermalName", shortDescription: "ingThermalDesc" },
     category: "skincare",
     inStock: true,
   },
@@ -294,6 +327,8 @@ export const products: Product[] = [
     rating: 4.8,
     reviewCount: 6540,
     image: "/images/products/biotherm-essence.jpg",
+    tags: ["tagAllSkin", "tagAntiAge"],
+    activeIngredient: { name: "ingPlanktonName", shortDescription: "ingPlanktonDesc" },
     category: "skincare",
     badge: "discount",
     inStock: true,
@@ -309,6 +344,8 @@ export const products: Product[] = [
     rating: 4.6,
     reviewCount: 9870,
     image: "/images/products/avene-cleansing.jpg",
+    tags: ["tagSensitive", "tagCleansing"],
+    activeIngredient: { name: "ingThermalName", shortDescription: "ingThermalDesc" },
     category: "skincare",
     inStock: true,
   },
@@ -321,6 +358,8 @@ export const products: Product[] = [
     rating: 4.6,
     reviewCount: 12300,
     image: "/images/products/vichy-shampoo.jpg",
+    tags: ["tagAllSkin", "tagAntiDandruff"],
+    activeIngredient: { name: "ingZincName", shortDescription: "ingZincDesc" },
     category: "haircare",
     badge: "discount",
     inStock: true,
@@ -333,6 +372,8 @@ export const products: Product[] = [
     rating: 4.5,
     reviewCount: 5670,
     image: "/images/products/biotherm-aquasource.jpg",
+    tags: ["tagNormalDry", "tagHydration"],
+    activeIngredient: { name: "ingGlycerinName", shortDescription: "ingGlycerinDesc" },
     category: "skincare",
     inStock: true,
   },
@@ -345,6 +386,8 @@ export const products: Product[] = [
     rating: 4.8,
     reviewCount: 10890,
     image: "/images/products/bioderma-atoderm.jpg",
+    tags: ["tagDrySensitive", "tagNourishing"],
+    activeIngredient: { name: "ingSheaName", shortDescription: "ingSheaDesc" },
     category: "bodycare",
     badge: "popular",
     inStock: true,
@@ -357,6 +400,8 @@ export const products: Product[] = [
     rating: 4.7,
     reviewCount: 17650,
     image: "/images/products/clinique-ddml.jpg",
+    tags: ["tagNormalDry", "tagHydration"],
+    activeIngredient: { name: "ingNiacinamideName", shortDescription: "ingNiacinamideDesc" },
     category: "skincare",
     inStock: true,
   },
