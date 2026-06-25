@@ -3,7 +3,18 @@
 import { memo } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { Star, Heart, ShoppingCart } from "lucide-react"
+import {
+  Star,
+  Heart,
+  ShoppingBag,
+  Eye,
+  Truck,
+  Leaf,
+  ChevronRight,
+  ShieldCheck,
+  Gift,
+  CreditCard,
+} from "lucide-react"
 import { getBrandSlug, type Product } from "@/lib/data"
 import { useCart } from "@/components/cart-context"
 import { useLang, formatEur, productDescriptions } from "@/lib/i18n"
@@ -19,141 +30,213 @@ function ProductCardComponent({ product }: { product: Product }) {
   const brandHref = `/brand/${getBrandSlug(product.brand)}`
   const isFav = isFavorited(product.id)
 
-  // Get localized description — fall back to product.description if not found
+  // Localized subtitle — fall back to the product's raw description
   const productDesc =
     productDescriptions[product.id as keyof typeof productDescriptions]?.[lang as "lv" | "ru"] ||
     product.description
 
-  // Calculate discount percentage if there's an original price
-  const discountPercent =
-    product.originalPrice && product.originalPrice > product.price
-      ? Math.round((1 - product.price / product.originalPrice) * 100)
-      : 0
+  // Pricing / savings
+  const hasDiscount = !!product.originalPrice && product.originalPrice > product.price
+  const discountPercent = hasDiscount
+    ? Math.round((1 - product.price / (product.originalPrice as number)) * 100)
+    : 0
+  const savings = hasDiscount ? (product.originalPrice as number) - product.price : 0
+
+  // Tags (cap to 2 visible pills + overflow indicator)
+  const tags = product.tags ?? []
+  const visibleTags = tags.slice(0, 2)
+  const extraTags = tags.length - visibleTags.length
 
   return (
-    <div className="group relative flex flex-col cursor-pointer rounded-2xl bg-white ring-1 ring-border/60 shadow-[0_2px_12px_rgba(0,0,0,0.05)] transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.015] hover:ring-primary/30 hover:shadow-[0_18px_44px_rgba(0,0,0,0.13)] active:translate-y-0.5">
-      {/* Favorite button */}
-      <button
-        onClick={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          toggleFavorite(product.id)
-        }}
-        className="absolute right-2 top-2 z-10 rounded-full bg-white/90 p-2 shadow-md transition-all hover:bg-white hover:scale-110"
-        aria-label="Add to favorites"
-      >
-        <Heart
-          className={`h-5 w-5 transition-colors ${
-            isFav ? "fill-red-500 text-red-500" : "text-gray-400"
-          }`}
-        />
-      </button>
-
-      {/* Clickable area — image + info (excludes the cart button row) */}
-      <a href={productHref} className="flex flex-col" tabIndex={0}>
-        {/* Image area */}
-        <div className="relative overflow-hidden rounded-t-2xl bg-[#f2f3f5]">
-          {/* Badge overlay — top left */}
-          {product.badge && (
-            <span className="absolute left-2 top-2 z-10 rounded-full bg-primary px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground shadow-sm">
-              {t(product.badge as never)}
-            </span>
-          )}
-
-          <div className="relative w-full" style={{ paddingBottom: "90%" }}>
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              className="object-contain object-center p-4 transition-transform duration-500 group-hover:scale-105"
-              loading="lazy"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            />
-          </div>
-
-          {/* Discount pill — bottom left */}
-          {discountPercent > 0 && (
-            <span className="absolute bottom-2 left-2 z-10 rounded-full bg-red-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
-              {"−"}
-              {discountPercent}%
-            </span>
-          )}
-        </div>
-
-        {/* Text content */}
-        <div className="flex flex-col px-3 pt-3 sm:px-4 sm:pt-4">
-          {/* Brand name — clickable, navigates to the brand page */}
-          <span
-            role="link"
-            tabIndex={0}
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              router.push(brandHref)
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault()
-                e.stopPropagation()
-                router.push(brandHref)
-              }
-            }}
-            className="inline-block w-fit text-[10px] font-semibold uppercase tracking-widest text-primary/70 transition-colors hover:text-primary hover:underline"
-          >
-            {product.brand}
+    <div className="group relative flex flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-border/60 shadow-[0_2px_12px_rgba(0,0,0,0.05)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(0,0,0,0.13)]">
+      {/* 1. Image area */}
+      <a href={productHref} className="relative block bg-[#f4f5f6]" tabIndex={0} aria-label={product.name}>
+        {/* Discount badge — top left (soft, accurate) */}
+        {hasDiscount && (
+          <span className="absolute left-3 top-3 z-10 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
+            {"−"}
+            {discountPercent}%
           </span>
+        )}
 
-          {/* Product name — bold, 2 lines max */}
-          <p className="mt-1 line-clamp-2 text-sm font-bold leading-snug text-foreground sm:text-base">
-            {product.name}
-          </p>
+        {/* Wishlist heart — top right */}
+        <button
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            toggleFavorite(product.id)
+          }}
+          className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm transition-all hover:scale-110 hover:bg-white"
+          aria-label={t("myFavorites")}
+          aria-pressed={isFav}
+        >
+          <Heart
+            className={`h-[18px] w-[18px] transition-colors ${
+              isFav ? "fill-red-500 text-red-500" : "text-gray-400"
+            }`}
+          />
+        </button>
 
-          {/* Short description — 1 line */}
-          <p className="mt-1.5 line-clamp-1 text-xs leading-relaxed text-muted-foreground">
-            {productDesc}
-          </p>
-
-          {/* Star rating */}
-          <div className="mt-2 flex items-center gap-1.5">
-            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" strokeWidth={0} />
-            <span className="text-xs font-medium text-foreground">
-              {product.rating} · {product.reviewCount.toLocaleString("ru")}
-            </span>
-          </div>
-
-          {/* Divider */}
-          <div className="mt-2.5 border-t border-border" />
-
-          {/* SKU | Volume */}
-          <p className="py-2 text-xs text-muted-foreground">
-            #{product.sku}&nbsp;&nbsp;|&nbsp;&nbsp;{product.volume}
-          </p>
-
-          {/* Divider */}
-          <div className="border-t border-border" />
+        <div className="relative w-full" style={{ paddingBottom: "100%" }}>
+          <Image
+            src={product.image || "/placeholder.svg"}
+            alt={product.name}
+            fill
+            className="object-contain p-6 transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
         </div>
       </a>
 
-      {/* Price + Cart button — outside <a> to prevent nesting interactive elements */}
-      <div className="flex items-center justify-between gap-2 px-3 pb-3 pt-2.5 sm:px-4 sm:pb-4">
-        <div className="flex min-w-0 flex-col">
-          <span className="text-base font-bold text-foreground sm:text-lg">
-            {formatEur(product.price)}
+      {/* Info */}
+      <div className="flex flex-1 flex-col px-4 pb-4 pt-4">
+        {/* 2. Brand — small uppercase, navigates to brand page */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            router.push(brandHref)
+          }}
+          className="w-fit text-[11px] font-semibold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary"
+        >
+          {product.brand}
+        </button>
+
+        {/* 3. Product name — large bold title */}
+        <a
+          href={productHref}
+          className="mt-1 line-clamp-2 text-lg font-bold leading-snug text-foreground transition-colors hover:text-primary"
+        >
+          {product.name}
+        </a>
+
+        {/* 4. Short subtitle description — 1 line */}
+        {productDesc && (
+          <p className="mt-1.5 line-clamp-1 text-sm leading-relaxed text-muted-foreground">
+            {productDesc}
+          </p>
+        )}
+
+        {/* 5. Skin type + benefit tags */}
+        {visibleTags.length > 0 && (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {visibleTags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground"
+              >
+                {t(tag as never)}
+              </span>
+            ))}
+            {extraTags > 0 && (
+              <span className="rounded-full bg-secondary px-2 py-1 text-xs font-medium text-muted-foreground">
+                +{extraTags}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* 6. Rating + reviews + volume */}
+        <div className="mt-3 flex items-center gap-2.5 text-sm">
+          <span className="flex items-center gap-1">
+            <Star className="h-4 w-4 fill-amber-400 text-amber-400" strokeWidth={0} />
+            <span className="font-semibold text-foreground">{product.rating}</span>
           </span>
-          {product.originalPrice && (
-            <span className="text-xs text-muted-foreground line-through">
-              {formatEur(product.originalPrice)}
-            </span>
+          <span className="text-muted-foreground">
+            {"·"} {product.reviewCount.toLocaleString(lang === "lv" ? "lv" : "ru")} {t("reviewsShort")}
+          </span>
+          {product.volume && (
+            <>
+              <span className="h-3.5 w-px bg-border" aria-hidden="true" />
+              <span className="text-muted-foreground">{product.volume}</span>
+            </>
           )}
         </div>
 
-        <button
-          onClick={() => addToCart(product)}
-          className="flex flex-shrink-0 items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/80 sm:px-4"
-        >
-          <ShoppingCart className="h-4 w-4" />
-          {t("addToCart")}
-        </button>
+        {/* 7. Price + original + savings */}
+        <div className="mt-3 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+          <span className="text-2xl font-bold tracking-tight text-foreground">
+            {formatEur(product.price)}
+          </span>
+          {hasDiscount && (
+            <span className="text-sm text-muted-foreground line-through">
+              {formatEur(product.originalPrice as number)}
+            </span>
+          )}
+        </div>
+        {hasDiscount && (
+          <span className="mt-2 w-fit rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
+            {t("savings")} {formatEur(savings)}
+          </span>
+        )}
+
+        {/* 8. Free shipping trigger */}
+        <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+          <Truck className="h-4 w-4 flex-shrink-0 text-primary" />
+          <span>
+            <span className="font-medium text-foreground">{t("freeShipping")}</span> {t("freeShippingFrom")}
+          </span>
+        </div>
+
+        {/* 9. Active ingredient education block */}
+        {product.activeIngredient && (
+          <a
+            href={productHref}
+            className="mt-4 flex items-center gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary/40 hover:bg-secondary/40"
+          >
+            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Leaf className="h-[18px] w-[18px]" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold text-foreground">
+                {t(product.activeIngredient.name as never)}
+              </span>
+              <span className="mt-0.5 line-clamp-2 block text-xs leading-relaxed text-muted-foreground">
+                {t(product.activeIngredient.shortDescription as never)}
+              </span>
+            </span>
+            <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+          </a>
+        )}
+
+        {/* 10. Add to cart + quick view */}
+        <div className="mt-4 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => addToCart(product)}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/80"
+          >
+            <ShoppingBag className="h-[18px] w-[18px]" />
+            {t("addToCart")}
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push(productHref)}
+            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-border text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+            aria-label={t("quickView")}
+            title={t("quickView")}
+          >
+            <Eye className="h-[18px] w-[18px]" />
+          </button>
+        </div>
+
+        {/* 11. Trust badges */}
+        <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+          <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+            <span className="hidden sm:inline">{t("trustOriginalBrands")}</span>
+          </span>
+          <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <Gift className="h-3.5 w-3.5 text-primary" />
+            <span className="hidden sm:inline">{t("trustLoyaltyBonuses")}</span>
+          </span>
+          <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <CreditCard className="h-3.5 w-3.5 text-primary" />
+            <span className="hidden sm:inline">{t("trustSecurePayment")}</span>
+          </span>
+        </div>
       </div>
     </div>
   )
