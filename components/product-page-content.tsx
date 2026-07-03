@@ -94,6 +94,7 @@ export function ProductPageContent({
                     fill
                     className="object-contain p-8"
                     priority
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                   />
                 </div>
               </div>
@@ -112,6 +113,7 @@ export function ProductPageContent({
                       alt={`${product.name} view ${i}`}
                       fill
                       className="object-contain p-2"
+                      sizes="80px"
                     />
                   </button>
                 ))}
