@@ -79,5 +79,6 @@ export {
   mapDbProductToCommerce,
   pricesMatchLegacy,
 } from './products'
+export { searchProducts } from './search'
 export { brandSlug, productSlug, slugify } from './slugs'
 export { LEGACY_PRODUCT_ID_REDIRECTS } from './redirects'
