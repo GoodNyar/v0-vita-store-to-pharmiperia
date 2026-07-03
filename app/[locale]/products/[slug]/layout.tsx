@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
-import { getProductBySlug, getProductSlug, products } from '@/lib/data'
 import { localizedPath } from '@/lib/i18n/routes'
 import { isLocale, type Locale } from '@/lib/i18n/config'
-import { moneyToMajor } from '@/lib/money'
-
+import { getCatalogProductBySlug, getCatalogProducts } from '@/lib/commerce/catalog-source'
+import { buildProductBreadcrumbJsonLd, buildProductJsonLd } from '@/lib/commerce/json-ld'
+import { productSlug } from '@/lib/commerce/slugs'
 import { getSiteUrl } from '@/lib/site'
 
 const SITE_URL = getSiteUrl()
@@ -24,9 +24,15 @@ export async function generateMetadata({
   params: Promise<ProductRouteParams>
 }): Promise<Metadata> {
   const { locale, slug } = await params
-  const product = getProductBySlug(slug)
+  if (!isLocale(locale)) {
+    return {
+      title: 'Товар не найден',
+      description: 'Запрошенный товар не найден в каталоге Pharmiperia.',
+    }
+  }
 
-  if (!product || !isLocale(locale)) {
+  const product = await getCatalogProductBySlug(slug, locale)
+  if (!product) {
     return {
       title: 'Товар не найден',
       description: 'Запрошенный товар не найден в каталоге Pharmiperia.',
@@ -59,67 +65,19 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  return products.map((product) => ({ slug: getProductSlug(product) }))
+  const { products } = await getCatalogProducts('lv')
+  return products.map((product) => ({ slug: productSlug(product) }))
 }
 
 export default async function ProductLayout({ params, children }: Props) {
   const { locale, slug } = await params
-  const product = getProductBySlug(slug)
+  if (!isLocale(locale)) return <>{children}</>
 
-  if (!product || !isLocale(locale)) return <>{children}</>
+  const product = await getCatalogProductBySlug(slug, locale)
+  if (!product) return <>{children}</>
 
-  const imageUrl = product.image.startsWith('http') ? product.image : `${SITE_URL}${product.image}`
-  const url = `${SITE_URL}${localizedPath(locale as Locale, `/products/${slug}`)}`
-
-  const productJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.name,
-    description: product.description,
-    image: imageUrl,
-    sku: product.sku,
-    brand: {
-      '@type': 'Brand',
-      name: product.brand,
-    },
-    offers: {
-      '@type': 'Offer',
-      url,
-      priceCurrency: 'EUR',
-      price: moneyToMajor(product.price),
-      availability: product.inStock
-        ? 'https://schema.org/InStock'
-        : 'https://schema.org/OutOfStock',
-      seller: {
-        '@type': 'Organization',
-        name: 'Pharmiperia',
-      },
-    },
-    aggregateRating: product.reviewCount > 0
-      ? {
-          '@type': 'AggregateRating',
-          ratingValue: product.rating,
-          reviewCount: product.reviewCount,
-          bestRating: 5,
-          worstRating: 1,
-        }
-      : undefined,
-  }
-
-  const breadcrumbJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Pharmiperia', item: `${SITE_URL}/${locale}` },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: product.category,
-        item: `${SITE_URL}${localizedPath(locale as Locale, `/category/${product.category}`)}`,
-      },
-      { '@type': 'ListItem', position: 3, name: product.name, item: url },
-    ],
-  }
+  const productJsonLd = buildProductJsonLd(product, locale, slug)
+  const breadcrumbJsonLd = buildProductBreadcrumbJsonLd(product, locale, slug)
 
   return (
     <>
