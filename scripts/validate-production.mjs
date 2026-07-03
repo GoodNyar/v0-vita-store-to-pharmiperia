@@ -134,9 +134,19 @@ const requiredPaths = [
   ['checkout-error-boundary', 'app/[locale]/checkout/error.tsx'],
   ['supabase-baseline', 'supabase/migrations/20260703120000_baseline.sql'],
   ['supabase-seed', 'supabase/seed.sql'],
+  ['database-types', 'lib/database.types.ts'],
 ]
 
 for (const [id, path] of requiredPaths) mustExist(id, path)
+
+if (exists('lib/database.types.ts')) {
+  const dbTypes = read('lib/database.types.ts')
+  if (dbTypes.includes('export type Database') && dbTypes.trim().length > 100) {
+    pass('database-types-content', 'lib/database.types.ts contains generated Database type')
+  } else {
+    fail('database-types-content', 'lib/database.types.ts is empty or not generated — run pnpm db:types')
+  }
+}
 
 const adrDir = join(root, 'docs/adr')
 if (existsSync(adrDir)) {

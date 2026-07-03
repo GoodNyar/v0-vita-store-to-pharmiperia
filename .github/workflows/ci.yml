@@ -11,6 +11,52 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  db-types:
+    name: database types drift
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase (migrations only)
+        run: supabase start -x studio,imgproxy,logflare,vector,mailpit,inbucket,edge-runtime
+
+      - name: Reset database from migrations
+        run: supabase db reset --yes
+
+      - name: Regenerate database types
+        run: pnpm db:types
+
+      - name: Fail on schema drift
+        run: |
+          if git diff --exit-code lib/database.types.ts; then
+            echo "✓ lib/database.types.ts matches migrations"
+          else
+            echo "error: lib/database.types.ts is out of sync — run pnpm db:types locally and commit" >&2
+            exit 1
+          fi
+
   quality:
     name: typecheck · lint · build
     runs-on: ubuntu-latest

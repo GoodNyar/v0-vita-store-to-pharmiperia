@@ -1,6 +1,6 @@
 # Phase 2 — Progress Tracker
 
-> Статус: **не начата** — ждём сообщение «Начинай Phase 2»  
+> Статус: **в работе** — Wave A, PR-01 завершён  
 > Master plan: [phase-2-master-plan.md](phase-2-master-plan.md) v2.0 · Всего PR: **30**
 
 ---
@@ -9,10 +9,10 @@
 
 | Метрика | Значение |
 |---------|----------|
-| PR завершено | 0 / 30 |
+| PR завершено | 1 / 30 |
 | Milestones | 0 / 8 |
-| Прогресс | **0%** |
-| Текущий PR | — |
+| Прогресс | **3%** |
+| Текущий PR | 02 (ожидает подтверждения) |
 | Блокеры | — |
 
 ---
@@ -21,7 +21,7 @@
 
 | ID | Название | PR range | Статус | Дата |
 |----|----------|----------|--------|------|
-| M1 | Data contract | 01–02 | ☐ | |
+| M1 | Data contract | 01–02 | ◐ | PR-01 done |
 | M2 | Commerce pilot | 03–05 | ☐ | |
 | M3 | Catalog live | 07–11 | ☐ | |
 | M4 | CI green | 12–14 | ☐ | |
@@ -36,7 +36,7 @@
 
 | PR | Название | Wave | Риск | Статус | Коммит | Дата | Заметки |
 |----|----------|------|------|--------|--------|------|---------|
-| 01 | database.types + CI | A | Low | ☐ pending | | | |
+| 01 | database.types + CI | A | Low | ☑ done | (local) | 2026-07-03 | CI job `db-types` |
 | 02 | commerce scaffold | A | Low | ☐ pending | | | |
 | 03 | commerce favorites | A | Medium | ☐ pending | | | |
 | 04 | commerce orders read | A | Medium | ☐ pending | | | |
@@ -108,7 +108,7 @@ _Заполняется по мере выполнения PR._
 
 | PR | typecheck | build | validate | lint | e2e | Проверил |
 |----|-----------|-------|----------|------|-----|----------|
-| | | | | | | |
+| 01 | ✅ pass | ✅ pass | ✅ pass | — | — | agent |
 
 ---
 

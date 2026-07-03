@@ -14,6 +14,7 @@
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --local > lib/database.types.ts",
     "db:types:remote": "supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" > lib/database.types.ts",
+    "db:types:check": "bash scripts/check-db-types.sh",
     "db:seed:generate": "tsx supabase/generate-seed.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
