@@ -51,3 +51,10 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ci_placeholder
           SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ci_service_role_placeholder
+
+      - name: Production validation (Phase 1 gates)
+        run: pnpm run validate:production
+        env:
+          VALIDATE_RUN_BUILD: "false"
+          VALIDATE_RUN_TYPECHECK: "false"
+          NEXT_PUBLIC_SITE_URL: https://pharm.lv

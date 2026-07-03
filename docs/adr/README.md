@@ -19,5 +19,6 @@
 | [0013](0013-ai-protection-phase-1.md) | AI Protection: flags, guards, budget | принят | Phase 1 task 19 |
 | [0014](0014-monitoring-health-budget-alerts.md) | Monitoring: health, budget alerts, ops | принят | Phase 1 task 20 |
 | [0015](0015-playwright-e2e-checkout-smoke.md) | Playwright e2e: smoke checkout path | принят | Phase 1 task 21 |
+| [0016](0016-phase-1-production-validation.md) | Phase 1 production validation gates | принят | Phase 1 task 22 |
 
 Blueprint: [`docs/reports/06-refactoring-blueprint.md`](../reports/06-refactoring-blueprint.md).
