@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { Sparkles, ChevronRight, X, Loader2 } from "lucide-react"
-import { useLang, formatEur } from "@/lib/i18n"
+import { useLang, formatMoney } from "@/lib/i18n"
+import type { Money } from "@/lib/money"
 import { useCart } from "@/components/cart-context"
 import { normalizeProductId } from "@/lib/data"
 import Image from "next/image"
@@ -15,7 +16,7 @@ interface Recommendation {
     id: string
     name: string
     description: string
-    price: number
+    price: Money
     rating: number
     image_url?: string
     brand?: { name: string }
@@ -224,7 +225,7 @@ export function AIRecommendations() {
                       <p className="text-xs text-muted-foreground">{rec.product.brand?.name}</p>
                       <h4 className="font-semibold text-foreground">{rec.product.name}</h4>
                       <div className="mt-1 flex items-center gap-2">
-                        <span className="text-sm font-bold text-primary">{formatEur(rec.product.price)}</span>
+                        <span className="text-sm font-bold text-primary">{formatMoney(rec.product.price)}</span>
                         <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
                           {rec.matchScore}% совпадение
                         </span>

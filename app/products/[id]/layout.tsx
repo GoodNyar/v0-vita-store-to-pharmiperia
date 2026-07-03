@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { products } from '@/lib/data'
+import { moneyToMajor } from '@/lib/money'
 
 const SITE_URL = 'https://pharmiperia.lv'
 
@@ -72,7 +73,7 @@ export default async function ProductLayout({ params, children }: Props) {
       '@type': 'Offer',
       url,
       priceCurrency: 'EUR',
-      price: product.price,
+      price: moneyToMajor(product.price),
       availability: product.inStock
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',

@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
-import { LangProvider, useLang, formatEur } from "@/lib/i18n"
+import { LangProvider, useLang, formatMoney } from "@/lib/i18n"
+import { discountPercent, moneyFromDb, type Money } from "@/lib/money"
 import { CartProvider, useCart } from "@/components/cart-context"
 import { normalizeProductId } from "@/lib/data"
 import { SiteHeader } from "@/components/site-header"
@@ -14,19 +15,45 @@ import { CartDrawer } from "@/components/cart-drawer"
 import { Button } from "@/components/ui/button"
 import { Search, Star, Loader2, ChevronRight, X } from "lucide-react"
 
+interface DbProduct {
+  id: string
+  sku: string
+  name: string
+  description: string
+  volume: string
+  price_cents: number
+  original_price_cents: number | null
+  currency: string
+  rating: number
+  review_count: number
+  image_url: string
+  brand: { name: string; slug: string }
+  category: { name: string; slug: string }
+}
+
 interface Product {
   id: string
   sku: string
   name: string
   description: string
   volume: string
-  price: number
-  original_price: number | null
+  price: Money
+  original_price: Money | null
   rating: number
   review_count: number
   image_url: string
   brand: { name: string; slug: string }
   category: { name: string; slug: string }
+}
+
+function mapDbProduct(row: DbProduct): Product {
+  return {
+    ...row,
+    price: moneyFromDb(row.price_cents, row.currency as Money["currency"]),
+    original_price: row.original_price_cents
+      ? moneyFromDb(row.original_price_cents, row.currency as Money["currency"])
+      : null,
+  }
 }
 
 function SearchContent() {
@@ -62,7 +89,9 @@ function SearchContent() {
         .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
         .limit(50)
 
-      setProducts((data as unknown as Product[]) || [])
+      setProducts(
+        ((data as unknown as DbProduct[]) || []).map(mapDbProduct)
+      )
       setLoading(false)
     }
 
@@ -172,7 +201,7 @@ function SearchContent() {
                         />
                         {product.original_price && (
                           <span className="absolute left-2 top-2 rounded-full bg-destructive px-2 py-0.5 text-xs font-bold text-destructive-foreground">
-                            -{Math.round((1 - product.price / product.original_price) * 100)}%
+                            -{discountPercent(product.price, product.original_price)}%
                           </span>
                         )}
                       </div>
@@ -201,11 +230,11 @@ function SearchContent() {
                       <div className="mt-3 flex items-center justify-between">
                         <div>
                           <span className="text-lg font-bold text-primary">
-                            {formatEur(product.price)}
+                            {formatMoney(product.price)}
                           </span>
                           {product.original_price && (
                             <span className="ml-2 text-sm text-muted-foreground line-through">
-                              {formatEur(product.original_price)}
+                              {formatMoney(product.original_price)}
                             </span>
                           )}
                         </div>

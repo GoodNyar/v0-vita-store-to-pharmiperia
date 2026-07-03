@@ -5,7 +5,8 @@ import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useCart, CartProvider } from "@/components/cart-context"
-import { useLang, formatEur, LangProvider } from "@/lib/i18n"
+import { useLang, formatMoney, LangProvider } from "@/lib/i18n"
+import { addMoney, eur, multiplyMoney } from "@/lib/money"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, MapPin, Truck, AlertCircle, CreditCard, CheckCircle } from "lucide-react"
 import { StripeCheckout } from "@/components/stripe-checkout"
@@ -22,17 +23,17 @@ const LATVIAN_STATIONS = [
 ]
 
 const SHIPPING_OPTIONS = [
-  { id: "omniva", name: "omnivaParcel", price: 3.50, days: "1-2" },
-  { id: "dpd", name: "dpdPickup", price: 3.20, days: "1-2" },
-  { id: "venipak", name: "venipakParcel", price: 2.95, days: "2-3" },
-  { id: "smartpost", name: "smartpostItella", price: 2.99, days: "2-3" },
-  { id: "courier", name: "courierDelivery", price: 5.99, days: "1-2" },
+  { id: "omniva", name: "omnivaParcel", price: eur(350), days: "1-2" },
+  { id: "dpd", name: "dpdPickup", price: eur(320), days: "1-2" },
+  { id: "venipak", name: "venipakParcel", price: eur(295), days: "2-3" },
+  { id: "smartpost", name: "smartpostItella", price: eur(299), days: "2-3" },
+  { id: "courier", name: "courierDelivery", price: eur(599), days: "1-2" },
 ]
 
 type CheckoutStep = "details" | "payment" | "complete"
 
 function CheckoutContent() {
-  const { items, totalPrice, clearCart } = useCart()
+  const { items, totalMoney, clearCart } = useCart()
   const { t } = useLang()
   const router = useRouter()
 
@@ -55,8 +56,8 @@ function CheckoutContent() {
   } | null>(null)
 
   const shippingOption = SHIPPING_OPTIONS.find((opt) => opt.id === selectedShipping)
-  const shippingCost = shippingOption?.price || 3.5
-  const finalTotal = totalPrice + shippingCost
+  const shippingCost = shippingOption?.price ?? eur(350)
+  const finalTotal = addMoney(totalMoney, shippingCost)
   const isCourier = selectedShipping === "courier"
 
   const handleInputChange = (
@@ -313,7 +314,7 @@ function CheckoutContent() {
                           </p>
                           <p className="text-sm text-muted-foreground">Piegāde {option.days} darba dienas</p>
                         </div>
-                        <span className="font-semibold text-primary">{formatEur(option.price)}</span>
+                        <span className="font-semibold text-primary">{formatMoney(option.price)}</span>
                       </label>
                     ))}
                   </div>
@@ -434,11 +435,11 @@ function CheckoutContent() {
                       {item.product.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {item.quantity}x {formatEur(item.product.price)}
+                      {item.quantity}x {formatMoney(item.product.price)}
                     </p>
                   </div>
                   <span className="text-sm font-semibold text-foreground">
-                    {formatEur(item.product.price * item.quantity)}
+                    {formatMoney(multiplyMoney(item.product.price, item.quantity))}
                   </span>
                 </div>
               ))}
@@ -448,15 +449,15 @@ function CheckoutContent() {
             <div className="space-y-2 border-t border-border pt-4">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Preču summa</span>
-                <span className="text-foreground">{formatEur(totalPrice)}</span>
+                <span className="text-foreground">{formatMoney(totalMoney)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{t("shippingCost")}</span>
-                <span className="text-foreground">{formatEur(shippingCost)}</span>
+                <span className="text-foreground">{formatMoney(shippingCost)}</span>
               </div>
               <div className="flex justify-between border-t border-border pt-3 text-lg font-bold">
                 <span className="text-card-foreground">{t("total")}</span>
-                <span className="text-primary">{formatEur(finalTotal)}</span>
+                <span className="text-primary">{formatMoney(finalTotal)}</span>
               </div>
             </div>
 

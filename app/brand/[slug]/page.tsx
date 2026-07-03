@@ -11,6 +11,7 @@ import {
   type Product,
 } from "@/lib/data"
 import { useLang } from "@/lib/i18n"
+import { compareMoney } from "@/lib/money"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
@@ -31,10 +32,10 @@ export default function BrandPage({ params }: { params: Promise<{ slug: string }
     const sorted = [...brandProducts]
     switch (sortBy) {
       case "price-asc":
-        sorted.sort((a, b) => a.price - b.price)
+        sorted.sort((a, b) => compareMoney(a.price, b.price))
         break
       case "price-desc":
-        sorted.sort((a, b) => b.price - a.price)
+        sorted.sort((a, b) => compareMoney(b.price, a.price))
         break
       case "rating":
         sorted.sort((a, b) => b.rating - a.rating)

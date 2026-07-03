@@ -3,14 +3,15 @@
 import { useState } from "react"
 import { useCart } from "@/components/cart-context"
 import { useAuth } from "@/components/auth-provider"
-import { useLang, formatEur } from "@/lib/i18n"
+import { useLang, formatMoney } from "@/lib/i18n"
+import { multiplyMoney } from "@/lib/money"
 import { Button } from "@/components/ui/button"
 import { X, Plus, Minus, ShoppingBag, LogIn, UserPlus } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
 export function CartDrawer() {
-  const { items, removeFromCart, updateQuantity, totalPrice, isCartOpen, setIsCartOpen } = useCart()
+  const { items, removeFromCart, updateQuantity, totalMoney, isCartOpen, setIsCartOpen } = useCart()
   const { user } = useAuth()
   const { t } = useLang()
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -91,7 +92,7 @@ export function CartDrawer() {
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-semibold text-primary">
-                            {formatEur(item.product.price * item.quantity)}
+                            {formatMoney(multiplyMoney(item.product.price, item.quantity))}
                           </span>
                           <button
                             onClick={() => removeFromCart(item.product.id)}
@@ -112,7 +113,7 @@ export function CartDrawer() {
               <div className="mb-4 flex items-center justify-between">
                 <span className="text-base font-semibold text-card-foreground">{t("total")}</span>
                 <span className="text-xl font-bold text-primary">
-                  {formatEur(totalPrice)}
+                  {formatMoney(totalMoney)}
                 </span>
               </div>
               {!!user ? (

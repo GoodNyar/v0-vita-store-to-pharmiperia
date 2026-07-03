@@ -11,7 +11,8 @@ import { SiteFooter } from "@/components/site-footer"
 import { ProductCard } from "@/components/product-card"
 import { ProductReviews } from "@/components/product-reviews"
 import { CartProvider, useCart } from "@/components/cart-context"
-import { LangProvider, useLang, formatEur } from "@/lib/i18n"
+import { LangProvider, useLang, formatMoney } from "@/lib/i18n"
+import { discountPercent, multiplyMoney } from "@/lib/money"
 import { products, getBrandSlug, type Product } from "@/lib/data"
 import { useState } from "react"
 import { useFavorites } from "@/components/favorites-provider"
@@ -24,9 +25,10 @@ function ProductPageContent({ product }: { product: Product }) {
   const [activeTab, setActiveTab] = useState<"about" | "benefits" | "howToUse" | "ingredients">("about")
   const isFav = isFavorited(product.id)
 
-  const discount = product.originalPrice
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-    : null
+  const discount =
+    product.originalPrice != null
+      ? discountPercent(product.price, product.originalPrice)
+      : null
 
   const similarProducts = products
     .filter((p) => p.category === product.category && p.id !== product.id)
@@ -148,12 +150,12 @@ function ProductPageContent({ product }: { product: Product }) {
               {/* Price */}
               <div className="mt-4 flex items-baseline gap-3">
                 <span className="text-3xl font-bold text-foreground">
-                  {formatEur(product.price)}
+                  {formatMoney(product.price)}
                 </span>
                 {product.originalPrice && (
                   <>
                     <span className="text-lg text-muted-foreground line-through">
-                      {formatEur(product.originalPrice)}
+                      {formatMoney(product.originalPrice)}
                     </span>
                     <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-sm font-semibold text-destructive">
                       −{discount}%
@@ -211,7 +213,7 @@ function ProductPageContent({ product }: { product: Product }) {
                   disabled={!product.inStock}
                   className="flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/80 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {t("addToCart")} — {formatEur(product.price * quantity)}
+                  {t("addToCart")} — {formatMoney(multiplyMoney(product.price, quantity))}
                 </button>
 
                 {/* Wishlist button */}

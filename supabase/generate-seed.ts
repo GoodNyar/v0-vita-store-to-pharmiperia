@@ -122,7 +122,7 @@ const categoryIdBySlug = Object.fromEntries(
 lines.push(
   `INSERT INTO products (
   id, sku, slug, name_ru, name_lv, description_ru, description_lv,
-  brand_id, category_id, price, original_price, volume,
+  brand_id, category_id, price_cents, original_price_cents, currency, volume,
   stock_quantity, is_active, is_featured, is_bestseller, rating, review_count
 ) VALUES`
 )
@@ -135,7 +135,7 @@ const productRows = products.map((product) => {
   const isBestseller = product.badge === "bestSeller"
   const isFeatured = product.badge === "popular" || product.badge === "topRated"
 
-  return `  (${sqlStr(id)}, ${sqlStr(product.sku)}, ${sqlStr(productSlug(product))}, ${sqlStr(product.name)}, ${sqlStr(product.name)}, ${sqlStr(desc.ru)}, ${sqlStr(desc.lv)}, ${sqlStr(brandId)}, ${sqlStr(categoryId)}, ${product.price.toFixed(2)}, ${product.originalPrice ? product.originalPrice.toFixed(2) : "NULL"}, ${sqlStr(product.volume)}, ${product.inStock ? 100 : 0}, ${product.inStock}, ${isFeatured}, ${isBestseller}, ${product.rating.toFixed(1)}, ${product.reviewCount})`
+  return `  (${sqlStr(id)}, ${sqlStr(product.sku)}, ${sqlStr(productSlug(product))}, ${sqlStr(product.name)}, ${sqlStr(product.name)}, ${sqlStr(desc.ru)}, ${sqlStr(desc.lv)}, ${sqlStr(brandId)}, ${sqlStr(categoryId)}, ${product.price.amount}, ${product.originalPrice ? product.originalPrice.amount : "NULL"}, 'EUR', ${sqlStr(product.volume)}, ${product.inStock ? 100 : 0}, ${product.inStock}, ${isFeatured}, ${isBestseller}, ${product.rating.toFixed(1)}, ${product.reviewCount})`
 })
 
 lines.push(productRows.join(",\n") + ";")

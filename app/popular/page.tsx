@@ -4,6 +4,7 @@ import { useState, useMemo } from "react"
 import Link from "next/link"
 import { products as allProducts } from "@/lib/data"
 import { LangProvider, useLang } from "@/lib/i18n"
+import { compareMoney } from "@/lib/money"
 import { CartProvider } from "@/components/cart-context"
 import { FavoritesProvider } from "@/components/favorites-provider"
 import { SiteHeader } from "@/components/site-header"
@@ -31,9 +32,9 @@ function PopularPageContent() {
     return [...base].sort((a, b) => {
       switch (sortBy) {
         case "price-asc":
-          return a.price - b.price
+          return compareMoney(a.price, b.price)
         case "price-desc":
-          return b.price - a.price
+          return compareMoney(b.price, a.price)
         case "rating":
           return b.rating - a.rating
         default:

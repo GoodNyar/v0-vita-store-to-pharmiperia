@@ -2,11 +2,17 @@ import 'server-only'
 
 import type Stripe from 'stripe'
 import { products } from '@/lib/data'
+import {
+  addMoney,
+  eur,
+  multiplyMoney,
+  sumMoney,
+  validateShippingMoney,
+  type Money,
+} from '@/lib/money'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 const MAX_QUANTITY_PER_LINE = 99
-
-export const ALLOWED_SHIPPING_COSTS = [0, 2.95, 2.99, 3.2, 3.5, 5.99] as const
 
 export interface CheckoutLineInput {
   id: number
@@ -17,9 +23,9 @@ export interface ResolvedOrderLine {
   catalogProductId: number
   name: string
   sku: string
-  unitPrice: number
+  unitPrice: Money
   quantity: number
-  lineTotal: number
+  lineTotal: Money
 }
 
 export interface CheckoutCustomerInput {
@@ -28,7 +34,7 @@ export interface CheckoutCustomerInput {
   email: string
   phone: string
   shippingMethod: string
-  shippingCost: number
+  shippingCost: Money
   parcelStation?: string
   shippingAddress?: {
     street: string
@@ -65,20 +71,9 @@ export function resolveOrderLines(items: CheckoutLineInput[]): ResolvedOrderLine
       sku: product.sku,
       unitPrice: product.price,
       quantity,
-      lineTotal: product.price * quantity,
+      lineTotal: multiplyMoney(product.price, quantity),
     }
   })
-}
-
-export function validateShippingCost(cost: number): number {
-  const normalized = Math.round(Number(cost) * 100) / 100
-  const isAllowed = ALLOWED_SHIPPING_COSTS.some(
-    (allowed) => Math.abs(allowed - normalized) < 0.01
-  )
-  if (!isAllowed) {
-    throw new Error('Invalid shipping cost')
-  }
-  return normalized
 }
 
 function generateOrderNumber(): string {
@@ -88,9 +83,9 @@ function generateOrderNumber(): string {
 export interface DraftOrderResult {
   orderId: string
   orderNumber: string
-  subtotal: number
-  shippingCost: number
-  total: number
+  subtotal: Money
+  shippingCost: Money
+  total: Money
   lines: ResolvedOrderLine[]
 }
 
@@ -99,9 +94,9 @@ export async function createDraftOrder(
   customer: CheckoutCustomerInput
 ): Promise<DraftOrderResult> {
   const lines = resolveOrderLines(items)
-  const shippingCost = validateShippingCost(customer.shippingCost)
-  const subtotal = lines.reduce((sum, line) => sum + line.lineTotal, 0)
-  const total = Math.round((subtotal + shippingCost) * 100) / 100
+  const shippingCost = validateShippingMoney(customer.shippingCost)
+  const subtotal = sumMoney(lines.map((line) => line.lineTotal))
+  const total = addMoney(subtotal, shippingCost)
 
   const supabase = createAdminClient()
   const orderNumber = generateOrderNumber()
@@ -127,11 +122,13 @@ export async function createDraftOrder(
       first_name: customer.firstName.trim(),
       last_name: customer.lastName.trim(),
       shipping_method: customer.shippingMethod,
-      shipping_cost: shippingCost,
+      shipping_cost_cents: shippingCost.amount,
       shipping_address: shippingAddress,
       parcel_station: customer.parcelStation ?? null,
-      subtotal,
-      total,
+      subtotal_cents: subtotal.amount,
+      discount_cents: 0,
+      total_cents: total.amount,
+      currency: total.currency,
     })
     .select('id, order_number')
     .single()
@@ -146,8 +143,9 @@ export async function createDraftOrder(
     product_name: line.name,
     product_sku: line.sku,
     quantity: line.quantity,
-    unit_price: line.unitPrice,
-    total_price: line.lineTotal,
+    unit_price_cents: line.unitPrice.amount,
+    total_price_cents: line.lineTotal.amount,
+    currency: line.unitPrice.currency,
   }))
 
   const { error: itemsError } = await supabase.from('order_items').insert(orderItems)
@@ -202,7 +200,7 @@ export async function fulfillOrderFromCheckoutSession(
 
   const { data: existing, error: fetchError } = await supabase
     .from('orders')
-    .select('id, payment_status, total')
+    .select('id, payment_status, total_cents')
     .eq('id', orderId)
     .maybeSingle()
 
@@ -214,7 +212,7 @@ export async function fulfillOrderFromCheckoutSession(
     return { orderId: existing.id, alreadyPaid: true }
   }
 
-  const expectedCents = Math.round(Number(existing.total) * 100)
+  const expectedCents = existing.total_cents
   if (session.amount_total != null && session.amount_total !== expectedCents) {
     throw new Error(
       `Payment amount mismatch for order ${orderId}: expected ${expectedCents}, got ${session.amount_total}`

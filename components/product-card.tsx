@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation"
 import { Star, Heart, ShoppingCart } from "lucide-react"
 import { getBrandSlug, type Product } from "@/lib/data"
 import { useCart } from "@/components/cart-context"
-import { useLang, formatEur, productDescriptions } from "@/lib/i18n"
+import { useLang, formatMoney, productDescriptions } from "@/lib/i18n"
+import { discountPercent } from "@/lib/money"
 import { useFavorites } from "@/components/favorites-provider"
 
 function ProductCardComponent({ product }: { product: Product }) {
@@ -25,9 +26,9 @@ function ProductCardComponent({ product }: { product: Product }) {
     product.description
 
   // Calculate discount percentage if there's an original price
-  const discountPercent =
-    product.originalPrice && product.originalPrice > product.price
-      ? Math.round((1 - product.price / product.originalPrice) * 100)
+  const discount =
+    product.originalPrice != null
+      ? discountPercent(product.price, product.originalPrice)
       : 0
 
   return (
@@ -72,10 +73,10 @@ function ProductCardComponent({ product }: { product: Product }) {
           </div>
 
           {/* Discount pill — bottom left */}
-          {discountPercent > 0 && (
+          {discount > 0 && (
             <span className="absolute bottom-2 left-2 z-10 rounded-full bg-red-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
               {"−"}
-              {discountPercent}%
+              {discount}%
             </span>
           )}
         </div>
@@ -138,11 +139,11 @@ function ProductCardComponent({ product }: { product: Product }) {
       <div className="flex items-center justify-between gap-2 px-3 pb-3 pt-2.5 sm:px-4 sm:pb-4">
         <div className="flex min-w-0 flex-col">
           <span className="text-base font-bold text-foreground sm:text-lg">
-            {formatEur(product.price)}
+            {formatMoney(product.price)}
           </span>
           {product.originalPrice && (
             <span className="text-xs text-muted-foreground line-through">
-              {formatEur(product.originalPrice)}
+              {formatMoney(product.originalPrice)}
             </span>
           )}
         </div>

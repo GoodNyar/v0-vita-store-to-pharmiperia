@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useLang, formatEur } from "@/lib/i18n"
+import { useLang, formatMoney } from "@/lib/i18n"
 import { useCart } from "@/components/cart-context"
 import { useAuth } from "@/components/auth-provider"
 import { useFavorites } from "@/components/favorites-provider"
@@ -158,11 +158,11 @@ export default function FavoritesPage() {
                 </div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-base font-bold text-foreground">
-                    {formatEur(product.price)}
+                    {formatMoney(product.price)}
                   </span>
                   {product.originalPrice && (
                     <span className="text-xs text-muted-foreground line-through">
-                      {formatEur(product.originalPrice)}
+                      {formatMoney(product.originalPrice)}
                     </span>
                   )}
                 </div>

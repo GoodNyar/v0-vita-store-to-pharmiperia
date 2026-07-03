@@ -1,6 +1,7 @@
 import { generateText, Output } from 'ai'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { moneyFromDb, type Money } from '@/lib/money'
 
 const recommendationSchema = z.object({
   recommendations: z.array(z.object({
@@ -20,10 +21,17 @@ interface ProductRow {
   id: string
   name: string
   description: string
-  price: number
+  price_cents: number
+  currency: string
   rating: number
   brand: RelatedName | RelatedName[] | null
   category: RelatedName | RelatedName[] | null
+}
+
+type EnrichedProduct = ProductRow & { price: Money }
+
+type EnrichedRecommendation = RecommendationOutput['recommendations'][number] & {
+  product: EnrichedProduct
 }
 
 function getRelatedName(
@@ -47,7 +55,8 @@ export async function POST(req: Request) {
         id,
         name,
         description,
-        price,
+        price_cents,
+        currency,
         rating,
         brand:brands(name),
         category:categories(name)
@@ -65,7 +74,7 @@ export async function POST(req: Request) {
       id: p.id,
       name: p.name,
       description: p.description,
-      price: p.price,
+      price: p.price_cents / 100,
       rating: p.rating,
       brand: getRelatedName(p.brand),
       category: getRelatedName(p.category),
@@ -104,12 +113,18 @@ Focus on:
         const product = productRows.find((p) => p.id === rec.productId)
         return {
           ...rec,
-          product: product ?? null,
+          product: product
+            ? {
+                ...product,
+                price: moneyFromDb(
+                  product.price_cents,
+                  product.currency as 'EUR'
+                ),
+              }
+            : null,
         }
       })
-      .filter((rec): rec is RecommendationOutput['recommendations'][number] & {
-        product: ProductRow
-      } => rec.product !== null)
+      .filter((rec): rec is EnrichedRecommendation => rec.product !== null)
 
     return Response.json({
       recommendations: enrichedRecommendations,

@@ -11,7 +11,7 @@ import { CartDrawer } from "@/components/cart-drawer"
 import { useCart } from "@/components/cart-context"
 import { SiteFooter } from "@/components/site-footer"
 import { Skeleton } from "@/components/loading-skeleton"
-import { useLang, formatEur } from "@/lib/i18n"
+import { useLang } from "@/lib/i18n"
 import { products } from "@/lib/data"
 import { Truck, Shield, RotateCcw, Flame, Leaf } from "lucide-react"
 

@@ -1,6 +1,9 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { formatMoney, moneyFromMajorEUR } from "./money"
+
+export { formatMoney } from "./money"
 
 export type Lang = "ru" | "lv"
 
@@ -615,6 +618,7 @@ export const translations = {
     orderNumber: "Номер заказа",
     orderDate: "Дата",
     orderStatus: "Статус заказа",
+    subtotal: "Сумма товаров",
     orderTotal: "Итого",
     orderDelivered: "Доставлен",
     orderInProgress: "В пути",
@@ -1453,6 +1457,7 @@ export const translations = {
     orderNumber: "Pasūtījuma numurs",
     orderDate: "Datums",
     orderStatus: "Pasūtījuma statuss",
+    subtotal: "Preču summa",
     orderTotal: "Kopā",
     orderDelivered: "Piegādāts",
     orderInProgress: "Ceļā",
@@ -1809,9 +1814,7 @@ export function useLang() {
   return useContext(LangContext)
 }
 
+/** @deprecated Prefer formatMoney from lib/money */
 export function formatEur(amount: number): string {
-  return new Intl.NumberFormat("de-DE", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amount)
+  return formatMoney(moneyFromMajorEUR(amount))
 }

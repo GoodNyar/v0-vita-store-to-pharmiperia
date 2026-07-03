@@ -4,7 +4,8 @@ import { useEffect, useState, use } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { products as allProducts, categories, BRANDS_ORDERED, normalizeProductId } from "@/lib/data"
-import { LangProvider, useLang, formatEur } from "@/lib/i18n"
+import { LangProvider, useLang, formatMoney } from "@/lib/i18n"
+import { compareMoney, discountPercent, moneyToMajor, type Money } from "@/lib/money"
 import { CartProvider, useCart } from "@/components/cart-context"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
@@ -22,8 +23,8 @@ interface Product {
   name: string
   description: string
   volume: string
-  price: number
-  original_price: number | null
+  price: Money
+  original_price: Money | null
   rating: number
   review_count: number
   image_url: string
@@ -119,12 +120,15 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
   // Filter and sort products
   const filteredProducts = products
     .filter(p => selectedBrands.length === 0 || selectedBrands.includes(p.brand.slug))
-    .filter(p => p.price >= priceRange[0] && p.price <= priceRange[1])
+    .filter(p => {
+      const major = moneyToMajor(p.price)
+      return major >= priceRange[0] && major <= priceRange[1]
+    })
     .filter(p => p.rating >= minRating)
     .sort((a, b) => {
       switch (sortBy) {
-        case "price-asc": return a.price - b.price
-        case "price-desc": return b.price - a.price
+        case "price-asc": return compareMoney(a.price, b.price)
+        case "price-desc": return compareMoney(b.price, a.price)
         case "rating": return b.rating - a.rating
         case "newest": return 0 // Would need created_at
         default: return b.review_count - a.review_count // popular
@@ -367,7 +371,7 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
                           />
                           {product.original_price && (
                             <span className="absolute left-2 top-2 rounded-full bg-destructive px-2 py-0.5 text-xs font-bold text-destructive-foreground">
-                              -{Math.round((1 - product.price / product.original_price) * 100)}%
+                              -{discountPercent(product.price, product.original_price)}%
                             </span>
                           )}
                         </div>
@@ -398,11 +402,11 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
                         }`}>
                           <div>
                             <span className="text-lg font-bold text-primary">
-                              {formatEur(product.price)}
+                              {formatMoney(product.price)}
                             </span>
                             {product.original_price && (
                               <span className="ml-2 text-sm text-muted-foreground line-through">
-                                {formatEur(product.original_price)}
+                                {formatMoney(product.original_price)}
                               </span>
                             )}
                           </div>

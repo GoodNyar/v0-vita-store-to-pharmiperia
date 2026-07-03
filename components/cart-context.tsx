@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react"
 import { products, type Product } from "@/lib/data"
+import { multiplyMoney, sumMoney, type Money } from "@/lib/money"
 import { createClient } from "@/lib/supabase/client"
 
 interface CartItem {
@@ -20,7 +21,7 @@ interface CartItem {
 export interface QuickAddItem {
   id: number
   name: string
-  price: number
+  price: Money
   image?: string
   brand?: string
   quantity?: number
@@ -34,20 +35,45 @@ interface CartContextType {
   updateQuantity: (productId: number, quantity: number) => void
   clearCart: () => void
   totalItems: number
-  totalPrice: number
+  totalMoney: Money
   isCartOpen: boolean
   setIsCartOpen: (open: boolean) => void
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
-const CART_STORAGE_KEY = "pharmiperia_cart"
+const CART_STORAGE_KEY = "pharmiperia:v2:cart"
+
+function isMoney(value: unknown): value is Money {
+  return (
+    typeof value === "object" &&
+    value != null &&
+    "amount" in value &&
+    "currency" in value &&
+    typeof (value as Money).amount === "number" &&
+    (value as Money).currency === "EUR"
+  )
+}
+
+function isValidCartItem(item: unknown): item is CartItem {
+  if (typeof item !== "object" || item == null) return false
+  const candidate = item as CartItem
+  return (
+    typeof candidate.quantity === "number" &&
+    typeof candidate.product === "object" &&
+    candidate.product != null &&
+    isMoney(candidate.product.price)
+  )
+}
 
 function loadCartFromStorage(): CartItem[] {
   if (typeof window === "undefined") return []
   try {
     const stored = localStorage.getItem(CART_STORAGE_KEY)
-    return stored ? JSON.parse(stored) : []
+    if (!stored) return []
+    const parsed = JSON.parse(stored)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(isValidCartItem)
   } catch {
     return []
   }
@@ -174,9 +200,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
-  const totalPrice = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0
+  const totalMoney = sumMoney(
+    items.map((item) => multiplyMoney(item.product.price, item.quantity))
   )
 
   return (
@@ -189,7 +214,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         updateQuantity,
         clearCart,
         totalItems,
-        totalPrice,
+        totalMoney,
         isCartOpen,
         setIsCartOpen,
       }}

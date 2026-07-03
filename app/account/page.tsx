@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { useAuth } from "@/components/auth-provider"
-import { useLang } from "@/lib/i18n"
+import { useLang, formatMoney } from "@/lib/i18n"
 import { useCart } from "@/components/cart-context"
 import { useFavorites } from "@/components/favorites-provider"
 import { products as allProducts, type Product } from "@/lib/data"
@@ -729,7 +729,7 @@ export default function AccountPage() {
                         <p className="text-xs font-semibold text-primary">{product.brand}</p>
                         <p className="text-sm font-bold text-foreground line-clamp-2">{product.name}</p>
                         <div className="flex items-center justify-between mt-auto pt-2">
-                          <span className="font-bold text-foreground">€{product.price}</span>
+                          <span className="font-bold text-foreground">{formatMoney(product.price)}</span>
                           <button
                             onClick={(e) => {
                               e.preventDefault()
@@ -989,7 +989,7 @@ export default function AccountPage() {
                         ))}
                       </div>
                       <div className="flex items-center justify-between mt-auto pt-2">
-                        <span className="font-bold text-foreground">€{product.price}</span>
+                        <span className="font-bold text-foreground">{formatMoney(product.price)}</span>
                         <button
                           onClick={(e) => {
                             e.preventDefault()

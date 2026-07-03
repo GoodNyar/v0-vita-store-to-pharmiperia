@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { getStripe } from "@/lib/stripe"
+import { toStripeUnitAmount } from "@/lib/stripe/money"
 import {
   createDraftOrder,
   type CheckoutCustomerInput,
@@ -34,7 +35,7 @@ export async function createCheckoutSession(
 
   const lineItems = draft.lines.map((item) => ({
     price_data: {
-      currency: "eur",
+      currency: item.unitPrice.currency.toLowerCase(),
       product_data: {
         name: item.name,
         metadata: {
@@ -42,15 +43,15 @@ export async function createCheckoutSession(
           product_sku: item.sku,
         },
       },
-      unit_amount: Math.round(item.unitPrice * 100),
+      unit_amount: toStripeUnitAmount(item.unitPrice),
     },
     quantity: item.quantity,
   }))
 
-  if (draft.shippingCost > 0) {
+  if (draft.shippingCost.amount > 0) {
     lineItems.push({
       price_data: {
-        currency: "eur",
+        currency: draft.shippingCost.currency.toLowerCase(),
         product_data: {
           name: "Piegāde / Shipping",
           metadata: {
@@ -58,7 +59,7 @@ export async function createCheckoutSession(
             product_sku: "shipping",
           },
         },
-        unit_amount: Math.round(draft.shippingCost * 100),
+        unit_amount: toStripeUnitAmount(draft.shippingCost),
       },
       quantity: 1,
     })

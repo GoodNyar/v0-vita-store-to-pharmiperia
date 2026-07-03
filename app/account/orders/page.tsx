@@ -3,20 +3,21 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { LangProvider, useLang, formatEur } from "@/lib/i18n"
+import { LangProvider, useLang, formatMoney } from "@/lib/i18n"
+import { moneyFromDb, multiplyMoney, type Money } from "@/lib/money"
 import { CartProvider } from "@/components/cart-context"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
 import { createClient } from "@/lib/supabase/client"
-import { 
-  ChevronLeft, 
-  Package, 
-  Truck, 
-  CheckCircle, 
-  Clock, 
+import {
+  ChevronLeft,
+  Package,
+  Truck,
+  CheckCircle,
+  Clock,
   ShoppingBag,
-  ChevronRight
+  ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -24,9 +25,10 @@ interface Order {
   id: string
   order_number: string
   status: string
-  subtotal: number
-  shipping_cost: number
-  total: number
+  subtotal_cents: number
+  shipping_cost_cents: number
+  total_cents: number
+  currency: string
   shipping_method: string
   parcel_station: string
   created_at: string
@@ -35,11 +37,29 @@ interface Order {
 interface OrderItem {
   id: string
   quantity: number
-  price: number
+  unit_price_cents: number
+  currency: string
   product: {
     name: string
     image_url: string
   } | null
+}
+
+function orderMoney(cents: number, currency: string): Money {
+  return moneyFromDb(cents, currency as Money["currency"])
+}
+
+function normalizeProductRelation(
+  product: { name: string; image_url: string } | { name: string; image_url: string }[] | null,
+  fallbackName: string
+): { name: string; image_url: string } {
+  if (!product) {
+    return { name: fallbackName, image_url: "/placeholder.svg" }
+  }
+  if (Array.isArray(product)) {
+    return product[0] ?? { name: fallbackName, image_url: "/placeholder.svg" }
+  }
+  return product
 }
 
 function OrdersContent() {
@@ -49,28 +69,29 @@ function OrdersContent() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
     async function loadOrders() {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
       if (!user) {
-        router.push('/auth/login')
+        router.push("/auth/login")
         return
       }
-      
-      setUser(user)
 
       const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
+        .from("orders")
+        .select(
+          "id, order_number, status, subtotal_cents, shipping_cost_cents, total_cents, currency, shipping_method, parcel_station, created_at"
+        )
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
 
       if (!error && data) {
-        setOrders(data)
+        setOrders(data as Order[])
       }
       setLoading(false)
     }
@@ -81,211 +102,198 @@ function OrdersContent() {
   const loadOrderItems = async (order: Order) => {
     setSelectedOrder(order)
     const supabase = createClient()
-    
+
     const { data, error } = await supabase
-      .from('order_items')
-      .select(`
+      .from("order_items")
+      .select(
+        `
         id,
         quantity,
-        price,
+        unit_price_cents,
+        currency,
+        product_name,
         product:products (
           name,
           image_url
         )
-      `)
-      .eq('order_id', order.id)
+      `
+      )
+      .eq("order_id", order.id)
 
     if (!error && data) {
-      setOrderItems(data as any)
+      setOrderItems(
+        data.map((row) => ({
+          id: row.id,
+          quantity: row.quantity,
+          unit_price_cents: row.unit_price_cents,
+          currency: row.currency,
+          product: normalizeProductRelation(
+            row.product as
+              | { name: string; image_url: string }
+              | { name: string; image_url: string }[]
+              | null,
+            (row as { product_name?: string }).product_name ?? "Product"
+          ),
+        }))
+      )
     }
   }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'paid':
+      case "delivered":
+      case "paid":
         return <CheckCircle className="h-5 w-5 text-green-500" />
-      case 'processing':
-        return <Package className="h-5 w-5 text-blue-500" />
-      case 'shipped':
-        return <Truck className="h-5 w-5 text-orange-500" />
-      case 'delivered':
-        return <CheckCircle className="h-5 w-5 text-green-600" />
+      case "in_progress":
+      case "pending":
+        return <Truck className="h-5 w-5 text-blue-500" />
       default:
-        return <Clock className="h-5 w-5 text-gray-500" />
+        return <Clock className="h-5 w-5 text-muted-foreground" />
     }
   }
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'Gaida apmaksu'
-      case 'paid': return 'Apmaksāts'
-      case 'processing': return 'Tiek apstrādāts'
-      case 'shipped': return 'Nosūtīts'
-      case 'delivered': return 'Piegādāts'
-      case 'cancelled': return 'Atcelts'
-      default: return status
+      case "delivered":
+        return t("orderDelivered")
+      case "paid":
+        return t("orderDelivered")
+      case "in_progress":
+      case "pending":
+        return t("orderInProgress")
+      case "cancelled":
+        return t("orderCancelled")
+      default:
+        return status
     }
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('lv-LV', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     )
   }
 
   return (
-    <>
-        <SiteHeader />
+    <div className="flex min-h-screen flex-col bg-background">
+      <SiteHeader />
       <CartDrawer />
 
-      <main className="min-h-screen bg-background py-8">
-        <div className="mx-auto max-w-4xl px-4">
-          <Link href="/account" className="mb-6 flex items-center gap-2 text-primary hover:underline">
+      <main className="flex-1">
+        <div className="mx-auto max-w-4xl px-4 py-8">
+          <Link
+            href="/account"
+            className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+          >
             <ChevronLeft className="h-4 w-4" />
-            Atpakaļ uz profilu
+            {t("accountTitle")}
           </Link>
 
-          <h1 className="mb-8 text-3xl font-bold text-foreground">Mani pasūtījumi</h1>
+          <h1 className="mb-6 text-2xl font-bold text-foreground">{t("orderHistory")}</h1>
 
           {orders.length === 0 ? (
-            <div className="rounded-xl border border-border bg-card p-12 text-center">
-              <ShoppingBag className="mx-auto mb-4 h-16 w-16 text-muted-foreground" />
-              <h2 className="mb-2 text-xl font-semibold text-card-foreground">Nav pasūtījumu</h2>
-              <p className="mb-6 text-muted-foreground">
-                Jūs vēl neesat veicis nevienu pasūtījumu. Sāciet iepirkties!
-              </p>
-              <Link href="/">
-                <Button>Sākt iepirkties</Button>
+            <div className="rounded-xl border border-border bg-card p-8 text-center">
+              <ShoppingBag className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+              <p className="text-muted-foreground">{t("noOrdersText")}</p>
+              <Link href="/" className="mt-4 inline-block">
+                <Button>{t("continueShopping")}</Button>
               </Link>
             </div>
           ) : selectedOrder ? (
-            /* Order Detail View */
-            <div className="space-y-6">
-              <button 
+            <div>
+              <button
                 onClick={() => setSelectedOrder(null)}
-                className="flex items-center gap-2 text-primary hover:underline"
+                className="mb-4 inline-flex items-center gap-2 text-sm text-primary hover:underline"
               >
                 <ChevronLeft className="h-4 w-4" />
-                Atpakaļ uz pasūtījumiem
+                {t("orderHistory")}
               </button>
 
               <div className="rounded-xl border border-border bg-card p-6">
-                <div className="mb-6 flex items-start justify-between">
+                <div className="mb-6 flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-card-foreground">
-                      Pasūtījums #{selectedOrder.order_number}
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                      {formatDate(selectedOrder.created_at)}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{t("orderNumber")}</p>
+                    <p className="text-lg font-bold text-foreground">{selectedOrder.order_number}</p>
                   </div>
-                  <div className="flex items-center gap-2 rounded-full bg-muted px-3 py-1">
+                  <div className="flex items-center gap-2">
                     {getStatusIcon(selectedOrder.status)}
-                    <span className="text-sm font-medium">{getStatusText(selectedOrder.status)}</span>
+                    <span className="font-medium">{getStatusText(selectedOrder.status)}</span>
                   </div>
                 </div>
 
-                {/* Order Items */}
-                <div className="mb-6 space-y-4">
-                  <h3 className="font-semibold text-card-foreground">Preces</h3>
-                  {orderItems.map((item) => (
-                    <div key={item.id} className="flex items-center gap-4 rounded-lg border border-border p-4">
-                      <div className="h-16 w-16 rounded-md bg-muted flex items-center justify-center">
-                        {item.product?.image_url ? (
-                          <img 
-                            src={item.product.image_url} 
-                            alt={item.product?.name || ''} 
-                            className="h-full w-full object-cover rounded-md"
-                          />
-                        ) : (
-                          <Package className="h-8 w-8 text-muted-foreground" />
-                        )}
+                <div className="space-y-4">
+                  {orderItems.map((item) => {
+                    const unitPrice = orderMoney(item.unit_price_cents, item.currency)
+                    const lineTotal = multiplyMoney(unitPrice, item.quantity)
+                    return (
+                      <div key={item.id} className="flex items-center gap-4 border-b border-border pb-4">
+                        <div className="flex-1">
+                          <p className="font-medium text-foreground">{item.product?.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {item.quantity} x {formatMoney(unitPrice)}
+                          </p>
+                        </div>
+                        <p className="font-semibold text-foreground">{formatMoney(lineTotal)}</p>
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-card-foreground">
-                          {item.product?.name || 'Prece nav pieejama'}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Daudzums: {item.quantity}
-                        </p>
-                      </div>
-                      <span className="font-semibold text-foreground">
-                        {formatEur(item.price * item.quantity)}
-                      </span>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
 
-                {/* Order Summary */}
-                <div className="border-t border-border pt-4 space-y-2">
+                <div className="mt-6 space-y-2 border-t border-border pt-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Preču summa</span>
-                    <span>{formatEur(selectedOrder.subtotal)}</span>
+                    <span className="text-muted-foreground">{t("subtotal")}</span>
+                    <span>
+                      {formatMoney(
+                        orderMoney(selectedOrder.subtotal_cents, selectedOrder.currency)
+                      )}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Piegāde</span>
-                    <span>{formatEur(selectedOrder.shipping_cost)}</span>
+                    <span className="text-muted-foreground">{t("shippingCost")}</span>
+                    <span>
+                      {formatMoney(
+                        orderMoney(selectedOrder.shipping_cost_cents, selectedOrder.currency)
+                      )}
+                    </span>
                   </div>
-                  <div className="flex justify-between font-bold text-lg pt-2 border-t border-border">
-                    <span>Kopā</span>
-                    <span className="text-primary">{formatEur(selectedOrder.total)}</span>
+                  <div className="flex justify-between text-lg font-bold">
+                    <span>{t("total")}</span>
+                    <span className="text-primary">
+                      {formatMoney(orderMoney(selectedOrder.total_cents, selectedOrder.currency))}
+                    </span>
                   </div>
-                </div>
-
-                {/* Shipping Info */}
-                <div className="mt-6 rounded-lg bg-muted p-4">
-                  <h3 className="mb-2 font-semibold text-card-foreground">Piegādes informācija</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Metode: {selectedOrder.shipping_method}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Adrese: {selectedOrder.parcel_station}
-                  </p>
                 </div>
               </div>
             </div>
           ) : (
-            /* Orders List View */
             <div className="space-y-4">
               {orders.map((order) => (
                 <button
                   key={order.id}
                   onClick={() => loadOrderItems(order)}
-                  className="w-full rounded-xl border border-border bg-card p-6 text-left transition-colors hover:border-primary/50 hover:bg-muted/50"
+                  className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 text-left transition-colors hover:bg-muted/50"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                      <Package className="h-6 w-6 text-primary" />
+                    </div>
                     <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        {getStatusIcon(order.status)}
-                        <span className="font-bold text-card-foreground">
-                          #{order.order_number}
-                        </span>
-                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
-                          {getStatusText(order.status)}
-                        </span>
-                      </div>
+                      <p className="font-semibold text-foreground">{order.order_number}</p>
                       <p className="text-sm text-muted-foreground">
-                        {formatDate(order.created_at)}
+                        {new Date(order.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-lg font-bold text-primary">
-                        {formatEur(order.total)}
-                      </span>
-                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className="font-bold text-foreground">
+                        {formatMoney(orderMoney(order.total_cents, order.currency))}
+                      </p>
+                      <p className="text-sm text-muted-foreground">{getStatusText(order.status)}</p>
                     </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
                   </div>
                 </button>
               ))}
@@ -295,7 +303,7 @@ function OrdersContent() {
       </main>
 
       <SiteFooter />
-    </>
+    </div>
   )
 }
 
