@@ -3,9 +3,10 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useCart, CartProvider } from "@/components/cart-context"
-import { useLang, formatMoney, LangProvider } from "@/lib/i18n"
+import { useLang, formatMoney } from "@/lib/i18n"
+import { isLocale, type Locale } from "@/lib/i18n/config"
 import { addMoney, eur, extractInclusiveVatCents, multiplyMoney } from "@/lib/money"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, MapPin, Truck, AlertCircle, CreditCard, CheckCircle } from "lucide-react"
@@ -36,6 +37,10 @@ function CheckoutContent() {
   const { items, totalMoney, clearCart } = useCart()
   const { t } = useLang()
   const router = useRouter()
+  const params = useParams()
+  const checkoutLocale: Locale = isLocale(params.locale as string)
+    ? (params.locale as Locale)
+    : "lv"
 
   const [step, setStep] = useState<CheckoutStep>("details")
   const [formData, setFormData] = useState({
@@ -125,6 +130,7 @@ function CheckoutContent() {
           city: parcelCity,
           postalCode: "LV-1010",
         },
+    locale: checkoutLocale,
   }
 
   // Empty cart state
@@ -502,10 +508,8 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <LangProvider>
-      <CartProvider>
-        <CheckoutContent />
-      </CartProvider>
-    </LangProvider>
+    <CartProvider>
+      <CheckoutContent />
+    </CartProvider>
   )
 }

@@ -2,6 +2,7 @@ import { headers } from "next/headers"
 import { NextResponse } from "next/server"
 import type Stripe from "stripe"
 import { getStripe } from "@/lib/stripe"
+import { sendOrderConfirmationEmail } from "@/lib/email/order-confirmation"
 import {
   fulfillOrderFromCheckoutSession,
   hasProcessedStripeEvent,
@@ -48,6 +49,14 @@ export async function POST(request: Request) {
           orderId: result.orderId,
           alreadyPaid: result.alreadyPaid,
         })
+
+        const emailResult = await sendOrderConfirmationEmail(result.orderId)
+        if (emailResult.sent) {
+          console.info("[webhooks/stripe] order confirmation email sent", {
+            orderId: result.orderId,
+            messageId: emailResult.messageId,
+          })
+        }
       }
     }
 

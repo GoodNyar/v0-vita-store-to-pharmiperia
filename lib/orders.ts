@@ -12,6 +12,7 @@ import {
   type Money,
 } from '@/lib/money'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/i18n/config'
 import { resolveTaxCentsFromSession } from '@/lib/stripe/tax'
 
 const MAX_QUANTITY_PER_LINE = 99
@@ -44,6 +45,7 @@ export interface CheckoutCustomerInput {
     postalCode: string
   }
   userId?: string | null
+  locale?: Locale
 }
 
 export function resolveOrderLines(items: CheckoutLineInput[]): ResolvedOrderLine[] {
@@ -101,6 +103,7 @@ export async function createDraftOrder(
   const subtotal = sumMoney(lines.map((line) => line.lineTotal))
   const total = addMoney(subtotal, shippingCost)
   const taxCents = extractInclusiveVatCents(total.amount)
+  const locale = isLocale(customer.locale) ? customer.locale : DEFAULT_LOCALE
 
   const supabase = createAdminClient()
   const orderNumber = generateOrderNumber()
@@ -134,6 +137,7 @@ export async function createDraftOrder(
       tax_cents: taxCents,
       total_cents: total.amount,
       currency: total.currency,
+      locale,
     })
     .select('id, order_number')
     .single()

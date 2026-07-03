@@ -89,6 +89,7 @@ export async function createCheckoutSession(
     metadata: {
       order_id: draft.orderId,
       order_number: draft.orderNumber,
+      order_locale: customer.locale ?? "lv",
     },
     ...(isStripeTaxEnabled() ? { automatic_tax: { enabled: true } } : {}),
   }
