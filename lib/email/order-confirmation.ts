@@ -3,7 +3,7 @@ import 'server-only'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/i18n/config'
 import { localizedPath } from '@/lib/i18n/routes'
-import { getEmailFrom, isOrderEmailEnabled, SITE_URL, SUPPORT_EMAIL } from '@/lib/email/config'
+import { getEmailFrom, getSiteUrl, getSupportEmail, isOrderEmailEnabled } from '@/lib/email/config'
 import {
   formatEmailMoney,
   getOrderConfirmationCopy,
@@ -58,7 +58,7 @@ function buildOrderConfirmationHtml(params: {
   const deliveryLine = order.parcel_station
     ? `${shippingLabel} — ${order.parcel_station}`
     : shippingLabel
-  const ordersUrl = `${SITE_URL}${localizedPath(locale, '/account/orders')}`
+  const ordersUrl = `${getSiteUrl()}${localizedPath(locale, '/account/orders')}`
 
   const itemRows = items
     .map(
@@ -131,7 +131,7 @@ function buildOrderConfirmationHtml(params: {
 
                 <p style="margin:28px 0 0;font-size:13px;line-height:1.5;color:#6b7280;">
                   ${escapeHtml(copy.supportText)}
-                  <a href="mailto:${SUPPORT_EMAIL}" style="color:#0f766e;">${SUPPORT_EMAIL}</a>
+                  <a href="mailto:${getSupportEmail()}" style="color:#0f766e;">${getSupportEmail()}</a>
                 </p>
                 <p style="margin:16px 0 0;font-size:12px;color:#9ca3af;">${escapeHtml(copy.footer)}</p>
               </td>

@@ -7,12 +7,13 @@ import { CartProvider } from '@/components/cart-context'
 import { FavoritesProvider } from '@/components/favorites-provider'
 
 import { OrgJsonLd } from '@/components/org-json-ld'
+import { getSiteUrl } from '@/lib/site'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
-const SITE_URL = 'https://pharmiperia.lv'
+const SITE_URL = getSiteUrl()
 const SITE_NAME = 'Pharmiperia'
 const DEFAULT_DESCRIPTION =
   'Pharmiperia — аутентичная французская дермо-косметика в Латвии. Bioderma, Vichy, La Roche-Posay, Avène и другие бренды с доставкой по всей Латвии.'

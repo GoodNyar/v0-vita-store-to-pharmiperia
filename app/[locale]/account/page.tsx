@@ -10,6 +10,7 @@ import { useCart } from "@/components/cart-context"
 import { useFavorites } from "@/components/favorites-provider"
 import { products as allProducts, getProductSlug, type Product } from "@/lib/data"
 import { createClient } from "@/lib/supabase/client"
+import { getInfoEmail } from "@/lib/site"
 import { 
   User, 
   Heart, 
@@ -464,15 +465,15 @@ export default function AccountPage() {
                   <Phone className="h-4 w-4" />
                   +371 29 952 852
                 </a>
-                <a href="mailto:info@pharmiperia.com" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                <a href={`mailto:${getInfoEmail()}`} className="flex items-center gap-2 text-sm text-primary hover:underline">
                   <Mail className="h-4 w-4" />
-                  info@pharmiperia.com
+                  {getInfoEmail()}
                 </a>
               </div>
               <p className="text-xs text-muted-foreground">
                 {t("workingHours")}
               </p>
-              <a href="mailto:info@pharmiperia.com" className="w-full">
+              <a href={`mailto:${getInfoEmail()}`} className="w-full">
                 <Button
                   size="sm"
                   variant="outline"

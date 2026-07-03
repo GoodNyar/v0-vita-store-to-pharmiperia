@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 
-const SITE_URL = 'https://pharmiperia.lv'
+import { getSiteUrl } from '@/lib/site'
+
+const SITE_URL = getSiteUrl()
 
 export const metadata: Metadata = {
   title: 'Акции и скидки',

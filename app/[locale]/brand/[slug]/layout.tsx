@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import { BRANDS_ORDERED, getBrandSlug, getBrandNameFromSlug } from '@/lib/data'
 
-const SITE_URL = 'https://pharmiperia.lv'
+import { getSiteUrl } from '@/lib/site'
+
+const SITE_URL = getSiteUrl()
 
 function slugToName(slug: string): string {
   return getBrandNameFromSlug(slug)

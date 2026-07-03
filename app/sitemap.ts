@@ -3,7 +3,9 @@ import { products, categories, BRANDS_ORDERED, getBrandSlug, getProductSlug } fr
 import { LOCALES } from '@/lib/i18n/config'
 import { localizedPath } from '@/lib/i18n/routes'
 
-const SITE_URL = 'https://pharmiperia.lv'
+import { getSiteUrl } from '@/lib/site'
+
+const SITE_URL = getSiteUrl()
 
 const STATIC_PATHS = [
   '/',

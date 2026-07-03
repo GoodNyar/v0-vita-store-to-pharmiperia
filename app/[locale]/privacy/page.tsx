@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
 import { CartProvider } from "@/components/cart-context"
 import { LangProvider, useLang } from "@/lib/i18n"
+import { getSupportEmail } from "@/lib/site"
 
 function PrivacyContent() {
   const { t } = useLang()
@@ -37,7 +38,7 @@ function PrivacyContent() {
             </div>
 
             <div className="mt-10 rounded-xl bg-secondary/50 border border-border p-5">
-              <p className="text-sm text-muted-foreground">{t("privacyQuestions")} <a href="mailto:support@pharmiperia.lv" className="text-primary hover:underline">support@pharmiperia.lv</a></p>
+              <p className="text-sm text-muted-foreground">{t("privacyQuestions")} <a href={`mailto:${getSupportEmail()}`} className="text-primary hover:underline">{getSupportEmail()}</a></p>
             </div>
           </div>
         </main>

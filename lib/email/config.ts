@@ -1,11 +1,15 @@
 import 'server-only'
 
-export const DEFAULT_EMAIL_FROM = 'Pharmiperia <orders@pharmiperia.lv>'
-export const SUPPORT_EMAIL = 'support@pharmiperia.lv'
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pharmiperia.lv'
+import {
+  getSiteUrl,
+  getSupportEmail,
+  getTransactionalEmailFrom,
+} from '@/lib/site'
+
+export { getSiteUrl, getSupportEmail }
 
 export function getEmailFrom(): string {
-  return process.env.EMAIL_FROM ?? DEFAULT_EMAIL_FROM
+  return getTransactionalEmailFrom()
 }
 
 export function isOrderEmailEnabled(): boolean {

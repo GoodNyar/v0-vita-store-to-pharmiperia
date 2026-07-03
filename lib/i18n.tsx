@@ -11,6 +11,7 @@ import {
 import { usePathname, useRouter } from "next/navigation"
 import { formatMoney, moneyFromMajorEUR } from "./money"
 import { localizedPath as buildLocalizedPath, swapLocaleInPath } from "./i18n/routes"
+import { applySitePlaceholders } from "./site"
 
 export { formatMoney } from "./money"
 
@@ -407,7 +408,7 @@ export const translations = {
     returnsCannot5: "Товары, поврежденные покупателем",
     returnsHowTitle: "Как оформить возврат",
     returnsHow1Title: "Свяжитесь с нами",
-    returnsHow1Desc: "Напишите на email info@pharmiperia.com или заполните форму на странице контактов. Укажите номер заказа и причину возврата.",
+    returnsHow1Desc: "Напишите на email {infoEmail} или заполните форму на странице контактов. Укажите номер заказа и причину возврата.",
     returnsHow2Title: "Получите подтверждение",
     returnsHow2Desc: "Мы рассмотрим вашу заявку в течение 24 часов и отправим инструкции по возврату.",
     returnsHow3Title: "Отправьте товар",
@@ -489,17 +490,17 @@ export const translations = {
     helpFaq2Q: "Сколько времени занимает доставка?",
     helpFaq2A: "Стандартная доставка по Латвии: 1-3 рабочих дня. В Ригу — обычно 1 день. Мы отправляем заказы в день оформления при оплате до 14:00.",
     helpFaq3Q: "Как вернуть товар?",
-    helpFaq3A: "Возврат возможен в течение 14 дней с момента получения. Товар должен быть в оригинальной упаковке и не вскрытым. Напишите нам на support@pharmiperia.lv.",
+    helpFaq3A: "Возврат возможен в течение 14 дней с момента получения. Товар должен быть в оригинальной упаковке и не вскрытым. Напишите нам на {supportEmail}.",
     helpFaq4Q: "Мой промокод не работает. Что делать?",
     helpFaq4A: "Проверьте, соответствует ли сумма заказа минимальной. Промокод WELCOME10 требует минимальную покупку 30€ и действует только для новых покупателей.",
     helpFaq5Q: "Как накапливаются бонусные баллы?",
     helpFaq5A: "1€ покупки = 10 бонусных баллов. При регистрации вы получаете 100 приветственных баллов. Баллы можно будет обменивать на скидки — функция в разработке.",
     helpFaq6Q: "Можно ли изменить или отменить заказ?",
-    helpFaq6A: "Отменить или изменить заказ можно до момента отправки. Напишите нам как можно скорее на support@pharmiperia.lv.",
+    helpFaq6A: "Отменить или изменить заказ можно до момента отправки. Напишите нам как можно скорее на {supportEmail}.",
     helpFaq7Q: "Товары оригинальные?",
     helpFaq7A: "Да, 100%. Мы работаем только с официальными дистрибьюторами. У нас нет серого рынка или реплик.",
     helpFaq8Q: "Как связаться с поддержкой?",
-    helpFaq8A: "Email: support@pharmiperia.lv · Телефон: +371 20 000 000 · Чат на сайте (зелёная кнопка справа внизу) · Время работы: Пн-Пт 9:00–18:00",
+    helpFaq8A: "Email: {supportEmail} · Телефон: +371 20 000 000 · Чат на сайте (зелёная кнопка справа внизу) · Время работы: Пн-Пт 9:00–18:00",
     partnersBadge: "Партнёрская про��ра��м���",
     partnersHeroTitle: "Зарабатывайте с Pharmiperia",
     partnersHeroSubtitle: "Рекомендуйте аптечную косметику своей аудитории и получайте комиссию с каждой продажи. Подходит для блогеров, beauty-экспертов и всех, кто говорит о красоте и уходе за кожей.",
@@ -535,7 +536,7 @@ export const translations = {
     legalLastUpdated: "Последнее обновление: март 2026",
     privacyQuestions: "Вопросы по конфиденциальности:",
     privacy1Title: "1. Кто мы",
-    privacy1Text: "Pharmiperia (pharmiperia.lv) — интернет-магазин аптечной косметики, зарегистрированный в Латвии. Ответственный за обработку персональных данных: SIA Pharmiperia, Рига, Латвия. Email: support@pharmiperia.lv",
+    privacy1Text: "Pharmiperia ({siteHost}) — интернет-магазин аптечной косметики, зарегистрированный в Латвии. Ответственный за обработку персональных данных: SIA Pharmiperia, Рига, Латвия. Email: {supportEmail}",
     privacy2Title: "2. Какие данные мы собираем",
     privacy2Text: "При регистрации: имя, email, пароль (в зашифрованном виде). При оформлении заказа: адрес доставки, номер телефона. Автоматически: IP-адрес, тип браузера, история просмотров на сайте (через анонимную аналитику Vercel). Данные банковской карты не собираются — они передаются напрямую в Stripe.",
     privacy3Title: "3. Для чего используем данные",
@@ -543,14 +544,14 @@ export const translations = {
     privacy4Title: "4. Передача третьим лицам",
     privacy4Text: "Мы передаём минимальные данные партнёрам: Stripe (обработка платежей), Supabase (хранение данных), Vercel (хостинг). Все партнёры соответствуют требованиям GDPR. Мы никогда не продаём ваши данные рекламным сетям.",
     privacy5Title: "5. Ваши права",
-    privacy5Text: "Согласно GDPR вы имеете право: на доступ к своим данным, на исправление неточных данных, на удаление данных («право на забвение»), на ограничение обработки, на перенос данных, на ��тзыв согласия. Для реализации прав пишите: support@pharmiperia.lv",
+    privacy5Text: "Согласно GDPR вы имеете право: на доступ к своим данным, на исправление неточных данных, на удаление данных («право на забвение»), на ограничение обработки, на перенос данных, на ��тзыв согласия. Для реализации прав пишите: {supportEmail}",
     privacy6Title: "6. Cookies",
     privacy6Text: "Мы используем только необходимые технические cookies для работы корзины и авторизации. Мы не используем рекламные или отслеживающие cookies без вашего согласия.",
     privacy7Title: "7. Срок хранения данных",
     privacy7Text: "Данные аккаунта — до удаления аккаунта. Данные заказов — 5 лет (требование латвийского налогового законодательства). Данные рассылки — до отписки.",
     termsTitle: "Условия покупки",
     terms1Title: "1. Общие положения",
-    terms1Text: "Настоящие Условия покупки регулируют отношения между интернет-магазином Pharmiperia (pharmiperia.lv) и покупателем. Размещая заказ, вы подтверждаете, что ознакомились с условиями и согласны с ними. Pharmiperia оставляет за собой право изменять условия с уведомлением на сайте.",
+    terms1Text: "Настоящие Условия покупки регулируют отношения между интернет-магазином Pharmiperia ({siteHost}) и покупателем. Размещая заказ, вы подтверждаете, что ознакомились с условиями и согласны с ними. Pharmiperia оставляет за собой право изменять условия с уведомлением на сайте.",
     terms2Title: "2. Оформление заказа",
     terms2Text: "Заказ считается оформленным после подтверждения оплаты. Мы отправим вам подтверждение на email. Если товар окажется недоступным, мы свяжемся с вами для замены или отмены заказа с полным возвратом средств.",
     terms3Title: "3. Цены и оплата",
@@ -564,10 +565,10 @@ export const translations = {
     terms7Title: "7. Ответственность",
     terms7Text: "Pharmiperia не несёт ответственности за индивидуальные аллергические реакции на косметические продукты. Если у вас чувствительная кожа, рекомендуем консультироваться с дерматологом перед покупкой. При возникновении аллергической реакции немедленно прекратите использование и обратитесь к врачу.",
     terms8Title: "8. Контакты",
-    terms8Text: "По всем вопросам, связанным с заказами и условиями покупки, обращайтесь: support@pharmiperia.lv · +371 20 000 000 · Понедельник–Пятница, 9:00–18:00",
+    terms8Text: "По всем вопросам, связанным с заказами и условиями покупки, обращайтесь: {supportEmail} · +371 20 000 000 · Понедельник–Пятница, 9:00–18:00",
     dataSecTitle: "Безопасность данных",
     dataSecSubtitle: "Как мы защищаем вашу личную информацию",
-    dataSecFooter: "Последнее обновление: март 2026 · По вопросам: support@pharmiperia.lv",
+    dataSecFooter: "Последнее обновление: март 2026 · По вопросам: {supportEmail}",
     dataSec1Title: "Шифрование данных",
     dataSec1Text: "Все данные передаются по защищённому соединению HTTPS с сертификатом SSL/TLS. Ваши пароли хранятся в зашифрованном виде — мы никогда не можем их прочитать.",
     dataSec2Title: "Хранение данных",
@@ -575,7 +576,7 @@ export const translations = {
     dataSec3Title: "Что мы собираем",
     dataSec3Text: "Только необходимое: имя, email, адрес доставки и история заказов. Мы не собираем биометрические данные, геолокацию или данные о поведении на других сайтах.",
     dataSec4Title: "Ваши права (GDPR)",
-    dataSec4Text: "Вы можете в любой момент запросить удаление аккаунта и всех данных, получить копию своих данных, исправить неточные данные или отозвать со��ласие на обработку. Пишите: support@pharmiperia.lv",
+    dataSec4Text: "Вы можете в любой момент запросить удаление аккаунта и всех данных, получить копию своих данных, исправить неточные данные или отозвать со��ласие на обработку. Пишите: {supportEmail}",
     trackTitle: "Отследить заказ",
     trackSubtitle: "Введите номер заказа или трек-номер из письма",
     trackPlaceholder: "Номер заказа или трек-номер...",
@@ -1248,7 +1249,7 @@ export const translations = {
     returnsCannot5: "Preces, ko bojājis pircējs",
     returnsHowTitle: "Kā noformēt atgriešanu",
     returnsHow1Title: "Sazinieties ar mums",
-    returnsHow1Desc: "Rakstiet uz e-pastu info@pharmiperia.com vai aizpildiet veidlapu kontaktu lapā. Norādiet pasūtījuma numuru un atgriešanas iemeslu.",
+    returnsHow1Desc: "Rakstiet uz e-pastu {infoEmail} vai aizpildiet veidlapu kontaktu lapā. Norādiet pasūtījuma numuru un atgriešanas iemeslu.",
     returnsHow2Title: "Saņemiet apstiprinājumu",
     returnsHow2Desc: "Mēs izskatīsim jūsu pieteikumu 24 stundu laikā un nosūtīsim atgriešanas instrukcijas.",
     returnsHow3Title: "Nosūtiet preci",
@@ -1330,17 +1331,17 @@ export const translations = {
     helpFaq2Q: "Cik ilgi aizņem piegāde?",
     helpFaq2A: "Standarta piegāde Latvijā: 1-3 darba dienas. Uz Rīgu — parasti 1 diena. Mēs nosūtām pasūtījumus pasūtīšanas dienā, ja apmaksa veikta līdz 14:00.",
     helpFaq3Q: "Kā atgriezt preci?",
-    helpFaq3A: "Atgriešana iespējama 14 dienu laikā no saņemšanas brīža. Precei jābūt oriģinālajā iepakojumā un neatvērtai. Rakstiet mums uz support@pharmiperia.lv.",
+    helpFaq3A: "Atgriešana iespējama 14 dienu laikā no saņemšanas brīža. Precei jābūt oriģinālajā iepakojumā un neatvērtai. Rakstiet mums uz {supportEmail}.",
     helpFaq4Q: "Mans akcijas kods nedarbojas. Ko darīt?",
     helpFaq4A: "Pārbaudiet, vai pasūtījuma summa atbilst minimālajai. Akcijas kods WELCOME10 prasa minimālo pirkumu 30€ un ir derīgs tikai jaunajiem pircējiem.",
     helpFaq5Q: "Kā tiek uzkrāti bonusa punkti?",
     helpFaq5A: "1€ pirkuma = 10 bonusa punkti. Reģistrējoties jūs saņemat 100 sveiciena punktus. Punktus varēs apmainīt pret atlaidēm — funkcija izstrādē.",
     helpFaq6Q: "Vai var mainīt vai atcelt pasūtījumu?",
-    helpFaq6A: "Atcelt vai mainīt pasūtījumu var līdz nosūtīšanas brīdim. Rakstiet mums pēc iespējas ātrāk uz support@pharmiperia.lv.",
+    helpFaq6A: "Atcelt vai mainīt pasūtījumu var līdz nosūtīšanas brīdim. Rakstiet mums pēc iespējas ātrāk uz {supportEmail}.",
     helpFaq7Q: "Vai preces ir oriģinālas?",
     helpFaq7A: "Jā, 100%. Mēs strādājam tikai ar oficiālajiem izplatītājiem. Mums nav pelēkā tirgus vai repliku.",
     helpFaq8Q: "Kā sazināties ar atbalstu?",
-    helpFaq8A: "E-pasts: support@pharmiperia.lv · Tālrunis: +371 20 000 000 · Tērzēšana vietnē (zaļā poga labajā apakšā) · Darba laiks: P-Pk 9:00–18:00",
+    helpFaq8A: "E-pasts: {supportEmail} · Tālrunis: +371 20 000 000 · Tērzēšana vietnē (zaļā poga labajā apakšā) · Darba laiks: P-Pk 9:00–18:00",
     partnersBadge: "Partneru programma",
     partnersHeroTitle: "Pelniet kopā ar Pharmiperia",
     partnersHeroSubtitle: "Iesakiet aptiekas kosmētiku savai auditorijai un saņemiet komisiju par katru pārdošanu. Piemērots blogeriem, skaistumkopšanas ekspertiem un visiem, kas runā par skaistumu un ādas kopšanu.",
@@ -1376,7 +1377,7 @@ export const translations = {
     legalLastUpdated: "Pēdējais atjauninājums: 2026. gada marts",
     privacyQuestions: "Jautājumi par privātumu:",
     privacy1Title: "1. Kas mēs esam",
-    privacy1Text: "Pharmiperia (pharmiperia.lv) — aptiekas kosmētikas interneta veikals, kas reģistrēts Latvijā. Par personas datu apstrādi atbild: SIA Pharmiperia, Rīga, Latvija. E-pasts: support@pharmiperia.lv",
+    privacy1Text: "Pharmiperia ({siteHost}) — aptiekas kosmētikas interneta veikals, kas reģistrēts Latvijā. Par personas datu apstrādi atbild: SIA Pharmiperia, Rīga, Latvija. E-pasts: {supportEmail}",
     privacy2Title: "2. Kādus datus mēs vācam",
     privacy2Text: "Reģistrējoties: vārds, e-pasts, parole (šifrētā veidā). Veicot pasūtījumu: piegādes adrese, tālruņa numurs. Automātiski: IP adrese, pārlūka tips, pārlūkošanas vēsture vietnē (caur anonīmu Vercel analītiku). Bankas kartes dati netiek vākti — tie tiek nodoti tieši Stripe.",
     privacy3Title: "3. Kam mēs izmantojam datus",
@@ -1384,14 +1385,14 @@ export const translations = {
     privacy4Title: "4. Nodošana trešajām pusēm",
     privacy4Text: "Mēs nododam minimālus datus partneriem: Stripe (maksājumu apstrāde), Supabase (datu glabāšana), Vercel (mitināšana). Visi partneri atbilst GDPR prasībām. Mēs nekad nepārdodam jūsu datus reklāmas tīkliem.",
     privacy5Title: "5. Jūsu tiesības",
-    privacy5Text: "Saskaņā ar GDPR jums ir tiesības: piekļūt saviem datiem, labot neprecīzus datus, dzēst datus («tiesības tikt aizmirstam»), ierobežot apstrādi, pārnest datus, atsaukt piekrišanu. Lai izmantotu tiesības, rakstiet: support@pharmiperia.lv",
+    privacy5Text: "Saskaņā ar GDPR jums ir tiesības: piekļūt saviem datiem, labot neprecīzus datus, dzēst datus («tiesības tikt aizmirstam»), ierobežot apstrādi, pārnest datus, atsaukt piekrišanu. Lai izmantotu tiesības, rakstiet: {supportEmail}",
     privacy6Title: "6. Sīkdatnes",
     privacy6Text: "Mēs izmantojam tikai nepieciešamās tehniskās sīkdatnes groza un autorizācijas darbībai. Mēs neizmantojam reklāmas vai izsekošanas sīkdatnes bez jūsu piekrišanas.",
     privacy7Title: "7. Datu glabāšanas termiņš",
     privacy7Text: "Konta dati — līdz konta dzēšanai. Pasūtījumu dati — 5 gadi (Latvijas nodokļu likumdošanas prasība). Jaunumu dati — līdz atrakstīšanās brīdim.",
     termsTitle: "Pirkuma noteikumi",
     terms1Title: "1. Vispārīgi noteikumi",
-    terms1Text: "Šie Pirkuma noteikumi regulē attiecības starp interneta veikalu Pharmiperia (pharmiperia.lv) un pircēju. Veicot pasūtījumu, jūs apstiprināt, ka esat iepazinies ar noteikumiem un piekrītat tiem. Pharmiperia patur tiesības mainīt noteikumus, par to paziņojot vietnē.",
+    terms1Text: "Šie Pirkuma noteikumi regulē attiecības starp interneta veikalu Pharmiperia ({siteHost}) un pircēju. Veicot pasūtījumu, jūs apstiprināt, ka esat iepazinies ar noteikumiem un piekrītat tiem. Pharmiperia patur tiesības mainīt noteikumus, par to paziņojot vietnē.",
     terms2Title: "2. Pasūtījuma noformēšana",
     terms2Text: "Pasūtījums tiek uzskatīts par noformētu pēc maksājuma apstiprināšanas. Mēs nosūtīsim jums apstiprinājumu uz e-pastu. Ja prece nebūs pieejama, mēs sazināsimies ar jums, lai to nomainītu vai atceltu pasūtījumu ar pilnu naudas atmaksu.",
     terms3Title: "3. Cenas un apmaksa",
@@ -1405,10 +1406,10 @@ export const translations = {
     terms7Title: "7. Atbildība",
     terms7Text: "Pharmiperia neuzņemas atbildību par individuālām alerģiskām reakcijām uz kosmētikas produktiem. Ja jums ir jutīga āda, iesakām pirms pirkuma konsultēties ar dermatologu. Alerģiskas reakcijas gadījumā nekavējoties pārtrauciet lietošanu un vērsieties pie ārsta.",
     terms8Title: "8. Kontakti",
-    terms8Text: "Par visiem jautājumiem, kas saistīti ar pasūtījumiem un pirkuma noteikumiem, sazinieties: support@pharmiperia.lv · +371 20 000 000 · Pirmdiena–Piektdiena, 9:00–18:00",
+    terms8Text: "Par visiem jautājumiem, kas saistīti ar pasūtījumiem un pirkuma noteikumiem, sazinieties: {supportEmail} · +371 20 000 000 · Pirmdiena–Piektdiena, 9:00–18:00",
     dataSecTitle: "Datu drošība",
     dataSecSubtitle: "Kā mēs aizsargājam jūsu personīgo informāciju",
-    dataSecFooter: "Pēdējais atjauninājums: 2026. gada marts · Jautājumiem: support@pharmiperia.lv",
+    dataSecFooter: "Pēdējais atjauninājums: 2026. gada marts · Jautājumiem: {supportEmail}",
     dataSec1Title: "Datu šifrēšana",
     dataSec1Text: "Visi dati tiek pārsūtīti pa drošu HTTPS savienojumu ar SSL/TLS sertifikātu. Jūsu paroles tiek glabātas šifrētā veidā — mēs nekad nevaram tās izlasīt.",
     dataSec2Title: "Datu glabāšana",
@@ -1416,7 +1417,7 @@ export const translations = {
     dataSec3Title: "Ko mēs vācam",
     dataSec3Text: "Tikai nepieciešamo: vārdu, e-pastu, piegādes adresi un pasūtījumu vēsturi. Mēs nevācam biometriskos datus, ģeolokāciju vai datus par uzvedību citās vietnēs.",
     dataSec4Title: "Jūsu tiesības (GDPR)",
-    dataSec4Text: "Jūs jebkurā brīdī varat pieprasīt konta un visu datu dzēšanu, saņemt savu datu kopiju, labot neprecīzus datus vai atsaukt piekrišanu apstrādei. Rakstiet: support@pharmiperia.lv",
+    dataSec4Text: "Jūs jebkurā brīdī varat pieprasīt konta un visu datu dzēšanu, saņemt savu datu kopiju, labot neprecīzus datus vai atsaukt piekrišanu apstrādei. Rakstiet: {supportEmail}",
     trackTitle: "Izsekot pasūtījumu",
     trackSubtitle: "Ievadiet pasūtījuma numuru vai izsekošanas numuru no vēstules",
     trackPlaceholder: "Pasūtījuma numurs vai izsekošanas numurs...",
@@ -1767,7 +1768,10 @@ interface LangContextValue {
 const LangContext = createContext<LangContextValue>({
   lang: "lv",
   setLang: () => {},
-  t: (key) => (translations.lv as Record<string, string>)[key] ?? String(key),
+  t: (key) =>
+    applySitePlaceholders(
+      (translations.lv as Record<string, string>)[key] ?? String(key)
+    ),
   localizedPath: (path) => path,
 })
 
@@ -1804,7 +1808,7 @@ export function LangProvider({
 
   const t = (key: TranslationKey | string): string => {
     const dict = translations[lang] as Record<string, string>
-    return dict[key] ?? String(key)
+    return applySitePlaceholders(dict[key] ?? String(key))
   }
 
   if (!isHydrated) {
@@ -1814,7 +1818,9 @@ export function LangProvider({
           lang: initialLang,
           setLang: () => {},
           t: (key) =>
-            (translations[initialLang] as Record<string, string>)[key] ?? String(key),
+            applySitePlaceholders(
+              (translations[initialLang] as Record<string, string>)[key] ?? String(key)
+            ),
           localizedPath: (path) => buildLocalizedPath(initialLang, path),
         }}
       >

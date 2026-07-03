@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import { categories } from '@/lib/data'
 
-const SITE_URL = 'https://pharmiperia.lv'
+import { getSiteUrl } from '@/lib/site'
+
+const SITE_URL = getSiteUrl()
 
 const CATEGORY_META: Record<string, { title: string; description: string }> = {
   skincare:      { title: 'Уход за лицом', description: 'Очищение, увлажнение, сыворотки и маски для лица. Лучшие французские марки в Pharmiperia.' },

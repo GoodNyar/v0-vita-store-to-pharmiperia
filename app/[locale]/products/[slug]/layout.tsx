@@ -4,7 +4,9 @@ import { localizedPath } from '@/lib/i18n/routes'
 import { isLocale, type Locale } from '@/lib/i18n/config'
 import { moneyToMajor } from '@/lib/money'
 
-const SITE_URL = 'https://pharmiperia.lv'
+import { getSiteUrl } from '@/lib/site'
+
+const SITE_URL = getSiteUrl()
 
 interface ProductRouteParams {
   locale: string

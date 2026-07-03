@@ -1,7 +1,9 @@
 import { streamText, convertToModelMessages } from 'ai'
+import { getSupportEmail } from '@/lib/site'
 
 export async function POST(req: Request) {
   const { messages } = await req.json()
+  const supportEmail = getSupportEmail()
 
   const systemPrompt = `Ты - консультант интернет-магазина Pharmiperia, специализирующегося на аптечной косметике из Европы.
 
@@ -20,7 +22,7 @@ export async function POST(req: Request) {
 Правила общения:
 - Будь дружелюбным и профессиональным
 - Отвечай кратко и по делу
-- Если не знаешь ответ - предложи связаться с поддержкой по email: support@pharmiperia.lv
+- Если не знаешь ответ - предложи связаться с поддержкой по email: ${supportEmail}
 - Отвечай на русском языке, если клиент пишет на русском, на латышском - если на латышском, на английском - если на английском`
 
   const result = streamText({

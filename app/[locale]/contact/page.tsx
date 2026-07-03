@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { LangProvider, useLang } from "@/lib/i18n"
+import { getInfoEmail } from "@/lib/site"
 import { CartProvider } from "@/components/cart-context"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
@@ -87,7 +88,7 @@ function ContactContent() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground">{t("contactEmailTitle")}</h3>
-                    <p className="mt-1 text-muted-foreground">info@pharmiperia.com</p>
+                    <p className="mt-1 text-muted-foreground">{getInfoEmail()}</p>
                     <p className="text-sm text-muted-foreground">{t("contactEmailReply")}</p>
                   </div>
                 </div>

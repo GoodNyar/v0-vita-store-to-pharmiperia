@@ -1,37 +1,44 @@
-const SITE_URL = 'https://pharmiperia.lv'
+import { getSiteUrl } from '@/lib/site'
 
-const organizationJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'Pharmiperia',
-  url: SITE_URL,
-  logo: `${SITE_URL}/icon.svg`,
-  contactPoint: {
-    '@type': 'ContactPoint',
-    telephone: '+371-29-952-852',
-    contactType: 'customer service',
-    availableLanguage: ['Russian', 'Latvian'],
-  },
-  sameAs: [],
-}
+function buildJsonLd() {
+  const siteUrl = getSiteUrl()
 
-const websiteJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: 'Pharmiperia',
-  url: SITE_URL,
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: {
-      '@type': 'EntryPoint',
-      urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
+  const organizationJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Pharmiperia',
+    url: siteUrl,
+    logo: `${siteUrl}/icon.svg`,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+371-29-952-852',
+      contactType: 'customer service',
+      availableLanguage: ['Russian', 'Latvian'],
     },
-    'query-input': 'required name=search_term_string',
-  },
+    sameAs: [],
+  }
+
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Pharmiperia',
+    url: siteUrl,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${siteUrl}/search?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  }
+
+  return { organizationJsonLd, websiteJsonLd }
 }
 
-// Server component — renders JSON-LD scripts into the page
 export function OrgJsonLd() {
+  const { organizationJsonLd, websiteJsonLd } = buildJsonLd()
+
   return (
     <>
       <script

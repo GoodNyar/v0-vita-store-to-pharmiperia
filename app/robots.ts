@@ -1,6 +1,8 @@
 import type { MetadataRoute } from 'next'
 
-const SITE_URL = 'https://pharmiperia.lv'
+import { getSiteUrl } from '@/lib/site'
+
+const SITE_URL = getSiteUrl()
 
 export default function robots(): MetadataRoute.Robots {
   return {
