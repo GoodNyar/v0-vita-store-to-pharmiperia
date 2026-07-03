@@ -1,7 +1,9 @@
 import { generateText, Output } from 'ai'
 import { z } from 'zod'
+
 import { createClient } from '@/lib/supabase/server'
 import { moneyFromDb, type Money } from '@/lib/money'
+import { API_RATE_LIMITS, enforceRateLimit } from '@/lib/rate-limit'
 
 const recommendationSchema = z.object({
   recommendations: z.array(z.object({
@@ -43,6 +45,9 @@ function getRelatedName(
 }
 
 export async function POST(req: Request) {
+  const rateLimited = await enforceRateLimit(req, API_RATE_LIMITS.recommendations)
+  if (rateLimited) return rateLimited
+
   try {
     const { skinType, concerns, budget, currentProducts } = await req.json()
 

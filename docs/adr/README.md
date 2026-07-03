@@ -14,5 +14,6 @@
 | [0008](0008-stripe-tax-pvn-21-inclusive.md) | Stripe Tax — PVN 21%, цены включают НДС | принят | Phase 1 §5 |
 | [0009](0009-gdpr-minimum-phase-1.md) | GDPR-минимум: consent, процессоры, удаление | принят | Phase 1 §7 |
 | [0010](0010-sentry-error-boundaries-checkout-alerts.md) | Sentry, error boundaries, алерты чекаута | принят | Phase 1 §6 |
+| [0011](0011-rate-limit-api-endpoints.md) | Rate limit на публичных API | принят | Phase 1 task 17 |
 
 Blueprint: [`docs/reports/06-refactoring-blueprint.md`](../reports/06-refactoring-blueprint.md).

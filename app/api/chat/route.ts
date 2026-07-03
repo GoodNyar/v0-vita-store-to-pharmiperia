@@ -1,7 +1,12 @@
 import { streamText, convertToModelMessages } from 'ai'
+
+import { API_RATE_LIMITS, enforceRateLimit } from '@/lib/rate-limit'
 import { getSupportEmail } from '@/lib/site'
 
 export async function POST(req: Request) {
+  const rateLimited = await enforceRateLimit(req, API_RATE_LIMITS.chat)
+  if (rateLimited) return rateLimited
+
   const { messages } = await req.json()
   const supportEmail = getSupportEmail()
 
