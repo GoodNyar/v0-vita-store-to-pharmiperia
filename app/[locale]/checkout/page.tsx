@@ -6,7 +6,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useCart, CartProvider } from "@/components/cart-context"
 import { useLang, formatMoney, LangProvider } from "@/lib/i18n"
-import { addMoney, eur, multiplyMoney } from "@/lib/money"
+import { addMoney, eur, extractInclusiveVatCents, multiplyMoney } from "@/lib/money"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, MapPin, Truck, AlertCircle, CreditCard, CheckCircle } from "lucide-react"
 import { StripeCheckout } from "@/components/stripe-checkout"
@@ -58,6 +58,7 @@ function CheckoutContent() {
   const shippingOption = SHIPPING_OPTIONS.find((opt) => opt.id === selectedShipping)
   const shippingCost = shippingOption?.price ?? eur(350)
   const finalTotal = addMoney(totalMoney, shippingCost)
+  const vatAmount = eur(extractInclusiveVatCents(finalTotal.amount))
   const isCourier = selectedShipping === "courier"
 
   const handleInputChange = (
@@ -102,6 +103,7 @@ function CheckoutContent() {
   }
 
   const station = LATVIAN_STATIONS.find((s) => s.id.toString() === selectedStation)
+  const parcelCity = station?.address.split(", ").pop() ?? "Rīga"
   const checkoutDetails = {
     firstName: formData.firstName,
     lastName: formData.lastName,
@@ -118,7 +120,11 @@ function CheckoutContent() {
           city: formData.city,
           postalCode: formData.postalCode,
         }
-      : undefined,
+      : {
+          street: station?.address ?? "Latvia",
+          city: parcelCity,
+          postalCode: "LV-1010",
+        },
   }
 
   // Empty cart state
@@ -454,6 +460,10 @@ function CheckoutContent() {
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{t("shippingCost")}</span>
                 <span className="text-foreground">{formatMoney(shippingCost)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">{t("vatIncluded")}</span>
+                <span className="text-foreground">{formatMoney(vatAmount)}</span>
               </div>
               <div className="flex justify-between border-t border-border pt-3 text-lg font-bold">
                 <span className="text-card-foreground">{t("total")}</span>

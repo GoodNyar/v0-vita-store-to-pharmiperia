@@ -27,6 +27,7 @@ interface Order {
   status: string
   subtotal_cents: number
   shipping_cost_cents: number
+  tax_cents: number
   total_cents: number
   currency: string
   shipping_method: string
@@ -85,7 +86,7 @@ function OrdersContent() {
       const { data, error } = await supabase
         .from("orders")
         .select(
-          "id, order_number, status, subtotal_cents, shipping_cost_cents, total_cents, currency, shipping_method, parcel_station, created_at"
+          "id, order_number, status, subtotal_cents, shipping_cost_cents, tax_cents, total_cents, currency, shipping_method, parcel_station, created_at"
         )
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
@@ -258,6 +259,16 @@ function OrdersContent() {
                       )}
                     </span>
                   </div>
+                  {selectedOrder.tax_cents > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{t("vatAmount")}</span>
+                      <span>
+                        {formatMoney(
+                          orderMoney(selectedOrder.tax_cents, selectedOrder.currency)
+                        )}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-lg font-bold">
                     <span>{t("total")}</span>
                     <span className="text-primary">

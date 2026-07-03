@@ -5,12 +5,14 @@ import { products } from '@/lib/data'
 import {
   addMoney,
   eur,
+  extractInclusiveVatCents,
   multiplyMoney,
   sumMoney,
   validateShippingMoney,
   type Money,
 } from '@/lib/money'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { resolveTaxCentsFromSession } from '@/lib/stripe/tax'
 
 const MAX_QUANTITY_PER_LINE = 99
 
@@ -85,6 +87,7 @@ export interface DraftOrderResult {
   orderNumber: string
   subtotal: Money
   shippingCost: Money
+  tax: Money
   total: Money
   lines: ResolvedOrderLine[]
 }
@@ -97,6 +100,7 @@ export async function createDraftOrder(
   const shippingCost = validateShippingMoney(customer.shippingCost)
   const subtotal = sumMoney(lines.map((line) => line.lineTotal))
   const total = addMoney(subtotal, shippingCost)
+  const taxCents = extractInclusiveVatCents(total.amount)
 
   const supabase = createAdminClient()
   const orderNumber = generateOrderNumber()
@@ -127,6 +131,7 @@ export async function createDraftOrder(
       parcel_station: customer.parcelStation ?? null,
       subtotal_cents: subtotal.amount,
       discount_cents: 0,
+      tax_cents: taxCents,
       total_cents: total.amount,
       currency: total.currency,
     })
@@ -159,6 +164,7 @@ export async function createDraftOrder(
     orderNumber: order.order_number,
     subtotal,
     shippingCost,
+    tax: eur(taxCents),
     total,
     lines,
   }
@@ -200,7 +206,7 @@ export async function fulfillOrderFromCheckoutSession(
 
   const { data: existing, error: fetchError } = await supabase
     .from('orders')
-    .select('id, payment_status, total_cents')
+    .select('id, payment_status, total_cents, tax_cents')
     .eq('id', orderId)
     .maybeSingle()
 
@@ -219,12 +225,22 @@ export async function fulfillOrderFromCheckoutSession(
     )
   }
 
+  const taxCents = resolveTaxCentsFromSession(session)
+  if (existing.tax_cents > 0 && taxCents > 0 && existing.tax_cents !== taxCents) {
+    console.warn('[orders] tax_cents drift between draft and Stripe', {
+      orderId,
+      draftTaxCents: existing.tax_cents,
+      stripeTaxCents: taxCents,
+    })
+  }
+
   const { error: updateError } = await supabase
     .from('orders')
     .update({
       status: 'paid',
       payment_status: 'paid',
       payment_intent_id: session.id,
+      tax_cents: taxCents,
       updated_at: new Date().toISOString(),
     })
     .eq('id', orderId)

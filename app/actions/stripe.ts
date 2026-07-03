@@ -1,8 +1,14 @@
 "use server"
 
+import type Stripe from "stripe"
 import { createClient } from "@/lib/supabase/server"
 import { getStripe } from "@/lib/stripe"
 import { toStripeUnitAmount } from "@/lib/stripe/money"
+import {
+  buildPaymentIntentShippingForTax,
+  isStripeTaxEnabled,
+  stripeInclusivePriceTaxFields,
+} from "@/lib/stripe/tax"
 import {
   createDraftOrder,
   type CheckoutCustomerInput,
@@ -33,17 +39,21 @@ export async function createCheckoutSession(
 
   const stripe = getStripe()
 
+  const taxFields = stripeInclusivePriceTaxFields()
+
   const lineItems = draft.lines.map((item) => ({
     price_data: {
       currency: item.unitPrice.currency.toLowerCase(),
       product_data: {
         name: item.name,
+        tax_code: taxFields.product_data.tax_code,
         metadata: {
           product_id: String(item.catalogProductId),
           product_sku: item.sku,
         },
       },
       unit_amount: toStripeUnitAmount(item.unitPrice),
+      tax_behavior: taxFields.tax_behavior,
     },
     quantity: item.quantity,
   }))
@@ -54,28 +64,36 @@ export async function createCheckoutSession(
         currency: draft.shippingCost.currency.toLowerCase(),
         product_data: {
           name: "Piegāde / Shipping",
+          tax_code: taxFields.product_data.tax_code,
           metadata: {
             product_id: "shipping",
             product_sku: "shipping",
           },
         },
         unit_amount: toStripeUnitAmount(draft.shippingCost),
+        tax_behavior: taxFields.tax_behavior,
       },
       quantity: 1,
     })
   }
 
-  const session = await stripe.checkout.sessions.create({
+  const sessionParams: Stripe.Checkout.SessionCreateParams = {
     ui_mode: "embedded_page",
     redirect_on_completion: "never",
     line_items: lineItems,
     mode: "payment",
     customer_email: customer.email.trim() || undefined,
+    payment_intent_data: {
+      shipping: buildPaymentIntentShippingForTax(customer),
+    },
     metadata: {
       order_id: draft.orderId,
       order_number: draft.orderNumber,
     },
-  })
+    ...(isStripeTaxEnabled() ? { automatic_tax: { enabled: true } } : {}),
+  }
+
+  const session = await stripe.checkout.sessions.create(sessionParams)
 
   if (!session.client_secret) {
     throw new Error("Failed to create checkout session")
@@ -96,6 +114,7 @@ export async function getCheckoutSession(sessionId: string) {
     customerEmail: session.customer_details?.email,
     paymentStatus: session.payment_status,
     amountTotal: session.amount_total,
+    taxAmount: session.total_details?.amount_tax ?? null,
     orderId: session.metadata?.order_id ?? null,
     orderNumber: session.metadata?.order_number ?? null,
   }

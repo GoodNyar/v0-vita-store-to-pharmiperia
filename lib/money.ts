@@ -1,5 +1,19 @@
 export type CurrencyCode = "EUR"
 
+/** Latvia standard VAT (PVN) rate in basis points: 21% = 2100 bps. */
+export const LATVIA_STANDARD_VAT_BPS = 2100
+
+/** Extract VAT from a gross (tax-inclusive) amount in minor units. */
+export function extractInclusiveVatCents(
+  grossCents: number,
+  rateBps: number = LATVIA_STANDARD_VAT_BPS
+): number {
+  if (!Number.isInteger(grossCents) || grossCents < 0) {
+    throw new Error(`Invalid gross amount for VAT extraction: ${grossCents}`)
+  }
+  return Math.round((grossCents * rateBps) / (10_000 + rateBps))
+}
+
 export interface Money {
   readonly amount: number
   readonly currency: CurrencyCode
