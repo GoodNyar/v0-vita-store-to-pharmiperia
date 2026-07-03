@@ -9,6 +9,50 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      addresses: {
+        Row: {
+          city: string
+          country: string | null
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          label: string | null
+          postal_code: string | null
+          street: string
+          user_id: string
+        }
+        Insert: {
+          city: string
+          country?: string | null
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          label?: string | null
+          postal_code?: string | null
+          street: string
+          user_id: string
+        }
+        Update: {
+          city?: string
+          country?: string | null
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          label?: string | null
+          postal_code?: string | null
+          street?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "addresses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analytics_events: {
         Row: {
           created_at: string
@@ -53,50 +97,6 @@ export type Database = {
           },
           {
             foreignKeyName: "analytics_events_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      addresses: {
-        Row: {
-          city: string
-          country: string | null
-          created_at: string | null
-          id: string
-          is_default: boolean | null
-          label: string | null
-          postal_code: string | null
-          street: string
-          user_id: string
-        }
-        Insert: {
-          city: string
-          country?: string | null
-          created_at?: string | null
-          id?: string
-          is_default?: boolean | null
-          label?: string | null
-          postal_code?: string | null
-          street: string
-          user_id: string
-        }
-        Update: {
-          city?: string
-          country?: string | null
-          created_at?: string | null
-          id?: string
-          is_default?: boolean | null
-          label?: string | null
-          postal_code?: string | null
-          street?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "addresses_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -304,7 +304,6 @@ export type Database = {
           phone: string | null
           refund_notice_sent_at: string | null
           shipped_email_sent_at: string | null
-          tracking_number: string | null
           shipping_address: Json | null
           shipping_cost_cents: number
           shipping_method: string
@@ -312,6 +311,7 @@ export type Database = {
           subtotal_cents: number
           tax_cents: number
           total_cents: number
+          tracking_number: string | null
           updated_at: string | null
           user_id: string | null
           utm_campaign: string | null
@@ -338,7 +338,6 @@ export type Database = {
           phone?: string | null
           refund_notice_sent_at?: string | null
           shipped_email_sent_at?: string | null
-          tracking_number?: string | null
           shipping_address?: Json | null
           shipping_cost_cents: number
           shipping_method: string
@@ -346,6 +345,7 @@ export type Database = {
           subtotal_cents: number
           tax_cents?: number
           total_cents: number
+          tracking_number?: string | null
           updated_at?: string | null
           user_id?: string | null
           utm_campaign?: string | null
@@ -372,7 +372,6 @@ export type Database = {
           phone?: string | null
           refund_notice_sent_at?: string | null
           shipped_email_sent_at?: string | null
-          tracking_number?: string | null
           shipping_address?: Json | null
           shipping_cost_cents?: number
           shipping_method?: string
@@ -380,6 +379,7 @@ export type Database = {
           subtotal_cents?: number
           tax_cents?: number
           total_cents?: number
+          tracking_number?: string | null
           updated_at?: string | null
           user_id?: string | null
           utm_campaign?: string | null
@@ -396,57 +396,6 @@ export type Database = {
           },
           {
             foreignKeyName: "orders_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      return_requests: {
-        Row: {
-          created_at: string
-          description: string | null
-          id: string
-          order_id: string
-          reason: string
-          refund_amount_cents: number | null
-          status: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          order_id: string
-          reason: string
-          refund_amount_cents?: number | null
-          status?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          order_id?: string
-          reason?: string
-          refund_amount_cents?: number | null
-          status?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "return_requests_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "return_requests_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -690,34 +639,50 @@ export type Database = {
         }
         Relationships: []
       }
-      search_queries: {
+      return_requests: {
         Row: {
           created_at: string
+          description: string | null
           id: string
-          locale: string
-          query: string
-          results_count: number
-          user_id: string | null
+          order_id: string
+          reason: string
+          refund_amount_cents: number | null
+          status: string
+          updated_at: string
+          user_id: string
         }
         Insert: {
           created_at?: string
+          description?: string | null
           id?: string
-          locale?: string
-          query: string
-          results_count?: number
-          user_id?: string | null
+          order_id: string
+          reason: string
+          refund_amount_cents?: number | null
+          status?: string
+          updated_at?: string
+          user_id: string
         }
         Update: {
           created_at?: string
+          description?: string | null
           id?: string
-          locale?: string
-          query?: string
-          results_count?: number
-          user_id?: string | null
+          order_id?: string
+          reason?: string
+          refund_amount_cents?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "search_queries_user_id_fkey"
+            foreignKeyName: "return_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "return_requests_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -779,6 +744,41 @@ export type Database = {
           },
         ]
       }
+      search_queries: {
+        Row: {
+          created_at: string
+          id: string
+          locale: string
+          query: string
+          results_count: number
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          locale?: string
+          query: string
+          results_count?: number
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          locale?: string
+          query?: string
+          results_count?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "search_queries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stripe_webhook_events: {
         Row: {
           id: string
@@ -802,14 +802,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      decrement_stock: {
-        Args: { p_order_id: string }
-        Returns: boolean
-      }
-      is_admin: {
-        Args: Record<string, never>
-        Returns: boolean
-      }
+      decrement_stock: { Args: { p_order_id: string }; Returns: boolean }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

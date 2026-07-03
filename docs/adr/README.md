@@ -23,5 +23,7 @@
 | [0017](0017-analytics-server-client.md) | Analytics: server purchase + consent client | принят | Phase 2 PR-15–16 |
 | [0018](0018-admin-rbac-v0.md) | Admin RBAC v0 (`profiles.role`) | принят | Phase 2 PR-19–21 |
 | [0019](0019-inventory-decrement.md) | Inventory decrement RPC + idempotency | принят | Phase 2 PR-18 |
+| [0020](0020-baltic-stripe-payment-methods.md) | Baltic Stripe payment methods | принят | Phase 2 PR-24 |
+| [0021](0021-image-optimization-cwv.md) | Image optimization + CWV budget | принят | Phase 2 PR-28–29 |
 
 Blueprint: [`docs/reports/06-refactoring-blueprint.md`](../reports/06-refactoring-blueprint.md).
