@@ -9,6 +9,7 @@ import { localizedPath } from "@/lib/i18n/routes"
 import { type NextRequest, NextResponse } from "next/server"
 
 const SKIP_LOCALE_PREFIXES = [
+  "/admin",
   "/api",
   "/auth/callback",
   "/monitoring",

@@ -302,6 +302,9 @@ export type Database = {
           payment_intent_id: string | null
           payment_status: string | null
           phone: string | null
+          refund_notice_sent_at: string | null
+          shipped_email_sent_at: string | null
+          tracking_number: string | null
           shipping_address: Json | null
           shipping_cost_cents: number
           shipping_method: string
@@ -333,6 +336,9 @@ export type Database = {
           payment_intent_id?: string | null
           payment_status?: string | null
           phone?: string | null
+          refund_notice_sent_at?: string | null
+          shipped_email_sent_at?: string | null
+          tracking_number?: string | null
           shipping_address?: Json | null
           shipping_cost_cents: number
           shipping_method: string
@@ -364,6 +370,9 @@ export type Database = {
           payment_intent_id?: string | null
           payment_status?: string | null
           phone?: string | null
+          refund_notice_sent_at?: string | null
+          shipped_email_sent_at?: string | null
+          tracking_number?: string | null
           shipping_address?: Json | null
           shipping_cost_cents?: number
           shipping_method?: string
@@ -387,6 +396,57 @@ export type Database = {
           },
           {
             foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      return_requests: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          order_id: string
+          reason: string
+          refund_amount_cents: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_id: string
+          reason: string
+          refund_amount_cents?: number | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_id?: string
+          reason?: string
+          refund_amount_cents?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "return_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "return_requests_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
