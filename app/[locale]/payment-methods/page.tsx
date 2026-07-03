@@ -98,8 +98,11 @@ function PaymentMethodsContent() {
                   </div>
                   <h2 className="text-lg font-bold text-foreground">{t("paymentBanksTitle")}</h2>
                 </div>
-                <p className="text-sm text-muted-foreground mb-5">
+                <p className="text-sm text-muted-foreground mb-3">
                   {t("paymentBanksDesc")}
+                </p>
+                <p className="mb-5 text-xs text-muted-foreground">
+                  {t("paymentBanksCheckoutNote")}
                 </p>
                 <div className="flex flex-wrap items-center gap-6">
                   {latvianBanks.map((bank) => (

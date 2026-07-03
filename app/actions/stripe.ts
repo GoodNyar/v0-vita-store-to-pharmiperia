@@ -15,6 +15,7 @@ import {
   type CheckoutLineInput,
 } from "@/lib/orders"
 import { captureCheckoutError } from "@/lib/sentry/capture-checkout"
+import { getCheckoutPaymentMethodTypes } from "@/lib/stripe/payment-methods"
 
 export type { CheckoutCustomerInput, CheckoutLineInput }
 
@@ -89,6 +90,7 @@ export async function createCheckoutSession(
     redirect_on_completion: "never",
     line_items: lineItems,
     mode: "payment",
+    payment_method_types: getCheckoutPaymentMethodTypes(),
     customer_email: customer.email.trim() || undefined,
     payment_intent_data: {
       shipping: buildPaymentIntentShippingForTax(customer),
