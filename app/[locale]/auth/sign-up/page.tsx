@@ -3,11 +3,21 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { createClient } from "@/lib/supabase/client"
+import { beginGoogleOAuth, signUpWithCaptcha } from "@/app/actions/auth"
+import { AuthCaptcha, isAuthCaptchaRequired } from "@/components/auth-captcha"
 import { useAuth } from "@/components/auth-provider"
 import { Button } from "@/components/ui/button"
 import { Leaf, Eye, EyeOff, Loader2 } from "lucide-react"
 import { useLang } from "@/lib/i18n"
+
+function mapAuthError(
+  error: string,
+  t: (key: "captchaFailed" | "captchaRequired" | "signUpPasswordMin") => string
+): string {
+  if (error === "captcha_failed") return t("captchaFailed")
+  if (error === "password_too_short") return t("signUpPasswordMin")
+  return error
+}
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -19,65 +29,68 @@ export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const [captchaResetKey, setCaptchaResetKey] = useState(0)
+
+  const captchaRequired = isAuthCaptchaRequired()
+  const captchaReady = !captchaRequired || Boolean(captchaToken)
+
+  const resetCaptcha = () => {
+    setCaptchaToken(null)
+    setCaptchaResetKey((key) => key + 1)
+  }
 
   const handleGoogleSignUp = async () => {
+    if (!captchaReady) {
+      setError(t("captchaRequired"))
+      return
+    }
+
     setGoogleLoading(true)
     setError(null)
-    
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/account`,
-      },
-    })
 
-    if (error) {
-      setError(error.message)
+    const result = await beginGoogleOAuth(captchaToken)
+    if (!result.success) {
+      setError(mapAuthError(result.error, t))
+      if (result.code === "captcha") resetCaptcha()
       setGoogleLoading(false)
+      return
     }
+
+    window.location.href = result.url
   }
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
-    if (password.length < 6) {
-      setError(t("signUpPasswordMin"))
+    if (!captchaReady) {
+      setError(t("captchaRequired"))
       return
     }
 
     setLoading(true)
 
-    const supabase = createClient()
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/account`,
-      },
-    })
-
-    if (error) {
-      setError(error.message)
+    const result = await signUpWithCaptcha(email, password, captchaToken)
+    if (!result.success) {
+      setError(mapAuthError(result.error, t))
+      if (result.code === "captcha") resetCaptcha()
       setLoading(false)
       return
     }
 
-    // If session exists immediately (email confirmation disabled), redirect to account
-    if (data.session) {
-      await refreshAuth()
-      router.push("/account")
-      router.refresh()
-    } else {
-      // Otherwise redirect to email confirmation page
-      router.push(`/auth/sign-up-success?email=${encodeURIComponent(email)}`)
+    if (result.needsEmailConfirmation && result.email) {
+      router.push(`/auth/sign-up-success?email=${encodeURIComponent(result.email)}`)
+      return
     }
+
+    await refreshAuth()
+    router.push("/account")
+    router.refresh()
   }
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
-      {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
           <Link href="/" className="flex items-center gap-1.5">
@@ -89,11 +102,9 @@ export default function SignUpPage() {
         </div>
       </header>
 
-      {/* Main content */}
       <main className="flex flex-1 items-center justify-center px-4 py-4 sm:py-8">
         <div className="w-full max-w-sm">
           <div className="rounded-2xl border border-border bg-card p-5 sm:p-8 shadow-sm">
-            {/* Title */}
             <div className="mb-5 text-center">
               <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t("signUpTitle")}</h1>
               <p className="mt-1.5 text-sm text-muted-foreground">
@@ -104,18 +115,18 @@ export default function SignUpPage() {
               </p>
             </div>
 
-            {/* Error */}
             {error && (
               <div className="mb-4 rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
                 {error}
               </div>
             )}
 
-            {/* Google button */}
+            <AuthCaptcha onToken={setCaptchaToken} resetKey={captchaResetKey} />
+
             <button
               type="button"
               onClick={handleGoogleSignUp}
-              disabled={googleLoading}
+              disabled={googleLoading || !captchaReady}
               className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-border bg-muted/50 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
             >
               {googleLoading ? (
@@ -145,14 +156,12 @@ export default function SignUpPage() {
               )}
             </button>
 
-            {/* Divider */}
             <div className="my-5 flex items-center gap-3">
               <div className="h-px flex-1 bg-border" />
               <span className="text-xs text-muted-foreground">{t("signUpOr")}</span>
               <div className="h-px flex-1 bg-border" />
             </div>
 
-            {/* Form */}
             <form onSubmit={handleSignUp} className="space-y-4">
               <div>
                 <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-foreground">
@@ -195,7 +204,7 @@ export default function SignUpPage() {
 
               <Button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !captchaReady}
                 className="h-11 w-full bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {loading ? (
@@ -209,7 +218,6 @@ export default function SignUpPage() {
               </Button>
             </form>
 
-            {/* Terms text */}
             <p className="mt-5 text-center text-xs text-muted-foreground leading-relaxed">
               {t("signUpTermsText")}{" "}
               <Link href="/terms" className="text-foreground underline hover:text-primary">

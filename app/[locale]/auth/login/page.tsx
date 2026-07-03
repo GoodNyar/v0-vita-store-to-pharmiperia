@@ -3,64 +3,82 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { createClient } from "@/lib/supabase/client"
+import { beginGoogleOAuth, signInWithCaptcha } from "@/app/actions/auth"
+import { AuthCaptcha, isAuthCaptchaRequired } from "@/components/auth-captcha"
 import { useAuth } from "@/components/auth-provider"
 import { Button } from "@/components/ui/button"
 import { Leaf, Eye, EyeOff, Loader2 } from "lucide-react"
 import { useLang } from "@/lib/i18n"
 
+function mapAuthError(
+  error: string,
+  t: (key: "invalidEmailPassword" | "captchaFailed" | "captchaRequired") => string
+): string {
+  if (error === "captcha_failed") return t("captchaFailed")
+  if (error === "invalid_credentials") return t("invalidEmailPassword")
+  return error
+}
+
 export default function LoginPage() {
   const router = useRouter()
   const { refreshAuth } = useAuth()
-  const { lang } = useLang()
+  const { t } = useLang()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const [captchaResetKey, setCaptchaResetKey] = useState(0)
 
-  const handleGoogleLogin = async () => {
-    setGoogleLoading(true)
-    setError(null)
-    
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/account`,
-      },
-    })
+  const captchaRequired = isAuthCaptchaRequired()
+  const captchaReady = !captchaRequired || Boolean(captchaToken)
 
-    if (error) {
-      setError(error.message)
-      setGoogleLoading(false)
-    }
+  const resetCaptcha = () => {
+    setCaptchaToken(null)
+    setCaptchaResetKey((key) => key + 1)
   }
 
-  const { t } = useLang()
+  const handleGoogleLogin = async () => {
+    if (!captchaReady) {
+      setError(t("captchaRequired"))
+      return
+    }
+
+    setGoogleLoading(true)
+    setError(null)
+
+    const result = await beginGoogleOAuth(captchaToken)
+    if (!result.success) {
+      setError(mapAuthError(result.error, t))
+      if (result.code === "captcha") resetCaptcha()
+      setGoogleLoading(false)
+      return
+    }
+
+    window.location.href = result.url
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+
+    if (!captchaReady) {
+      setError(t("captchaRequired"))
+      return
+    }
+
     setLoading(true)
 
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (error) {
-      const errorMsg = error.message === "Invalid login credentials" 
-        ? t("invalidEmailPassword")
-        : error.message
-      setError(errorMsg)
+    const result = await signInWithCaptcha(email, password, captchaToken)
+    if (!result.success) {
+      setError(mapAuthError(result.error, t))
+      if (result.code === "captcha") resetCaptcha()
       setLoading(false)
       return
     }
 
-    // Refresh auth state in provider before redirecting
     await refreshAuth()
     router.push("/account")
     router.refresh()
@@ -68,7 +86,6 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
-      {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
           <Link href="/" className="flex items-center gap-1.5">
@@ -80,11 +97,9 @@ export default function LoginPage() {
         </div>
       </header>
 
-      {/* Main content */}
       <main className="flex flex-1 items-center justify-center px-4 py-4 sm:py-8">
         <div className="w-full max-w-sm">
           <div className="rounded-2xl border border-border bg-card p-5 sm:p-8 shadow-sm">
-            {/* Title */}
             <div className="mb-5 text-center">
               <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t("loginTitle")}</h1>
               <p className="mt-1.5 text-sm text-muted-foreground">
@@ -95,18 +110,18 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Error */}
             {error && (
               <div className="mb-4 rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
                 {error}
               </div>
             )}
 
-            {/* Google button */}
+            <AuthCaptcha onToken={setCaptchaToken} resetKey={captchaResetKey} />
+
             <button
               type="button"
               onClick={handleGoogleLogin}
-              disabled={googleLoading}
+              disabled={googleLoading || !captchaReady}
               className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-border bg-muted/50 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
             >
               {googleLoading ? (
@@ -136,14 +151,12 @@ export default function LoginPage() {
               )}
             </button>
 
-            {/* Divider */}
             <div className="my-5 flex items-center gap-3">
               <div className="h-px flex-1 bg-border" />
               <span className="text-xs text-muted-foreground">{t("loginOr")}</span>
               <div className="h-px flex-1 bg-border" />
             </div>
 
-            {/* Form */}
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-foreground">
@@ -192,7 +205,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !captchaReady}
                 className="h-11 w-full bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {loading ? (
@@ -206,7 +219,6 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            {/* Terms text */}
             <p className="mt-5 text-center text-xs text-muted-foreground leading-relaxed">
               {t("loginTermsText")}{" "}
               <Link href="/terms" className="text-foreground underline hover:text-primary">
