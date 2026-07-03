@@ -1,0 +1,58 @@
+name: E2E smoke (cron)
+
+on:
+  schedule:
+    # Daily 06:00 UTC — staging smoke per ADR-0015
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-cron-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checkout-smoke:
+    name: Playwright checkout smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    if: ${{ vars.E2E_CRON_ENABLED == 'true' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: Run checkout smoke
+        run: pnpm test:e2e e2e/checkout.spec.ts
+        env:
+          E2E_ENABLED: 'true'
+          PLAYWRIGHT_BASE_URL: ${{ vars.PLAYWRIGHT_BASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
