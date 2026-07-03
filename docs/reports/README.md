@@ -15,6 +15,8 @@
 | 09 | [Финансовая модель на 36 месяцев](09-finansovaya-model-36-mesyacev.md) | CFO-модель: помесячная выручка, P&L, cash flow, 3 сценария, юнит-экономика, формулы для Excel |
 | 10 | [VC Due Diligence](10-vc-due-diligence.md) | Оценка как инвестиции: 14 категорий риска с баллами, вердикт, условия закрытия, топ-25 решений по ROI |
 | 11 | [Phase 1 Production Validation](11-phase-1-production-validation.md) | Финальный прогон Phase 1: 22/22, вердикт CONDITIONAL GO, ops-чеклист |
+| — | [Phase 1 Final Summary](phase-1-final-summary.md) | Полный отчёт закрытия Phase 1: файлы, ADR, CI, checks, техдолг |
+| — | [Phase 2 Prerequisites](phase-2-prerequisites.md) | Чеклист перед стартом Phase 2: env, ограничения ADR, отложенные сервисы |
 
 Действующая техническая конституция проекта: [`docs/ENGINEERING_PLAYBOOK.md`](../ENGINEERING_PLAYBOOK.md).
 Архитектурные решения: [`docs/adr/`](../adr/README.md) (шаблон — `0000-adr-template.md`).
