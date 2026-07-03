@@ -14,6 +14,7 @@ import { multiplyMoney, sumMoney, type Money } from "@/lib/money"
 import { fetchCatalogProducts } from "@/app/actions/catalog"
 import { createClient } from "@/lib/supabase/client"
 import { isLocale, type Locale } from "@/lib/i18n/config"
+import { trackAddToCart } from "@/lib/analytics/client"
 
 interface CartItem {
   product: Product
@@ -175,6 +176,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [supabase.auth])
 
   const addToCart = useCallback((product: Product) => {
+    trackAddToCart({
+      itemId: String(product.id),
+      itemName: product.name,
+      price: product.price.amount / 100,
+      currency: product.price.currency,
+      quantity: 1,
+    })
     setItems((prev) => {
       const updated = mergeCartItem(prev, product, 1)
       saveCartToStorage(updated)
@@ -186,6 +194,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const addItem = useCallback((input: QuickAddItem) => {
     const product = resolveProduct(input, catalogRef.current)
     const quantity = Math.max(1, input.quantity ?? 1)
+    trackAddToCart({
+      itemId: String(product.id),
+      itemName: product.name,
+      price: product.price.amount / 100,
+      currency: product.price.currency,
+      quantity,
+    })
     setItems((prev) => {
       const updated = mergeCartItem(prev, product, quantity)
       saveCartToStorage(updated)

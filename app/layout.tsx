@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { ClientAnalyticsScripts } from '@/components/client-analytics-scripts'
 import { ConsentGatedAnalytics } from '@/components/consent-gated-analytics'
 import { UtmCaptureRoot } from '@/components/utm-capture-root'
 import { ToastProvider } from '@/components/toast-provider'
@@ -103,6 +104,7 @@ export default function RootLayout({
           </FavoritesProvider>
         </AuthProvider>
         <UtmCaptureRoot />
+        <ClientAnalyticsScripts />
         <ConsentGatedAnalytics />
       </body>
     </html>

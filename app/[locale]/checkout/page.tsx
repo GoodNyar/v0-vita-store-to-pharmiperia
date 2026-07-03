@@ -11,6 +11,7 @@ import { addMoney, eur, extractInclusiveVatCents, multiplyMoney } from "@/lib/mo
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, MapPin, Truck, AlertCircle, CreditCard, CheckCircle } from "lucide-react"
 import { StripeCheckout } from "@/components/stripe-checkout"
+import { trackBeginCheckout } from "@/lib/analytics/client"
 import { readPersistedUtm } from "@/lib/analytics/utm"
 
 const LATVIAN_STATIONS = [
@@ -103,6 +104,15 @@ function CheckoutContent() {
 
   const handleProceedToPayment = () => {
     if (validateForm()) {
+      trackBeginCheckout(
+        items.map((item) => ({
+          itemId: String(item.product.id),
+          itemName: item.product.name,
+          price: item.product.price.amount / 100,
+          quantity: item.quantity,
+          currency: item.product.price.currency,
+        }))
+      )
       setStep("payment")
     }
   }

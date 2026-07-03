@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Star, Minus, Plus, Truck, Shield, RotateCcw, ChevronLeft, Check, Heart } from "lucide-react"
@@ -14,6 +14,7 @@ import { useLang, formatMoney } from "@/lib/i18n"
 import { discountPercent, multiplyMoney } from "@/lib/money"
 import { getBrandSlug, type Product } from "@/lib/data"
 import { useFavorites } from "@/components/favorites-provider"
+import { trackViewItem } from "@/lib/analytics/client"
 
 export function ProductPageContent({
   product,
@@ -28,6 +29,15 @@ export function ProductPageContent({
   const [quantity, setQuantity] = useState(1)
   const [activeTab, setActiveTab] = useState<"about" | "benefits" | "howToUse" | "ingredients">("about")
   const isFav = isFavorited(product.id)
+
+  useEffect(() => {
+    trackViewItem({
+      itemId: String(product.id),
+      itemName: product.name,
+      price: product.price.amount / 100,
+      currency: product.price.currency,
+    })
+  }, [product.id, product.name, product.price.amount, product.price.currency])
 
   const discount =
     product.originalPrice != null
