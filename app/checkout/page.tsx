@@ -9,7 +9,6 @@ import { useLang, formatEur, LangProvider } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, MapPin, Truck, AlertCircle, CreditCard, CheckCircle } from "lucide-react"
 import { StripeCheckout } from "@/components/stripe-checkout"
-import { createClient } from "@/lib/supabase/client"
 
 const LATVIAN_STATIONS = [
   { id: 1, name: "Rīga - Akropole", address: "Nīcgales str. 21, Rīga" },
@@ -50,6 +49,10 @@ function CheckoutContent() {
   const [selectedShipping, setSelectedShipping] = useState("omniva")
   const [selectedStation, setSelectedStation] = useState("1")
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [preparedOrder, setPreparedOrder] = useState<{
+    orderId: string
+    orderNumber: string
+  } | null>(null)
 
   const shippingOption = SHIPPING_OPTIONS.find((opt) => opt.id === selectedShipping)
   const shippingCost = shippingOption?.price || 3.5
@@ -91,50 +94,30 @@ function CheckoutContent() {
     }
   }
 
-  const handlePaymentComplete = async () => {
-    // Save order to database
-    try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (user) {
-        const orderNumber = `PH${Date.now().toString(36).toUpperCase()}`
-        const station = LATVIAN_STATIONS.find(s => s.id.toString() === selectedStation)
-        
-        const { data: order, error: orderError } = await supabase
-          .from('orders')
-          .insert({
-            user_id: user.id,
-            order_number: orderNumber,
-            status: 'paid',
-            subtotal: totalPrice,
-            shipping_cost: shippingCost,
-            total: finalTotal,
-            shipping_method: selectedShipping,
-            parcel_station: isCourier 
-              ? `${formData.address}, ${formData.city}, ${formData.postalCode}`
-              : station?.name || '',
-          })
-          .select()
-          .single()
-
-        if (order && !orderError) {
-          // Add order items
-          const orderItems = items.map(item => ({
-            order_id: order.id,
-            product_id: item.product.id,
-            quantity: item.quantity,
-            price: item.product.price,
-          }))
-          await supabase.from('order_items').insert(orderItems)
-        }
-      }
-    } catch (err) {
-      console.error('Error saving order:', err)
-    }
-
+  const handlePaymentComplete = () => {
+    // Payment truth lives in Stripe webhook (ADR-0005). UI only navigates forward.
     setStep("complete")
     clearCart()
+  }
+
+  const station = LATVIAN_STATIONS.find((s) => s.id.toString() === selectedStation)
+  const checkoutDetails = {
+    firstName: formData.firstName,
+    lastName: formData.lastName,
+    email: formData.email,
+    phone: formData.phone,
+    shippingMethod: selectedShipping,
+    shippingCost,
+    parcelStation: isCourier
+      ? `${formData.address}, ${formData.city}, ${formData.postalCode}`
+      : station?.name || "",
+    shippingAddress: isCourier
+      ? {
+          street: formData.address,
+          city: formData.city,
+          postalCode: formData.postalCode,
+        }
+      : undefined,
   }
 
   // Empty cart state
@@ -172,8 +155,13 @@ function CheckoutContent() {
               Paldies par pasūtījumu!
             </h1>
             <p className="mb-6 text-muted-foreground">
-              Jūsu pasūtījums ir veiksmīgi apmaksāts. Apstiprinājuma e-pasts nosūtīts uz {formData.email}
+              Jūsu maksājums ir saņemts. Pasūtījuma apstiprinājumu nosūtīsim uz {formData.email}, kad apmaksa būs apstiprināta serverī.
             </p>
+            {preparedOrder?.orderNumber && (
+              <p className="mb-6 text-sm text-muted-foreground">
+                Pasūtījuma numurs: <span className="font-medium text-card-foreground">{preparedOrder.orderNumber}</span>
+              </p>
+            )}
             <div className="mb-6 rounded-lg bg-muted p-4 text-left">
               <p className="text-sm text-muted-foreground">Piegādes metode</p>
               <p className="font-medium text-card-foreground">
@@ -412,13 +400,13 @@ function CheckoutContent() {
                     {t("editInformation")}
                   </button>
                 </div>
-                <StripeCheckout 
+                <StripeCheckout
                   items={items.map((item) => ({
                     id: item.product.id,
                     quantity: item.quantity,
                   }))}
-                  shippingCost={shippingCost}
-                  customerEmail={formData.email}
+                  checkoutDetails={checkoutDetails}
+                  onCheckoutPrepared={setPreparedOrder}
                   onComplete={handlePaymentComplete}
                 />
               </section>
