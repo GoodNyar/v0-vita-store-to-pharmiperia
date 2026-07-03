@@ -38,5 +38,35 @@ export {
   type UserId,
 } from './types'
 
+export {
+  addUserFavorite,
+  listUserFavoriteLegacyIds,
+  normalizeFavoriteRowId,
+  parseStoredFavoriteIds,
+  removeUserFavorite,
+  syncLocalFavoritesToUser,
+} from './favorites'
+export {
+  getOrderDetailLines,
+  getOrderWithLines,
+  listOrdersForUser,
+  type OrderDetailLine,
+  type OrderListItem,
+} from './orders'
+export {
+  legacyProductIdToUuid,
+  normalizeLegacyProductId,
+  toStorageProductId,
+  uuidToLegacyProductId,
+} from './ids'
+export {
+  getProductByLegacyId,
+  getProductBySlug,
+  getProductByUuid,
+  listActiveProducts,
+  mapCommerceToLegacyProduct,
+  mapDbProductToCommerce,
+  pricesMatchLegacy,
+} from './products'
 export { brandSlug, productSlug, slugify } from './slugs'
 export { LEGACY_PRODUCT_ID_REDIRECTS } from './redirects'

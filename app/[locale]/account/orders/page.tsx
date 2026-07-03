@@ -4,12 +4,17 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { LangProvider, useLang, formatMoney } from "@/lib/i18n"
-import { moneyFromDb, multiplyMoney, type Money } from "@/lib/money"
 import { CartProvider } from "@/components/cart-context"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
 import { createClient } from "@/lib/supabase/client"
+import {
+  getOrderDetailLines,
+  listOrdersForUser,
+  type OrderDetailLine,
+  type OrderListItem,
+} from "@/lib/commerce/orders"
 import {
   ChevronLeft,
   Package,
@@ -20,55 +25,14 @@ import {
   ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
-interface Order {
-  id: string
-  order_number: string
-  status: string
-  subtotal_cents: number
-  shipping_cost_cents: number
-  tax_cents: number
-  total_cents: number
-  currency: string
-  shipping_method: string
-  parcel_station: string
-  created_at: string
-}
-
-interface OrderItem {
-  id: string
-  quantity: number
-  unit_price_cents: number
-  currency: string
-  product: {
-    name: string
-    image_url: string
-  } | null
-}
-
-function orderMoney(cents: number, currency: string): Money {
-  return moneyFromDb(cents, currency as Money["currency"])
-}
-
-function normalizeProductRelation(
-  product: { name: string; image_url: string } | { name: string; image_url: string }[] | null,
-  fallbackName: string
-): { name: string; image_url: string } {
-  if (!product) {
-    return { name: fallbackName, image_url: "/placeholder.svg" }
-  }
-  if (Array.isArray(product)) {
-    return product[0] ?? { name: fallbackName, image_url: "/placeholder.svg" }
-  }
-  return product
-}
+import { multiplyMoney } from "@/lib/money"
 
 function OrdersContent() {
   const { t } = useLang()
   const router = useRouter()
-  const [orders, setOrders] = useState<Order[]>([])
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([])
+  const [orders, setOrders] = useState<OrderListItem[]>([])
+  const [selectedOrder, setSelectedOrder] = useState<OrderListItem | null>(null)
+  const [orderItems, setOrderItems] = useState<OrderDetailLine[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -83,16 +47,9 @@ function OrdersContent() {
         return
       }
 
-      const { data, error } = await supabase
-        .from("orders")
-        .select(
-          "id, order_number, status, subtotal_cents, shipping_cost_cents, tax_cents, total_cents, currency, shipping_method, parcel_station, created_at"
-        )
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-
-      if (!error && data) {
-        setOrders(data as Order[])
+      const result = await listOrdersForUser(user.id)
+      if (result.ok) {
+        setOrders(result.data)
       }
       setLoading(false)
     }
@@ -100,43 +57,17 @@ function OrdersContent() {
     loadOrders()
   }, [router])
 
-  const loadOrderItems = async (order: Order) => {
+  const loadOrderItems = async (order: OrderListItem) => {
     setSelectedOrder(order)
     const supabase = createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return
 
-    const { data, error } = await supabase
-      .from("order_items")
-      .select(
-        `
-        id,
-        quantity,
-        unit_price_cents,
-        currency,
-        product_name,
-        product:products (
-          name,
-          image_url
-        )
-      `
-      )
-      .eq("order_id", order.id)
-
-    if (!error && data) {
-      setOrderItems(
-        data.map((row) => ({
-          id: row.id,
-          quantity: row.quantity,
-          unit_price_cents: row.unit_price_cents,
-          currency: row.currency,
-          product: normalizeProductRelation(
-            row.product as
-              | { name: string; image_url: string }
-              | { name: string; image_url: string }[]
-              | null,
-            (row as { product_name?: string }).product_name ?? "Product"
-          ),
-        }))
-      )
+    const result = await getOrderDetailLines(user.id, order.id)
+    if (result.ok) {
+      setOrderItems(result.data)
     }
   }
 
@@ -216,7 +147,7 @@ function OrdersContent() {
                 <div className="mb-6 flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">{t("orderNumber")}</p>
-                    <p className="text-lg font-bold text-foreground">{selectedOrder.order_number}</p>
+                    <p className="text-lg font-bold text-foreground">{selectedOrder.orderNumber}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {getStatusIcon(selectedOrder.status)}
@@ -226,14 +157,13 @@ function OrdersContent() {
 
                 <div className="space-y-4">
                   {orderItems.map((item) => {
-                    const unitPrice = orderMoney(item.unit_price_cents, item.currency)
-                    const lineTotal = multiplyMoney(unitPrice, item.quantity)
+                    const lineTotal = multiplyMoney(item.unitPrice, item.quantity)
                     return (
                       <div key={item.id} className="flex items-center gap-4 border-b border-border pb-4">
                         <div className="flex-1">
-                          <p className="font-medium text-foreground">{item.product?.name}</p>
+                          <p className="font-medium text-foreground">{item.productName}</p>
                           <p className="text-sm text-muted-foreground">
-                            {item.quantity} x {formatMoney(unitPrice)}
+                            {item.quantity} x {formatMoney(item.unitPrice)}
                           </p>
                         </div>
                         <p className="font-semibold text-foreground">{formatMoney(lineTotal)}</p>
@@ -245,35 +175,21 @@ function OrdersContent() {
                 <div className="mt-6 space-y-2 border-t border-border pt-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t("subtotal")}</span>
-                    <span>
-                      {formatMoney(
-                        orderMoney(selectedOrder.subtotal_cents, selectedOrder.currency)
-                      )}
-                    </span>
+                    <span>{formatMoney(selectedOrder.subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t("shippingCost")}</span>
-                    <span>
-                      {formatMoney(
-                        orderMoney(selectedOrder.shipping_cost_cents, selectedOrder.currency)
-                      )}
-                    </span>
+                    <span>{formatMoney(selectedOrder.shippingCost)}</span>
                   </div>
-                  {selectedOrder.tax_cents > 0 && (
+                  {selectedOrder.tax.amount > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">{t("vatAmount")}</span>
-                      <span>
-                        {formatMoney(
-                          orderMoney(selectedOrder.tax_cents, selectedOrder.currency)
-                        )}
-                      </span>
+                      <span>{formatMoney(selectedOrder.tax)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-lg font-bold">
                     <span>{t("total")}</span>
-                    <span className="text-primary">
-                      {formatMoney(orderMoney(selectedOrder.total_cents, selectedOrder.currency))}
-                    </span>
+                    <span className="text-primary">{formatMoney(selectedOrder.total)}</span>
                   </div>
                 </div>
               </div>
@@ -291,17 +207,15 @@ function OrdersContent() {
                       <Package className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <p className="font-semibold text-foreground">{order.order_number}</p>
+                      <p className="font-semibold text-foreground">{order.orderNumber}</p>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(order.created_at).toLocaleDateString()}
+                        {new Date(order.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <p className="font-bold text-foreground">
-                        {formatMoney(orderMoney(order.total_cents, order.currency))}
-                      </p>
+                      <p className="font-bold text-foreground">{formatMoney(order.total)}</p>
                       <p className="text-sm text-muted-foreground">{getStatusText(order.status)}</p>
                     </div>
                     <ChevronRight className="h-5 w-5 text-muted-foreground" />
