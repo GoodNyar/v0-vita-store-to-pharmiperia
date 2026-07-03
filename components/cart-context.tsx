@@ -143,7 +143,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const saved = loadCartFromStorage()
-    setItems(saved)
+    const hydrationTimer = window.setTimeout(() => {
+      setItems(saved)
+    }, 0)
 
     const locale = localeFromPathname()
     if (isLocale(locale)) {
@@ -166,8 +168,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     })
 
-    return () => subscription.unsubscribe()
-  }, [])
+    return () => {
+      window.clearTimeout(hydrationTimer)
+      subscription.unsubscribe()
+    }
+  }, [supabase.auth])
 
   const addToCart = useCallback((product: Product) => {
     setItems((prev) => {

@@ -45,12 +45,11 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   const supabase = createClient()
 
   useEffect(() => {
-    const localFavs = getLocalFavorites()
-    if (localFavs.length > 0) {
-      setFavorites(localFavs)
-    }
-
     const init = async () => {
+      const localFavs = getLocalFavorites()
+      if (localFavs.length > 0) {
+        setFavorites(localFavs)
+      }
       try {
         const {
           data: { user: authUser },

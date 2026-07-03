@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { moneyFromDb } from '@/lib/money'
-import { isLocale, type Locale } from '@/lib/i18n/config'
+import { isLocale } from '@/lib/i18n/config'
 import {
   commerceDatabase,
   commerceFail,

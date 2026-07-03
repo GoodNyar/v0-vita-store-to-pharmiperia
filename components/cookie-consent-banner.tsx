@@ -1,23 +1,34 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import { useLang } from '@/lib/i18n'
 import { createConsent } from '@/lib/consent/types'
 import { readConsent, writeConsent } from '@/lib/consent/storage'
 import { Button } from '@/components/ui/button'
 
+function needsConsentBanner() {
+  return readConsent() == null
+}
+
+function subscribeConsent(onStoreChange: () => void) {
+  window.addEventListener('pharm:consent-updated', onStoreChange)
+  return () => window.removeEventListener('pharm:consent-updated', onStoreChange)
+}
+
 export function CookieConsentBanner() {
   const { t, localizedPath } = useLang()
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    setVisible(readConsent() == null)
-  }, [])
+  const [dismissed, setDismissed] = useState(false)
+  const needsBanner = useSyncExternalStore(
+    subscribeConsent,
+    needsConsentBanner,
+    () => false
+  )
+  const visible = needsBanner && !dismissed
 
   const save = (analytics: boolean) => {
     writeConsent(createConsent(analytics))
-    setVisible(false)
+    setDismissed(true)
   }
 
   if (!visible) return null

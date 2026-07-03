@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { useCart } from "@/components/cart-context"
 import { useAuth } from "@/components/auth-provider"
 import { useLang, type TranslationKey } from "@/lib/i18n"
 import { useFavorites } from "@/components/favorites-provider"
-import { categories, BRANDS_ORDERED, promoBarItems, getBrandSlug } from "@/lib/data"
+import { categories, BRANDS_ORDERED, getBrandSlug } from "@/lib/data"
 import {
   Search,
   ShoppingCart,
@@ -16,16 +16,7 @@ import {
   ChevronDown,
   Leaf,
   X,
-  Truck,
-  BadgeCheck,
-  Sparkles,
 } from "lucide-react"
-
-const promoIconMap = {
-  Truck,
-  BadgeCheck,
-  Sparkles,
-}
 
 const isBrandName = (sub: string) => BRANDS_ORDERED.includes(sub)
 
@@ -41,22 +32,6 @@ export function SiteHeader() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [expandedBrandsSection, setExpandedBrandsSection] = useState(false)
-  const [promoVisible, setPromoVisible] = useState(true)
-  const [promoIndex, setPromoIndex] = useState(0)
-  const promoItems = promoBarItems[lang]
-
-  useEffect(() => { setPromoIndex(0) }, [lang])
-  useEffect(() => {
-    if (!promoVisible) return
-    const interval = setInterval(() => {
-      setPromoIndex((prev) => (prev + 1) % promoItems.length)
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [promoItems, promoVisible])
-
-  const currentPromo = promoItems[promoIndex]
-  const PromoIcon = promoIconMap[currentPromo?.icon as keyof typeof promoIconMap]
-
   // Map category id to translation key
   const getCategoryName = (id: string) => {
     const key = id as Parameters<typeof t>[0]

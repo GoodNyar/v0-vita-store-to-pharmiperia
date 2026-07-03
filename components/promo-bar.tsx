@@ -11,16 +11,8 @@ const iconMap = {
   Sparkles: Sparkles,
 }
 
-export function PromoBar() {
-  const { lang } = useLang()
+function PromoBarRotator({ items }: { items: typeof promoBarItems.lv }) {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [visible, setVisible] = useState(true)
-
-  const items = promoBarItems[lang]
-
-  useEffect(() => {
-    setCurrentIndex(0)
-  }, [lang])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -29,29 +21,37 @@ export function PromoBar() {
     return () => clearInterval(interval)
   }, [items])
 
-  if (!visible) return null
-
   const currentItem = items[currentIndex]
   const IconComponent = iconMap[currentItem.icon]
 
   return (
-    <div className="flex h-9 items-center bg-primary pl-2 pr-2 text-primary-foreground sm:h-8 sm:pl-4 sm:pr-4">
-      {/* Icon + Text — takes all available space between left edge and close button */}
-      <div className="flex min-w-0 flex-1 items-center justify-center gap-1.5 sm:gap-2">
-        <IconComponent
-          className="h-4 w-4 flex-shrink-0 sm:h-4.5 sm:w-4.5"
-          strokeWidth={2}
-        />
-        {/* Font size clamps from 10px (narrow phones) → 13px (standard mobile) → 14px (tablet+) */}
-        <span
-          className="whitespace-nowrap font-medium"
-          style={{ fontSize: "clamp(10px, 3.3vw, 14px)" }}
-        >
-          {currentItem.text}
-        </span>
-      </div>
+    <div className="flex min-w-0 flex-1 items-center justify-center gap-1.5 sm:gap-2">
+      <IconComponent
+        className="h-4 w-4 flex-shrink-0 sm:h-4.5 sm:w-4.5"
+        strokeWidth={2}
+      />
+      <span
+        className="whitespace-nowrap font-medium"
+        style={{ fontSize: "clamp(10px, 3.3vw, 14px)" }}
+      >
+        {currentItem.text}
+      </span>
+    </div>
+  )
+}
 
-      {/* Close button — fixed width so it never overlaps text */}
+export function PromoBar() {
+  const { lang } = useLang()
+  const [visible, setVisible] = useState(true)
+  const items = promoBarItems[lang]
+
+  if (!visible) return null
+
+  return (
+    <div className="relative flex h-9 items-center bg-primary pl-2 pr-2 text-primary-foreground sm:h-8 sm:pl-4 sm:pr-4">
+      <div className="min-w-0 flex-1">
+        <PromoBarRotator key={lang} items={items} />
+      </div>
       <button
         onClick={() => setVisible(false)}
         className="ml-2 flex-shrink-0 rounded-sm p-0.5 text-primary-foreground/80 transition-colors hover:text-primary-foreground"

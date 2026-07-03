@@ -6,24 +6,26 @@ import { CheckCircle, Package, Truck, ArrowRight } from "lucide-react"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { CartProvider, useCart } from "@/components/cart-context"
-import { LangProvider, useLang } from "@/lib/i18n"
+import { useCart } from "@/components/cart-context"
+import { LangProvider, useLang, type TranslationKey } from "@/lib/i18n"
 
 function SuccessContent() {
   const { t } = useLang()
   const { clearCart } = useCart()
-  const [orderNumber, setOrderNumber] = useState<string>("")
+  const [orderNumber] = useState(
+    () => `PH${Date.now().toString().slice(-8)}`
+  )
 
   useEffect(() => {
-    // Generate order number
-    const num = `PH${Date.now().toString().slice(-8)}`
-    setOrderNumber(num)
-    
-    // Clear cart after successful payment
     clearCart()
   }, [clearCart])
 
-  const steps = [
+  const steps: Array<{
+    icon: typeof CheckCircle
+    titleKey: TranslationKey
+    descriptionKey: TranslationKey
+    active: boolean
+  }> = [
     {
       icon: CheckCircle,
       titleKey: "checkoutSuccessOrderConfirmed",
@@ -91,9 +93,9 @@ function SuccessContent() {
                   </div>
                   <div className="flex-1">
                     <p className={`font-medium ${step.active ? "text-foreground" : "text-muted-foreground"}`}>
-                      {t(step.titleKey as any)}
+                      {t(step.titleKey)}
                     </p>
-                    <p className="text-sm text-muted-foreground">{t(step.descriptionKey as any)}</p>
+                    <p className="text-sm text-muted-foreground">{t(step.descriptionKey)}</p>
                   </div>
                   {step.active && (
                     <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
@@ -142,9 +144,7 @@ function SuccessContent() {
 export default function CheckoutSuccessPage() {
   return (
     <LangProvider>
-      <CartProvider>
         <SuccessContent />
-      </CartProvider>
     </LangProvider>
   )
 }

@@ -1,9 +1,9 @@
 "use client"
 
+import Link from "next/link"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { CartProvider } from "@/components/cart-context"
 import { LangProvider, useLang } from "@/lib/i18n"
 import { Shield, Award, Truck, CheckCircle } from "lucide-react"
 
@@ -65,12 +65,12 @@ function QualityContent() {
               <div className="rounded-xl bg-primary/5 border border-primary/20 p-6">
                 <h2 className="font-bold text-foreground mb-2">{t("qualityProblemTitle")}</h2>
                 <p className="text-sm text-muted-foreground mb-4">{t("qualityProblemDesc")}</p>
-                <a
+                <Link
                   href="/contact"
                   className="inline-flex h-10 items-center rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
                 >
                   {t("contactUsCta")}
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -83,9 +83,7 @@ function QualityContent() {
 export default function QualityPage() {
   return (
     <LangProvider>
-      <CartProvider>
         <QualityContent />
-      </CartProvider>
     </LangProvider>
   )
 }

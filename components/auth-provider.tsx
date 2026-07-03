@@ -65,7 +65,7 @@ export function AuthProvider({ children, initialSession = null }: AuthProviderPr
         const { data: { session: currentSession } } = await supabase.auth.getSession()
         setUser(currentUser)
         setSession(currentSession)
-      } catch (error) {
+      } catch {
         setUser(null)
         setSession(null)
       } finally {
@@ -74,9 +74,7 @@ export function AuthProvider({ children, initialSession = null }: AuthProviderPr
     }
 
     if (!initialSession) {
-      initAuth()
-    } else {
-      setIsLoading(false)
+      void initAuth()
     }
 
     // Listen for auth changes

@@ -4,8 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useParams, useRouter } from "next/navigation"
-import { useCart, CartProvider } from "@/components/cart-context"
-import { useLang, formatMoney } from "@/lib/i18n"
+import { useCart } from "@/components/cart-context"
+import { useLang, formatMoney, type TranslationKey } from "@/lib/i18n"
 import { isLocale, type Locale } from "@/lib/i18n/config"
 import { addMoney, eur, extractInclusiveVatCents, multiplyMoney } from "@/lib/money"
 import { Button } from "@/components/ui/button"
@@ -23,7 +23,12 @@ const LATVIAN_STATIONS = [
   { id: 8, name: "Ventspils", address: "Kuldīgas iela 8, Ventspils" },
 ]
 
-const SHIPPING_OPTIONS = [
+const SHIPPING_OPTIONS: Array<{
+  id: string
+  name: TranslationKey
+  price: ReturnType<typeof eur>
+  days: string
+}> = [
   { id: "omniva", name: "omnivaParcel", price: eur(350), days: "1-2" },
   { id: "dpd", name: "dpdPickup", price: eur(320), days: "1-2" },
   { id: "venipak", name: "venipakParcel", price: eur(295), days: "2-3" },
@@ -322,7 +327,7 @@ function CheckoutContent() {
                         />
                         <div className="flex-1">
                           <p className="font-medium text-card-foreground">
-                            {option.id === "courier" ? "Kurjera piegāde" : t(option.name as any)}
+                            {option.id === "courier" ? "Kurjera piegāde" : t(option.name)}
                           </p>
                           <p className="text-sm text-muted-foreground">Piegāde {option.days} darba dienas</p>
                         </div>
@@ -508,8 +513,6 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <CartProvider>
       <CheckoutContent />
-    </CartProvider>
   )
 }
