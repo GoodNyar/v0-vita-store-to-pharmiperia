@@ -20,5 +20,8 @@
 | [0014](0014-monitoring-health-budget-alerts.md) | Monitoring: health, budget alerts, ops | принят | Phase 1 task 20 |
 | [0015](0015-playwright-e2e-checkout-smoke.md) | Playwright e2e: smoke checkout path | принят | Phase 1 task 21 |
 | [0016](0016-phase-1-production-validation.md) | Phase 1 production validation gates | принят | Phase 1 task 22 |
+| [0017](0017-analytics-server-client.md) | Analytics: server purchase + consent client | принят | Phase 2 PR-15–16 |
+| [0018](0018-admin-rbac-v0.md) | Admin RBAC v0 (`profiles.role`) | принят | Phase 2 PR-19–21 |
+| [0019](0019-inventory-decrement.md) | Inventory decrement RPC + idempotency | принят | Phase 2 PR-18 |
 
 Blueprint: [`docs/reports/06-refactoring-blueprint.md`](../reports/06-refactoring-blueprint.md).
