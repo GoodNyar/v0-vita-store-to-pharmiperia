@@ -1,6 +1,8 @@
 import { generateText, Output } from 'ai'
 import { z } from 'zod'
 
+import { enforceAiBudget, guardAiRecommendationsEnabled } from '@/lib/ai/guard'
+import { parseRecommendationsRequest } from '@/lib/ai/validate'
 import { createClient } from '@/lib/supabase/server'
 import { moneyFromDb, type Money } from '@/lib/money'
 import { API_RATE_LIMITS, enforceRateLimit } from '@/lib/rate-limit'
@@ -45,15 +47,32 @@ function getRelatedName(
 }
 
 export async function POST(req: Request) {
+  const disabled = guardAiRecommendationsEnabled()
+  if (disabled) return disabled
+
   const rateLimited = await enforceRateLimit(req, API_RATE_LIMITS.recommendations)
   if (rateLimited) return rateLimited
 
+  let body: unknown
   try {
-    const { skinType, concerns, budget, currentProducts } = await req.json()
+    body = await req.json()
+  } catch {
+    return Response.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
 
+  const parsed = parseRecommendationsRequest(body)
+  if (!parsed.success) {
+    return Response.json({ error: 'Invalid request body' }, { status: 400 })
+  }
+
+  const budgetBlocked = await enforceAiBudget()
+  if (budgetBlocked) return budgetBlocked
+
+  const { skinType, concerns, budget, currentProducts } = parsed.data
+
+  try {
     const supabase = await createClient()
-    
-    // Fetch available products from database
+
     const { data: products } = await supabase
       .from('products')
       .select(`
@@ -112,7 +131,6 @@ Focus on:
 
     const recommendations: RecommendationOutput = result.output
 
-    // Enrich recommendations with full product data
     const enrichedRecommendations = recommendations.recommendations
       .map((rec) => {
         const product = productRows.find((p) => p.id === rec.productId)

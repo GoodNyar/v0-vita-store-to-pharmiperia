@@ -6,6 +6,7 @@ import { useLang, formatMoney } from "@/lib/i18n"
 import type { Money } from "@/lib/money"
 import { useCart } from "@/components/cart-context"
 import { normalizeProductId } from "@/lib/data"
+import { isAiRecommendationsPublicEnabled } from "@/lib/features/ai"
 import Image from "next/image"
 
 interface Recommendation {
@@ -44,6 +45,11 @@ const CONCERNS = [
 ]
 
 export function AIRecommendations() {
+  if (!isAiRecommendationsPublicEnabled()) return null
+  return <AIRecommendationsPanel />
+}
+
+function AIRecommendationsPanel() {
   const { t } = useLang()
   const { addItem } = useCart()
   const [isOpen, setIsOpen] = useState(false)

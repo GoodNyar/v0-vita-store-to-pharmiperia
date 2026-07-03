@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { MessageCircle, X, Send, Loader2, Bot, User } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport, type UIMessage } from "ai"
+import { isAiChatPublicEnabled } from "@/lib/features/ai"
 import { useLang } from "@/lib/i18n"
 
 const welcomeMessages: UIMessage[] = [
@@ -20,6 +21,11 @@ const welcomeMessages: UIMessage[] = [
 ]
 
 export function LiveChat() {
+  if (!isAiChatPublicEnabled()) return null
+  return <LiveChatPanel />
+}
+
+function LiveChatPanel() {
   const { t } = useLang()
   const [isOpen, setIsOpen] = useState(false)
   const [hasNewMessage, setHasNewMessage] = useState(false)
