@@ -1,0 +1,43 @@
+# v0 runtime artifacts (must not enter version control)
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
+
+# dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js
+.next/
+out/
+
+# environment secrets (never commit)
+.env
+.env*.local
+
+# build / type artifacts
+*.tsbuildinfo
+
+# deployment
+.vercel/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# logs
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# testing
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# IDE (local only)
+.idea/
+*.swp
+*.swo

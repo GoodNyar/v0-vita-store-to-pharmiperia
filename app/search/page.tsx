@@ -1,0 +1,259 @@
+"use client"
+
+import { useEffect, useState, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
+import Link from "next/link"
+import Image from "next/image"
+import { createClient } from "@/lib/supabase/client"
+import { LangProvider, useLang, formatEur } from "@/lib/i18n"
+import { CartProvider, useCart } from "@/components/cart-context"
+import { SiteHeader } from "@/components/site-header"
+import { SiteFooter } from "@/components/site-footer"
+import { CartDrawer } from "@/components/cart-drawer"
+import { Button } from "@/components/ui/button"
+import { Search, Star, Loader2, ChevronRight, X } from "lucide-react"
+
+interface Product {
+  id: string
+  sku: string
+  name: string
+  description: string
+  volume: string
+  price: number
+  original_price: number | null
+  rating: number
+  review_count: number
+  image_url: string
+  brand: { name: string; slug: string }
+  category: { name: string; slug: string }
+}
+
+function SearchContent() {
+  const searchParams = useSearchParams()
+  const query = searchParams.get("q") || ""
+  const { t } = useLang()
+  const { addItem } = useCart()
+  
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchInput, setSearchInput] = useState(query)
+
+  useEffect(() => {
+    const search = async () => {
+      if (!query) {
+        setProducts([])
+        setLoading(false)
+        return
+      }
+
+      setLoading(true)
+      const supabase = createClient()
+
+      // Search products by name, description, or brand
+      const { data } = await supabase
+        .from("products")
+        .select(`
+          *,
+          brand:brands(name, slug),
+          category:categories(name, slug)
+        `)
+        .eq("active", true)
+        .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
+        .limit(50)
+
+      setProducts((data as unknown as Product[]) || [])
+      setLoading(false)
+    }
+
+    search()
+  }, [query])
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchInput.trim()) {
+      window.location.href = `/search?q=${encodeURIComponent(searchInput.trim())}`
+    }
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <SiteHeader />
+      <CartDrawer />
+
+      {/* Breadcrumbs */}
+      <div className="border-b border-border bg-card">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3 text-sm">
+          <Link href="/" className="text-muted-foreground hover:text-primary">
+            {t("breadcrumbHome")}
+          </Link>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          <span className="font-medium text-foreground">{t("searchTitle")}</span>
+        </div>
+      </div>
+
+      <main className="flex-1">
+        <div className="mx-auto max-w-7xl px-4 py-6">
+          {/* Search Header */}
+          <div className="mb-8">
+            <form onSubmit={handleSearch} className="relative mx-auto max-w-2xl">
+              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder={t("searchPlaceholder")}
+                className="h-14 w-full rounded-full border border-border bg-card pl-12 pr-12 text-lg text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  onClick={() => setSearchInput("")}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
+            </form>
+          </div>
+
+          {/* Results */}
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : !query ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <Search className="mb-4 h-16 w-16 text-muted-foreground/50" />
+              <h2 className="text-xl font-semibold text-foreground">{t("searchStartSearch")}</h2>
+              <p className="mt-2 text-muted-foreground">
+                {t("searchStartSearchDesc")}
+              </p>
+            </div>
+          ) : products.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <Search className="mb-4 h-16 w-16 text-muted-foreground/50" />
+              <h2 className="text-xl font-semibold text-foreground">
+                {t("searchNotFound1")} «{query}» {t("searchNotFound2")}
+              </h2>
+              <p className="mt-2 text-muted-foreground">
+                {t("searchNotFoundDesc")}
+              </p>
+              <div className="mt-6">
+                <Link href="/">
+                  <Button>{t("continueShopping")}</Button>
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="mb-6">
+                <h1 className="text-xl font-semibold text-foreground">
+                  {t("searchResults")} «{query}»
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {t("searchFound")} {products.length} {t("searchFoundProducts")}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                {products.map(product => (
+                  <div
+                    key={product.id}
+                    className="group rounded-xl border border-border bg-card p-3 transition-shadow hover:shadow-md"
+                  >
+                    <Link href={`/products/${product.id}`}>
+                      <div className="relative aspect-square overflow-hidden rounded-lg bg-secondary">
+                        <Image
+                          src={product.image_url}
+                          alt={product.name}
+                          fill
+                          className="object-cover transition-transform group-hover:scale-105"
+                        />
+                        {product.original_price && (
+                          <span className="absolute left-2 top-2 rounded-full bg-destructive px-2 py-0.5 text-xs font-bold text-destructive-foreground">
+                            -{Math.round((1 - product.price / product.original_price) * 100)}%
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+
+                    <div className="mt-3">
+                      <p className="text-xs text-muted-foreground">{product.brand.name}</p>
+                      <Link href={`/products/${product.id}`}>
+                        <h3 className="mt-1 font-medium text-foreground line-clamp-2 hover:text-primary">
+                          {product.name}
+                        </h3>
+                      </Link>
+                      
+                      <div className="mt-1 flex items-center gap-1">
+                        <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                        <span className="text-xs font-medium text-foreground">{product.rating}</span>
+                        <span className="text-xs text-muted-foreground">
+                          ({product.review_count.toLocaleString()})
+                        </span>
+                      </div>
+
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {product.sku} | {product.volume}
+                      </p>
+
+                      <div className="mt-3 flex items-center justify-between">
+                        <div>
+                          <span className="text-lg font-bold text-primary">
+                            {formatEur(product.price)}
+                          </span>
+                          {product.original_price && (
+                            <span className="ml-2 text-sm text-muted-foreground line-through">
+                              {formatEur(product.original_price)}
+                            </span>
+                          )}
+                        </div>
+                        <Button
+                          size="sm"
+                          className="bg-primary text-primary-foreground hover:bg-primary/90"
+                          onClick={() => addItem({
+                            id: product.id,
+                            name: product.name,
+                            price: product.price,
+                            image: product.image_url,
+                            brand: product.brand.name
+                          })}
+                        >
+                          {t("addToCart")}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </main>
+
+      <SiteFooter />
+    </div>
+  )
+}
+
+function SearchPageContent() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <LangProvider>
+      <CartProvider>
+        <SearchPageContent />
+      </CartProvider>
+    </LangProvider>
+  )
+}
