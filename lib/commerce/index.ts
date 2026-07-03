@@ -1,0 +1,42 @@
+/**
+ * Commerce data-access layer (ADR-0004).
+ * Components and pages import from here — never from @/lib/supabase/* directly.
+ */
+
+export {
+  CommerceError,
+  commerceDatabase,
+  commerceFail,
+  commerceNotFound,
+  commerceOk,
+  commerceValidation,
+  isCommerceError,
+  type CommerceErrorCode,
+  type CommerceResult,
+} from './errors'
+
+export {
+  ORDER_STATUSES,
+  PAYMENT_STATUSES,
+  type CommerceDatabase,
+  type CommerceFavorite,
+  type CommerceOrder,
+  type CommerceOrderLine,
+  type CommerceProduct,
+  type DbBrand,
+  type DbCategory,
+  type DbFavorite,
+  type DbOrder,
+  type DbOrderItem,
+  type DbProduct,
+  type DbProductImage,
+  type DbReview,
+  type OrderId,
+  type OrderStatus,
+  type PaymentStatus,
+  type ProductId,
+  type UserId,
+} from './types'
+
+export { brandSlug, productSlug, slugify } from './slugs'
+export { LEGACY_PRODUCT_ID_REDIRECTS } from './redirects'
