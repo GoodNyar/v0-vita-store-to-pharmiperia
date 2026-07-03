@@ -4,9 +4,7 @@ import { isLocale, type Locale } from '@/lib/i18n/config'
 import { getCatalogProductBySlug, getCatalogProducts } from '@/lib/commerce/catalog-source'
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd } from '@/lib/commerce/json-ld'
 import { productSlug } from '@/lib/commerce/slugs'
-import { getSiteUrl } from '@/lib/site'
-
-const SITE_URL = getSiteUrl()
+import { buildPageMetadata } from '@/lib/seo/metadata'
 
 interface ProductRouteParams {
   locale: string
@@ -41,27 +39,15 @@ export async function generateMetadata({
 
   const title = `${product.name} — ${product.brand}`
   const description = `${product.description}. ${product.volume}. Купить ${product.name} от ${product.brand} в Pharmiperia — французская дермо-косметика в Латвии.`
-  const url = `${SITE_URL}${localizedPath(locale as Locale, `/products/${slug}`)}`
-  const imageUrl = product.image.startsWith('http') ? product.image : `${SITE_URL}${product.image}`
+  const imageUrl = product.image
 
-  return {
+  return buildPageMetadata({
+    locale: locale as Locale,
+    path: `/products/${slug}`,
     title,
     description,
-    alternates: { canonical: url },
-    openGraph: {
-      type: 'website',
-      url,
-      title,
-      description,
-      images: [{ url: imageUrl, width: 800, height: 800, alt: product.name }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [imageUrl],
-    },
-  }
+    image: { url: imageUrl, width: 800, height: 800, alt: product.name },
+  })
 }
 
 export async function generateStaticParams() {

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { categories } from '@/lib/data'
-
+import { isLocale, type Locale } from '@/lib/i18n/config'
+import { buildPageMetadata } from '@/lib/seo/metadata'
 import { getSiteUrl } from '@/lib/site'
 
 const SITE_URL = getSiteUrl()
@@ -17,36 +18,30 @@ const CATEGORY_META: Record<string, { title: string; description: string }> = {
 }
 
 interface Props {
-  params: Promise<{ slug: string }>
+  params: Promise<{ locale: string; slug: string }>
   children: React.ReactNode
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>
+}): Promise<Metadata> {
+  const { locale, slug } = await params
+  if (!isLocale(locale)) return {}
+
   const meta = CATEGORY_META[slug]
-
   const categoryName = meta?.title ?? categories.find((c) => c.id === slug)?.name ?? slug
-  const title = `${categoryName} — Pharmiperia`
-  const description = meta?.description ?? `Купить ${categoryName} в Pharmiperia — французская дермо-косметика с доставкой по Латвии.`
-  const url = `${SITE_URL}/category/${slug}`
+  const description =
+    meta?.description ??
+    `Купить ${categoryName} в Pharmiperia — французская дермо-косметика с доставкой по Латвии.`
 
-  return {
+  return buildPageMetadata({
+    locale: locale as Locale,
+    path: `/category/${slug}`,
     title: categoryName,
     description,
-    alternates: { canonical: url },
-    openGraph: {
-      type: 'website',
-      url,
-      title,
-      description,
-      images: [{ url: '/og-default.jpg', width: 1200, height: 630, alt: title }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-    },
-  }
+  })
 }
 
 export async function generateStaticParams() {
