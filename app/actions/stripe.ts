@@ -14,6 +14,7 @@ import {
   type CheckoutCustomerInput,
   type CheckoutLineInput,
 } from "@/lib/orders"
+import { captureCheckoutError } from "@/lib/sentry/capture-checkout"
 
 export type { CheckoutCustomerInput, CheckoutLineInput }
 
@@ -27,6 +28,10 @@ export async function createCheckoutSession(
   items: CheckoutLineInput[],
   customer: CheckoutCustomerInput
 ): Promise<CheckoutSessionResult> {
+  let draftOrderId: string | undefined
+  let draftOrderNumber: string | undefined
+
+  try {
   const supabase = await createClient()
   const {
     data: { user },
@@ -36,6 +41,8 @@ export async function createCheckoutSession(
     ...customer,
     userId: user?.id ?? null,
   })
+  draftOrderId = draft.orderId
+  draftOrderNumber = draft.orderNumber
 
   const stripe = getStripe()
 
@@ -104,6 +111,14 @@ export async function createCheckoutSession(
     clientSecret: session.client_secret,
     orderId: draft.orderId,
     orderNumber: draft.orderNumber,
+  }
+  } catch (err) {
+    captureCheckoutError(err, {
+      stage: "session_create",
+      orderId: draftOrderId,
+      orderNumber: draftOrderNumber,
+    })
+    throw err
   }
 }
 

@@ -147,7 +147,7 @@ export default function AccountPage() {
           localStorage.setItem(`profile_${authenticatedUser.id}`, JSON.stringify(data))
         }
       } catch (err) {
-        console.error("[v0] Supabase refresh error:", err)
+        console.error("[account] Supabase refresh error:", err)
         // Keep cached data on error
       }
     }
@@ -291,7 +291,7 @@ export default function AccountPage() {
     setIsSaving(false)
 
     if (error) {
-      console.error("[v0] Save error:", error)
+      console.error("[account] Save error:", error)
       showToast(t("savingError"), e)
       return
     }
@@ -367,7 +367,7 @@ export default function AccountPage() {
       showToast(t("dataCleared"), e, "success")
       
     } catch (err) {
-      console.error("[v0] Reset error:", err)
+      console.error("[account] Reset error:", err)
       showToast(t("clearingError"), e, "error")
       // Close modal even on error to prevent stuck state
       setShowResetConfirm(false)

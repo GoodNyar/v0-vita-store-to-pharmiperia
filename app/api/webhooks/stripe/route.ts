@@ -8,6 +8,7 @@ import {
   hasProcessedStripeEvent,
   recordStripeEvent,
 } from "@/lib/orders"
+import { captureCheckoutError } from "@/lib/sentry/capture-checkout"
 
 export const runtime = "nodejs"
 
@@ -37,9 +38,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true, duplicate: true })
   }
 
+  let checkoutSessionId: string | undefined
+
   try {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session
+      checkoutSessionId = session.id
       const result = await fulfillOrderFromCheckoutSession(session)
 
       if (result) {
@@ -50,12 +54,21 @@ export async function POST(request: Request) {
           alreadyPaid: result.alreadyPaid,
         })
 
-        const emailResult = await sendOrderConfirmationEmail(result.orderId)
-        if (emailResult.sent) {
-          console.info("[webhooks/stripe] order confirmation email sent", {
+        try {
+          const emailResult = await sendOrderConfirmationEmail(result.orderId)
+          if (emailResult.sent) {
+            console.info("[webhooks/stripe] order confirmation email sent", {
+              orderId: result.orderId,
+              messageId: emailResult.messageId,
+            })
+          }
+        } catch (emailErr) {
+          captureCheckoutError(emailErr, {
+            stage: "webhook_email",
             orderId: result.orderId,
-            messageId: emailResult.messageId,
+            sessionId: checkoutSessionId,
           })
+          throw emailErr
         }
       }
     }
@@ -63,6 +76,10 @@ export async function POST(request: Request) {
     await recordStripeEvent(event.id, event.type)
   } catch (err) {
     const message = err instanceof Error ? err.message : "Webhook handler failed"
+    captureCheckoutError(err, {
+      stage: "webhook_fulfill",
+      sessionId: checkoutSessionId,
+    })
     console.error("[webhooks/stripe] Handler error:", message)
     return NextResponse.json({ error: message }, { status: 500 })
   }

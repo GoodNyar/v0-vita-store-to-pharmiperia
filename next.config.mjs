@@ -1,13 +1,12 @@
+import { withSentryConfig } from '@sentry/nextjs'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    // Keep unoptimized for development speed, but enable responsive images
     unoptimized: true,
-    // Preload LCP images
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
-  // Enable SWR caching headers for static assets
   headers: async () => [
     {
       source: '/images/:path*',
@@ -21,4 +20,16 @@ const nextConfig = {
   ],
 }
 
-export default nextConfig
+const sentryEnabled =
+  Boolean(process.env.SENTRY_DSN) || Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN)
+
+export default sentryEnabled
+  ? withSentryConfig(nextConfig, {
+      org: process.env.SENTRY_ORG ?? 'pharmiperia',
+      project: process.env.SENTRY_PROJECT ?? 'storefront',
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      silent: !process.env.CI,
+      tunnelRoute: '/monitoring',
+      widenClientFileUpload: true,
+    })
+  : nextConfig

@@ -10,6 +10,7 @@ import {
   createCheckoutSession,
   type CheckoutCustomerInput,
 } from '@/app/actions/stripe'
+import { captureCheckoutError } from '@/lib/sentry/capture-checkout'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -42,6 +43,7 @@ export function StripeCheckout({
       })
       return result.clientSecret
     } catch (err) {
+      captureCheckoutError(err, { stage: 'embedded_checkout' })
       setError(err instanceof Error ? err.message : 'Payment error')
       throw err
     }
