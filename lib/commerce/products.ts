@@ -1,6 +1,6 @@
 import type { Locale } from '@/lib/i18n/config'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { createClient } from '@/lib/supabase/client'
+
 import {
   commerceDatabase,
   commerceFail,
@@ -84,7 +84,7 @@ export async function listActiveProducts(
   locale: Locale,
   options?: { limit?: number; featured?: boolean }
 ): Promise<CommerceResult<CommerceProduct[]>> {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   let query = supabase
     .from('products')
     .select(

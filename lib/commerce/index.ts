@@ -60,6 +60,12 @@ export {
   uuidToLegacyProductId,
 } from './ids'
 export {
+  getCatalogProductBySlug,
+  getCatalogProducts,
+  mergeLegacyExtras,
+  type CatalogSource,
+} from './catalog-source'
+export {
   getProductByLegacyId,
   getProductBySlug,
   getProductByUuid,

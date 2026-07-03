@@ -281,6 +281,7 @@ export const translations = {
     dpdPickup: "DPD Pickup punktс",
     venipakParcel: "Venipak pakomāts",
     smartpostItella: "Smartpost Itella",
+    courierDelivery: "Курьерская доставка",
     selectStation: "Выберите станцию",
     orderSummary: "Итого заказа",
     shippingCost: "Доставка",
@@ -1152,6 +1153,7 @@ export const translations = {
     dpdPickup: "DPD Pickup punktс",
     venipakParcel: "Venipak pakomāts",
     smartpostItella: "Smartpost Itella",
+    courierDelivery: "Kurjera piegāde",
     selectStation: "Atlasiet staciju",
     orderSummary: "Pasūtījuma kopsavilkums",
     shippingCost: "Piegāde",
@@ -1845,13 +1847,16 @@ export function LangProvider({
   const pathname = usePathname()
   const router = useRouter()
   const [lang, setLangState] = useState<Lang>(initialLang)
-  const [isHydrated, setIsHydrated] = useState(false)
+  const [prevInitialLang, setPrevInitialLang] = useState(initialLang)
+
+  if (initialLang !== prevInitialLang) {
+    setPrevInitialLang(initialLang)
+    setLangState(initialLang)
+  }
 
   useEffect(() => {
-    setLangState(initialLang)
-    localStorage.setItem("preferredLang", initialLang)
-    setIsHydrated(true)
-  }, [initialLang])
+    localStorage.setItem("preferredLang", lang)
+  }, [lang])
 
   const localizedPath = useCallback(
     (path: string) => buildLocalizedPath(lang, path),
@@ -1869,24 +1874,6 @@ export function LangProvider({
   const t = (key: TranslationKey | string): string => {
     const dict = translations[lang] as Record<string, string>
     return applySitePlaceholders(dict[key] ?? String(key))
-  }
-
-  if (!isHydrated) {
-    return (
-      <LangContext.Provider
-        value={{
-          lang: initialLang,
-          setLang: () => {},
-          t: (key) =>
-            applySitePlaceholders(
-              (translations[initialLang] as Record<string, string>)[key] ?? String(key)
-            ),
-          localizedPath: (path) => buildLocalizedPath(initialLang, path),
-        }}
-      >
-        {children}
-      </LangContext.Provider>
-    )
   }
 
   return (
