@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { useCart } from "@/components/cart-context"
 import { useAuth } from "@/components/auth-provider"
@@ -32,6 +32,44 @@ export function SiteHeader() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [expandedBrandsSection, setExpandedBrandsSection] = useState(false)
+
+  const closeMenus = useCallback(() => {
+    setActiveDropdown(null)
+    setSidebarOpen(false)
+    setMobileMenuOpen(false)
+  }, [])
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeMenus()
+      }
+    }
+    document.addEventListener("keydown", onKeyDown)
+    return () => document.removeEventListener("keydown", onKeyDown)
+  }, [closeMenus])
+
+  const handleDropdownKeyDown = (
+    event: React.KeyboardEvent<HTMLAnchorElement>,
+    categoryId: string
+  ) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault()
+      setActiveDropdown((current) => (current === categoryId ? null : categoryId))
+    }
+    if (event.key === "ArrowDown") {
+      event.preventDefault()
+      setActiveDropdown(categoryId)
+      const menu = event.currentTarget.parentElement?.querySelector<HTMLElement>(
+        '[role="menu"] a, [role="menu"] button'
+      )
+      menu?.focus()
+    }
+    if (event.key === "Escape") {
+      setActiveDropdown(null)
+    }
+  }
+
   // Map category id to translation key
   const getCategoryName = (id: string) => {
     const key = id as Parameters<typeof t>[0]
@@ -96,6 +134,8 @@ export function SiteHeader() {
             className="rounded-lg p-1.5 text-foreground hover:bg-muted"
             onClick={() => setSidebarOpen(true)}
             aria-label="Open menu"
+            aria-expanded={sidebarOpen}
+            aria-controls="site-sidebar"
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -200,7 +240,7 @@ export function SiteHeader() {
       </div>
 
       {/* Category Navigation — always visible */}
-      <nav className="hidden border-t border-border lg:block">
+      <nav className="hidden border-t border-border lg:block" aria-label={t("categories")}>
         <div>
           <div className="mx-auto max-w-7xl px-4">
             <ul className="flex items-center justify-center gap-0">
@@ -210,24 +250,36 @@ export function SiteHeader() {
                 className="relative"
                 onMouseEnter={() => setActiveDropdown(category.id)}
                 onMouseLeave={() => setActiveDropdown(null)}
+                onFocusCapture={() => setActiveDropdown(category.id)}
+                onBlurCapture={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                    setActiveDropdown(null)
+                  }
+                }}
               >
-                {/* All categories: regular link with dropdown on hover */}
                 <Link 
                   href={localizedPath(`/category/${category.id}`)}
                   className="flex items-center gap-1 px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:text-primary"
+                  aria-haspopup="true"
+                  aria-expanded={activeDropdown === category.id}
+                  onKeyDown={(event) => handleDropdownKeyDown(event, category.id)}
                 >
                   {getCategoryName(category.id)}
                   <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                 </Link>
 
                 {activeDropdown === category.id && (
-                  <div className="absolute left-0 top-full z-50 min-w-[200px] rounded-lg border border-border bg-card py-2 shadow-lg">
+                  <div
+                    role="menu"
+                    className="absolute left-0 top-full z-50 min-w-[200px] rounded-lg border border-border bg-card py-2 shadow-lg"
+                  >
                     {category.id === "brands" ? (
                       BRANDS_ORDERED.map((brand) => (
                         <Link
                           key={brand}
+                          role="menuitem"
                           href={localizedPath(`/brand/${getBrandSlug(brand)}`)}
-                          className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
+                          className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground focus:bg-secondary focus:outline-none"
                         >
                           {brand}
                         </Link>
@@ -236,8 +288,9 @@ export function SiteHeader() {
                       category.subcategories.map((sub) => (
                         <Link
                           key={sub}
+                          role="menuitem"
                           href={localizedPath(`/category/${category.id}?filter=${sub}`)}
-                          className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
+                          className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground focus:bg-secondary focus:outline-none"
                         >
                           {t(sub as TranslationKey)}
                         </Link>
@@ -284,7 +337,11 @@ export function SiteHeader() {
         onClick={() => setSidebarOpen(false)}
       />
     )}
-    <div 
+    <div
+      id="site-sidebar"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Site menu"
       className={`fixed top-0 left-0 z-50 h-full w-72 bg-card shadow-xl transition-transform duration-300 ease-in-out ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
       {/* Sidebar header */}

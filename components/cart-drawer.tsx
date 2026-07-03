@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useCart } from "@/components/cart-context"
 import { useAuth } from "@/components/auth-provider"
 import { useLang, formatMoney } from "@/lib/i18n"
 import { multiplyMoney } from "@/lib/money"
+import { useFocusTrap } from "@/hooks/use-focus-trap"
 import { Button } from "@/components/ui/button"
 import { X, Plus, Minus, ShoppingBag, LogIn, UserPlus } from "lucide-react"
 import Image from "next/image"
@@ -15,6 +16,11 @@ export function CartDrawer() {
   const { user } = useAuth()
   const { t, localizedPath } = useLang()
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const drawerRef = useRef<HTMLDivElement>(null)
+  const authModalRef = useRef<HTMLDivElement>(null)
+
+  useFocusTrap(drawerRef, isCartOpen && !showAuthModal, () => setIsCartOpen(false))
+  useFocusTrap(authModalRef, showAuthModal, () => setShowAuthModal(false))
 
   if (!isCartOpen) return null
 
@@ -23,10 +29,17 @@ export function CartDrawer() {
       <div
         className="fixed inset-0 z-40 bg-black/20"
         onClick={() => setIsCartOpen(false)}
+        aria-hidden="true"
       />
-      <div className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-card shadow-2xl">
+      <div
+        ref={drawerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cart-drawer-title"
+        className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-card shadow-2xl"
+      >
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h2 className="text-lg font-semibold text-card-foreground">
+          <h2 id="cart-drawer-title" className="text-lg font-semibold text-card-foreground">
             {t("shoppingCart")}
           </h2>
           <button
@@ -61,6 +74,7 @@ export function CartDrawer() {
                         alt={item.product.name}
                         fill
                         className="object-cover"
+                        sizes="80px"
                       />
                     </div>
                     <div className="flex flex-1 flex-col">
@@ -150,24 +164,31 @@ export function CartDrawer() {
           </>
         )}
       </div>
-      {/* Auth required modal */}
       {showAuthModal && (
         <>
           <div
             className="fixed inset-0 z-[60] bg-foreground/40 backdrop-blur-sm"
             onClick={() => setShowAuthModal(false)}
+            aria-hidden="true"
           />
-          <div className="fixed left-1/2 top-1/2 z-[70] w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-card p-6 shadow-2xl">
+          <div
+            ref={authModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cart-auth-title"
+            className="fixed left-1/2 top-1/2 z-[70] w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-card p-6 shadow-2xl"
+          >
             <button
               onClick={() => setShowAuthModal(false)}
               className="absolute right-4 top-4 rounded-lg p-1 text-muted-foreground hover:bg-muted"
+              aria-label="Close"
             >
               <X className="h-4 w-4" />
             </button>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
               <ShoppingBag className="h-6 w-6 text-primary" />
             </div>
-            <h3 className="text-lg font-bold text-foreground">
+            <h3 id="cart-auth-title" className="text-lg font-bold text-foreground">
               {t("cartLoginTitle")}
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">
