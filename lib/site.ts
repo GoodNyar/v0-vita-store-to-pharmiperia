@@ -78,6 +78,15 @@ export function getTransactionalEmailFrom(): string {
 }
 
 /** Interpolate {siteUrl}, {siteHost}, {supportEmail}, … in UI copy. */
+/** Human-readable Supabase region for privacy policy (configure real value in production). */
+export function getSupabaseRegionLabel(): string {
+  return (
+    process.env.NEXT_PUBLIC_SUPABASE_REGION ??
+    process.env.SUPABASE_REGION ??
+    'EU (Frankfurt, eu-central-1)'
+  )
+}
+
 export function getSitePlaceholderVars(): Record<string, string> {
   return {
     siteUrl: getSiteUrl(),
@@ -85,6 +94,7 @@ export function getSitePlaceholderVars(): Record<string, string> {
     supportEmail: getSupportEmail(),
     infoEmail: getInfoEmail(),
     ordersEmail: getOrdersEmail(),
+    supabaseRegion: getSupabaseRegionLabel(),
   }
 }
 

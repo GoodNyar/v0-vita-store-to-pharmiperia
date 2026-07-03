@@ -17,6 +17,8 @@ function PrivacyContent() {
     { title: t("privacy5Title"), text: t("privacy5Text") },
     { title: t("privacy6Title"), text: t("privacy6Text") },
     { title: t("privacy7Title"), text: t("privacy7Text") },
+    { title: t("privacy8Title"), text: t("privacy8Text") },
+    { title: t("privacy9Title"), text: t("privacy9Text") },
   ]
 
   return (

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
+import { ConsentGatedAnalytics } from '@/components/consent-gated-analytics'
 import { ToastProvider } from '@/components/toast-provider'
 import { AuthProvider } from '@/components/auth-provider'
 import { CartProvider } from '@/components/cart-context'
@@ -101,7 +101,7 @@ export default function RootLayout({
             </CartProvider>
           </FavoritesProvider>
         </AuthProvider>
-        <Analytics />
+        <ConsentGatedAnalytics />
       </body>
     </html>
   )

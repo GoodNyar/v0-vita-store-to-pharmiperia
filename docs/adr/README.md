@@ -12,5 +12,6 @@
 | [0006](0006-rendering-rsc-first-isr.md) | RSC-first + ISR с cache tags | принят | Blueprint D1 |
 | [0007](0007-i18n-namespace-slovari-i-perevody-kontenta.md) | i18n: namespace-словари, контент в БД | принят | Blueprint C3 |
 | [0008](0008-stripe-tax-pvn-21-inclusive.md) | Stripe Tax — PVN 21%, цены включают НДС | принят | Phase 1 §5 |
+| [0009](0009-gdpr-minimum-phase-1.md) | GDPR-минимум: consent, процессоры, удаление | принят | Phase 1 §7 |
 
 Blueprint: [`docs/reports/06-refactoring-blueprint.md`](../reports/06-refactoring-blueprint.md).

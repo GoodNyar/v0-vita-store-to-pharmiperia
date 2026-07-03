@@ -13,7 +13,19 @@ import {
   Mail,
   User as UserIcon,
 } from "lucide-react"
+import { deleteAccount } from "@/app/actions/account"
 import { Button } from "@/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 interface Profile {
   first_name?: string
@@ -29,6 +41,9 @@ export default function SettingsPage() {
   const [firstName, setFirstName] = useState("")
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState("")
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   // Redirect if not logged in
   useEffect(() => {
@@ -89,6 +104,32 @@ export default function SettingsPage() {
   const handleLogout = async () => {
     await signOut()
     router.push("/")
+  }
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirm !== "DELETE") return
+
+    setIsDeleting(true)
+    setDeleteError(null)
+
+    try {
+      const result = await deleteAccount()
+      if (!result.success) {
+        setDeleteError(result.error)
+        return
+      }
+
+      localStorage.removeItem("pharmiperia_favorites")
+      localStorage.removeItem("pharmiperia:v2:cart")
+      localStorage.removeItem("pharm_consent")
+      await signOut()
+      router.push("/")
+    } catch (error) {
+      console.error("Error deleting account:", error)
+      setDeleteError(t("deleteAccountError"))
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   if (authLoading || profileLoading) {
@@ -192,6 +233,56 @@ export default function SettingsPage() {
           <LogOut className="mr-2 h-4 w-4" />
           {t("logOutAccount")}
         </Button>
+      </div>
+
+      {/* Delete account */}
+      <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6 mb-6">
+        <h2 className="text-lg font-semibold text-foreground mb-2">
+          {t("deleteAccountTitle")}
+        </h2>
+        <p className="text-sm text-muted-foreground mb-4">{t("deleteAccountDesc")}</p>
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive">{t("deleteAccountButton")}</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("deleteAccountTitle")}</AlertDialogTitle>
+              <AlertDialogDescription>{t("deleteAccountDesc")}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">
+                {t("deleteAccountConfirmLabel")}
+              </label>
+              <input
+                type="text"
+                value={deleteConfirm}
+                onChange={(e) => setDeleteConfirm(e.target.value)}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                autoComplete="off"
+              />
+            </div>
+            {deleteError && (
+              <p className="text-sm text-destructive">{deleteError}</p>
+            )}
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setDeleteConfirm("")}>
+                {lang === "ru" ? "Отмена" : "Atcelt"}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={(e) => {
+                  e.preventDefault()
+                  void handleDeleteAccount()
+                }}
+                disabled={deleteConfirm !== "DELETE" || isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeleting ? t("deleteAccountDeleting") : t("deleteAccountButton")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* Account info */}

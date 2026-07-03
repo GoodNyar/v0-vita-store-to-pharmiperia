@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import { CookieConsentBanner } from "@/components/cookie-consent-banner"
 import { LocaleHtmlLang } from "@/components/locale-html-lang"
 import { LangProvider, type Lang } from "@/lib/i18n"
 import { isLocale } from "@/lib/i18n/config"
@@ -23,6 +24,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
     <LangProvider initialLang={locale as Lang}>
       <LocaleHtmlLang />
       {children}
+      <CookieConsentBanner />
     </LangProvider>
   )
 }

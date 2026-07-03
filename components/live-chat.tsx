@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { MessageCircle, X, Send, Loader2, Bot, User } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport, type UIMessage } from "ai"
+import { useLang } from "@/lib/i18n"
 
 const welcomeMessages: UIMessage[] = [
   {
@@ -19,6 +20,7 @@ const welcomeMessages: UIMessage[] = [
 ]
 
 export function LiveChat() {
+  const { t } = useLang()
   const [isOpen, setIsOpen] = useState(false)
   const [hasNewMessage, setHasNewMessage] = useState(false)
   const [input, setInput] = useState("")
@@ -160,6 +162,10 @@ export function LiveChat() {
           <div ref={messagesEndRef} />
         </div>
       </div>
+
+      <p className="border-t border-border px-3 pt-2 text-[11px] leading-snug text-muted-foreground">
+        {t("chatPrivacyNotice")}
+      </p>
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="border-t border-border p-3">

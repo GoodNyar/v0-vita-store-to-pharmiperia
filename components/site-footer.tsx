@@ -53,6 +53,7 @@ export function SiteFooter() {
 
   const legalLinks = [
     { labelKey: "footerPrivacy", href: "/privacy" },
+    { labelKey: "footerCookies", href: "/cookies" },
     { labelKey: "footerDataSecurity", href: "/data-security" },
     { labelKey: "footerTerms", href: "/terms" },
   ]

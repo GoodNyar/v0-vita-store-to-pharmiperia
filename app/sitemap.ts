@@ -18,6 +18,7 @@ const STATIC_PATHS = [
   '/returns',
   '/payment-methods',
   '/privacy',
+  '/cookies',
   '/terms',
   '/data-security',
 ] as const
