@@ -14,6 +14,7 @@ import {
 import { legacyProductIdToUuid } from '@/lib/commerce/ids'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/i18n/config'
+import { recordPurchaseEvent } from '@/lib/analytics/server'
 import { resolveTaxCentsFromSession } from '@/lib/stripe/tax'
 
 const MAX_QUANTITY_PER_LINE = 99
@@ -47,6 +48,9 @@ export interface CheckoutCustomerInput {
   }
   userId?: string | null
   locale?: Locale
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
 }
 
 export function resolveOrderLines(items: CheckoutLineInput[]): ResolvedOrderLine[] {
@@ -139,6 +143,9 @@ export async function createDraftOrder(
       total_cents: total.amount,
       currency: total.currency,
       locale,
+      utm_source: customer.utmSource ?? null,
+      utm_medium: customer.utmMedium ?? null,
+      utm_campaign: customer.utmCampaign ?? null,
     })
     .select('id, order_number')
     .single()
@@ -211,7 +218,9 @@ export async function fulfillOrderFromCheckoutSession(
 
   const { data: existing, error: fetchError } = await supabase
     .from('orders')
-    .select('id, payment_status, total_cents, tax_cents')
+    .select(
+      'id, payment_status, total_cents, tax_cents, order_number, currency, locale, user_id, utm_source, utm_medium, utm_campaign, analytics_event_id'
+    )
     .eq('id', orderId)
     .maybeSingle()
 
@@ -219,40 +228,72 @@ export async function fulfillOrderFromCheckoutSession(
     throw new Error(`Order not found: ${orderId}`)
   }
 
-  if (existing.payment_status === 'paid') {
-    return { orderId: existing.id, alreadyPaid: true }
-  }
-
-  const expectedCents = existing.total_cents
-  if (session.amount_total != null && session.amount_total !== expectedCents) {
-    throw new Error(
-      `Payment amount mismatch for order ${orderId}: expected ${expectedCents}, got ${session.amount_total}`
-    )
-  }
+  const alreadyPaid = existing.payment_status === 'paid'
 
   const taxCents = resolveTaxCentsFromSession(session)
-  if (existing.tax_cents > 0 && taxCents > 0 && existing.tax_cents !== taxCents) {
-    console.warn('[orders] tax_cents drift between draft and Stripe', {
-      orderId,
-      draftTaxCents: existing.tax_cents,
-      stripeTaxCents: taxCents,
+
+  if (!alreadyPaid) {
+    const expectedCents = existing.total_cents
+    if (session.amount_total != null && session.amount_total !== expectedCents) {
+      throw new Error(
+        `Payment amount mismatch for order ${orderId}: expected ${expectedCents}, got ${session.amount_total}`
+      )
+    }
+
+    if (existing.tax_cents > 0 && taxCents > 0 && existing.tax_cents !== taxCents) {
+      console.warn('[orders] tax_cents drift between draft and Stripe', {
+        orderId,
+        draftTaxCents: existing.tax_cents,
+        stripeTaxCents: taxCents,
+      })
+    }
+
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({
+        status: 'paid',
+        payment_status: 'paid',
+        payment_intent_id: session.id,
+        tax_cents: taxCents,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', orderId)
+
+    if (updateError) {
+      throw new Error(`Failed to update order: ${updateError.message}`)
+    }
+  }
+
+  if (!existing.analytics_event_id) {
+    const { data: lineRows, error: linesError } = await supabase
+      .from('order_items')
+      .select('product_id, product_sku, product_name, quantity, unit_price_cents')
+      .eq('order_id', orderId)
+
+    if (linesError) {
+      throw new Error(`Failed to load order items for analytics: ${linesError.message}`)
+    }
+
+    await recordPurchaseEvent({
+      orderId: existing.id,
+      userId: existing.user_id,
+      orderNumber: existing.order_number,
+      totalCents: existing.total_cents,
+      currency: existing.currency,
+      taxCents: taxCents,
+      locale: existing.locale,
+      utmSource: existing.utm_source,
+      utmMedium: existing.utm_medium,
+      utmCampaign: existing.utm_campaign,
+      lineItems: (lineRows ?? []).map((line) => ({
+        productId: line.product_id,
+        productSku: line.product_sku,
+        productName: line.product_name,
+        quantity: line.quantity,
+        unitPriceCents: line.unit_price_cents,
+      })),
     })
   }
 
-  const { error: updateError } = await supabase
-    .from('orders')
-    .update({
-      status: 'paid',
-      payment_status: 'paid',
-      payment_intent_id: session.id,
-      tax_cents: taxCents,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', orderId)
-
-  if (updateError) {
-    throw new Error(`Failed to update order: ${updateError.message}`)
-  }
-
-  return { orderId: existing.id, alreadyPaid: false }
+  return { orderId: existing.id, alreadyPaid }
 }

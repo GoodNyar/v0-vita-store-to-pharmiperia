@@ -9,6 +9,57 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_name: string
+          id: string
+          order_id: string | null
+          properties: Json
+          user_id: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          id?: string
+          order_id?: string | null
+          properties?: Json
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          id?: string
+          order_id?: string | null
+          properties?: Json
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analytics_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       addresses: {
         Row: {
           city: string
@@ -234,6 +285,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          analytics_event_id: string | null
           confirmation_email_sent_at: string | null
           created_at: string | null
           currency: string
@@ -258,8 +310,12 @@ export type Database = {
           total_cents: number
           updated_at: string | null
           user_id: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
         }
         Insert: {
+          analytics_event_id?: string | null
           confirmation_email_sent_at?: string | null
           created_at?: string | null
           currency?: string
@@ -284,8 +340,12 @@ export type Database = {
           total_cents: number
           updated_at?: string | null
           user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
         }
         Update: {
+          analytics_event_id?: string | null
           confirmation_email_sent_at?: string | null
           created_at?: string | null
           currency?: string
@@ -310,8 +370,18 @@ export type Database = {
           total_cents?: number
           updated_at?: string | null
           user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_analytics_event_id_fkey"
+            columns: ["analytics_event_id"]
+            isOneToOne: false
+            referencedRelation: "analytics_events"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_user_id_fkey"
             columns: ["user_id"]

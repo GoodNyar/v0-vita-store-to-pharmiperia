@@ -11,6 +11,7 @@ import { addMoney, eur, extractInclusiveVatCents, multiplyMoney } from "@/lib/mo
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, MapPin, Truck, AlertCircle, CreditCard, CheckCircle } from "lucide-react"
 import { StripeCheckout } from "@/components/stripe-checkout"
+import { readPersistedUtm } from "@/lib/analytics/utm"
 
 const LATVIAN_STATIONS = [
   { id: 1, name: "Rīga - Akropole", address: "Nīcgales str. 21, Rīga" },
@@ -114,6 +115,7 @@ function CheckoutContent() {
 
   const station = LATVIAN_STATIONS.find((s) => s.id.toString() === selectedStation)
   const parcelCity = station?.address.split(", ").pop() ?? "Rīga"
+  const utm = readPersistedUtm()
   const checkoutDetails = {
     firstName: formData.firstName,
     lastName: formData.lastName,
@@ -136,6 +138,9 @@ function CheckoutContent() {
           postalCode: "LV-1010",
         },
     locale: checkoutLocale,
+    utmSource: utm.utm_source,
+    utmMedium: utm.utm_medium,
+    utmCampaign: utm.utm_campaign,
   }
 
   // Empty cart state
