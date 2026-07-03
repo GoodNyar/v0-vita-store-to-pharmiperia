@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/button"
 import { multiplyMoney } from "@/lib/money"
 
 function OrdersContent() {
-  const { t } = useLang()
+  const { t, localizedPath } = useLang()
   const router = useRouter()
   const [orders, setOrders] = useState<OrderListItem[]>([])
   const [selectedOrder, setSelectedOrder] = useState<OrderListItem | null>(null)
@@ -170,6 +170,19 @@ function OrdersContent() {
                     )
                   })}
                 </div>
+
+                {(selectedOrder.status === "paid" ||
+                  selectedOrder.status === "delivered" ||
+                  selectedOrder.paymentStatus === "paid") && (
+                  <div className="mb-4">
+                    <Link
+                      href={localizedPath("/account/returns")}
+                      className="text-sm font-medium text-primary hover:underline"
+                    >
+                      {t("returnRequestCta")}
+                    </Link>
+                  </div>
+                )}
 
                 <div className="mt-6 space-y-2 border-t border-border pt-4">
                   <div className="flex justify-between text-sm">
