@@ -1,10 +1,10 @@
--- Pharmiperia Database Schema
--- Full e-commerce schema with products, categories, users, orders, favorites, reviews
+-- Pharmiperia baseline schema (consolidated from legacy scripts/)
+-- Apply via: supabase db reset (local) or supabase db push (remote)
 
 -- ============================================
 -- CATEGORIES
 -- ============================================
-CREATE TABLE IF NOT EXISTS categories (
+CREATE TABLE categories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT UNIQUE NOT NULL,
   name_ru TEXT NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS categories (
 -- ============================================
 -- BRANDS
 -- ============================================
-CREATE TABLE IF NOT EXISTS brands (
+CREATE TABLE brands (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS brands (
 -- ============================================
 -- PRODUCTS
 -- ============================================
-CREATE TABLE IF NOT EXISTS products (
+CREATE TABLE products (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   sku TEXT UNIQUE NOT NULL,
   slug TEXT UNIQUE NOT NULL,
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS products (
 -- ============================================
 -- PRODUCT IMAGES
 -- ============================================
-CREATE TABLE IF NOT EXISTS product_images (
+CREATE TABLE product_images (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
   image_url TEXT NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS product_images (
 -- ============================================
 -- USER PROFILES (extends auth.users)
 -- ============================================
-CREATE TABLE IF NOT EXISTS profiles (
+CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT,
   first_name TEXT,
@@ -89,6 +89,10 @@ CREATE TABLE IF NOT EXISTS profiles (
   avatar_url TEXT,
   preferred_language TEXT DEFAULT 'ru',
   loyalty_points INTEGER DEFAULT 0,
+  country TEXT DEFAULT 'Latvija',
+  city TEXT,
+  address TEXT,
+  postal_code TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -96,7 +100,7 @@ CREATE TABLE IF NOT EXISTS profiles (
 -- ============================================
 -- USER ADDRESSES
 -- ============================================
-CREATE TABLE IF NOT EXISTS addresses (
+CREATE TABLE addresses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   label TEXT,
@@ -111,7 +115,7 @@ CREATE TABLE IF NOT EXISTS addresses (
 -- ============================================
 -- FAVORITES (Wishlist)
 -- ============================================
-CREATE TABLE IF NOT EXISTS favorites (
+CREATE TABLE favorites (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
@@ -122,7 +126,7 @@ CREATE TABLE IF NOT EXISTS favorites (
 -- ============================================
 -- ORDERS
 -- ============================================
-CREATE TABLE IF NOT EXISTS orders (
+CREATE TABLE orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
   order_number TEXT UNIQUE NOT NULL,
@@ -148,7 +152,7 @@ CREATE TABLE IF NOT EXISTS orders (
 -- ============================================
 -- ORDER ITEMS
 -- ============================================
-CREATE TABLE IF NOT EXISTS order_items (
+CREATE TABLE order_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
   product_id UUID REFERENCES products(id) ON DELETE SET NULL,
@@ -163,7 +167,7 @@ CREATE TABLE IF NOT EXISTS order_items (
 -- ============================================
 -- REVIEWS
 -- ============================================
-CREATE TABLE IF NOT EXISTS reviews (
+CREATE TABLE reviews (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
   product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
@@ -179,10 +183,10 @@ CREATE TABLE IF NOT EXISTS reviews (
 -- ============================================
 -- PROMO CODES
 -- ============================================
-CREATE TABLE IF NOT EXISTS promo_codes (
+CREATE TABLE promo_codes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   code TEXT UNIQUE NOT NULL,
-  discount_type TEXT NOT NULL, -- 'percentage' or 'fixed'
+  discount_type TEXT NOT NULL,
   discount_value DECIMAL(10,2) NOT NULL,
   min_order_amount DECIMAL(10,2) DEFAULT 0,
   max_uses INTEGER,
@@ -194,63 +198,68 @@ CREATE TABLE IF NOT EXISTS promo_codes (
 );
 
 -- ============================================
--- INDEXES for performance
+-- STRIPE WEBHOOK EVENTS (ADR-0005 idempotency)
 -- ============================================
-CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
-CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand_id);
-CREATE INDEX IF NOT EXISTS idx_products_slug ON products(slug);
-CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
-CREATE INDEX IF NOT EXISTS idx_products_price ON products(price);
-CREATE INDEX IF NOT EXISTS idx_products_rating ON products(rating);
-CREATE INDEX IF NOT EXISTS idx_products_active ON products(is_active);
-CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
-CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
-CREATE INDEX IF NOT EXISTS idx_reviews_product ON reviews(product_id);
-CREATE INDEX IF NOT EXISTS idx_favorites_user ON favorites(user_id);
+CREATE TABLE stripe_webhook_events (
+  id TEXT PRIMARY KEY,
+  type TEXT NOT NULL,
+  processed_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================
+-- INDEXES
+-- ============================================
+CREATE INDEX idx_products_category ON products(category_id);
+CREATE INDEX idx_products_brand ON products(brand_id);
+CREATE INDEX idx_products_slug ON products(slug);
+CREATE INDEX idx_products_sku ON products(sku);
+CREATE INDEX idx_products_price ON products(price);
+CREATE INDEX idx_products_rating ON products(rating);
+CREATE INDEX idx_products_active ON products(is_active);
+CREATE INDEX idx_orders_user ON orders(user_id);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_reviews_product ON reviews(product_id);
+CREATE INDEX idx_favorites_user ON favorites(user_id);
 
 -- ============================================
 -- ROW LEVEL SECURITY
 -- ============================================
-
--- Profiles: users can only see/edit their own profile
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "profiles_select_own" ON profiles FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "profiles_insert_own" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
 CREATE POLICY "profiles_update_own" ON profiles FOR UPDATE USING (auth.uid() = id);
 
--- Addresses: users can only manage their own addresses
 ALTER TABLE addresses ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "addresses_select_own" ON addresses FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "addresses_insert_own" ON addresses FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "addresses_update_own" ON addresses FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "addresses_delete_own" ON addresses FOR DELETE USING (auth.uid() = user_id);
 
--- Favorites: users can only manage their own favorites
 ALTER TABLE favorites ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "favorites_select_own" ON favorites FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "favorites_insert_own" ON favorites FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "favorites_delete_own" ON favorites FOR DELETE USING (auth.uid() = user_id);
 
--- Orders: users can only see their own orders
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "orders_select_own" ON orders FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "orders_insert_own" ON orders FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- Order items: users can see items from their orders
 ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "order_items_select_own" ON order_items 
+CREATE POLICY "order_items_select_own" ON order_items
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.user_id = auth.uid())
+    EXISTS (
+      SELECT 1 FROM orders
+      WHERE orders.id = order_items.order_id
+        AND orders.user_id = auth.uid()
+    )
   );
 
--- Reviews: anyone can read approved reviews, users can manage their own
 ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "reviews_select_approved" ON reviews FOR SELECT USING (is_approved = TRUE OR auth.uid() = user_id);
 CREATE POLICY "reviews_insert_own" ON reviews FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "reviews_update_own" ON reviews FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "reviews_delete_own" ON reviews FOR DELETE USING (auth.uid() = user_id);
 
--- Products, categories, brands: public read access
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "products_select_all" ON products FOR SELECT USING (TRUE);
 
@@ -266,8 +275,10 @@ CREATE POLICY "brands_select_all" ON brands FOR SELECT USING (TRUE);
 ALTER TABLE promo_codes ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "promo_codes_select_active" ON promo_codes FOR SELECT USING (is_active = TRUE);
 
+ALTER TABLE stripe_webhook_events ENABLE ROW LEVEL SECURITY;
+
 -- ============================================
--- TRIGGER: Auto-create profile on user signup
+-- TRIGGERS
 -- ============================================
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
@@ -294,18 +305,25 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_user();
 
--- ============================================
--- TRIGGER: Update product rating on review change
--- ============================================
 CREATE OR REPLACE FUNCTION update_product_rating()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  UPDATE products 
-  SET 
-    rating = (SELECT COALESCE(AVG(rating), 0) FROM reviews WHERE product_id = COALESCE(NEW.product_id, OLD.product_id) AND is_approved = TRUE),
-    review_count = (SELECT COUNT(*) FROM reviews WHERE product_id = COALESCE(NEW.product_id, OLD.product_id) AND is_approved = TRUE)
+  UPDATE products
+  SET
+    rating = (
+      SELECT COALESCE(AVG(rating), 0)
+      FROM reviews
+      WHERE product_id = COALESCE(NEW.product_id, OLD.product_id)
+        AND is_approved = TRUE
+    ),
+    review_count = (
+      SELECT COUNT(*)
+      FROM reviews
+      WHERE product_id = COALESCE(NEW.product_id, OLD.product_id)
+        AND is_approved = TRUE
+    )
   WHERE id = COALESCE(NEW.product_id, OLD.product_id);
   RETURN COALESCE(NEW, OLD);
 END;

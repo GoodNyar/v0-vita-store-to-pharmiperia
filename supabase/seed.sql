@@ -1,0 +1,3 @@
+-- Pharmiperia seed data
+-- Populated in Roadmap Task 9 (Catalog Database) from lib/data.ts → ADR-0001.
+-- Local apply: pnpm db:reset (runs migrations + this file)

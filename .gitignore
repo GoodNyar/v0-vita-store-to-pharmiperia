@@ -37,6 +37,10 @@ playwright-report/
 test-results/
 blob-report/
 
+# Supabase local (see supabase/.gitignore)
+supabase/.branches
+supabase/.temp
+
 # IDE (local only)
 .idea/
 *.swp
