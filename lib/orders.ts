@@ -11,6 +11,7 @@ import {
   validateShippingMoney,
   type Money,
 } from '@/lib/money'
+import { legacyProductIdToUuid } from '@/lib/commerce/ids'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/i18n/config'
 import { resolveTaxCentsFromSession } from '@/lib/stripe/tax'
@@ -148,7 +149,7 @@ export async function createDraftOrder(
 
   const orderItems = lines.map((line) => ({
     order_id: order.id,
-    product_id: null,
+    product_id: legacyProductIdToUuid(line.catalogProductId),
     product_name: line.name,
     product_sku: line.sku,
     quantity: line.quantity,

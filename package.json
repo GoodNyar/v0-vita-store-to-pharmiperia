@@ -19,7 +19,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:install": "playwright install chromium",
-    "validate:production": "node scripts/validate-production.mjs"
+    "validate:production": "node scripts/validate-production.mjs",
+    "test:commerce": "tsx --test lib/commerce/products.test.ts"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.143",
