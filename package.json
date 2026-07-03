@@ -14,7 +14,10 @@
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --local > lib/database.types.ts",
     "db:types:remote": "supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" > lib/database.types.ts",
-    "db:seed:generate": "tsx supabase/generate-seed.ts"
+    "db:seed:generate": "tsx supabase/generate-seed.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:install": "playwright install chromium"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.143",
@@ -80,6 +83,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4.2.0",
     "@types/node": "^22",
     "@types/react": "19.2.14",
