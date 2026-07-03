@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { CartProvider } from "@/components/cart-context"
 import { LangProvider, useLang } from "@/lib/i18n"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
@@ -281,9 +280,7 @@ function DeliveryContent() {
 export default function DeliveryPage() {
   return (
     <LangProvider>
-      <CartProvider>
         <DeliveryContent />
-      </CartProvider>
     </LangProvider>
   )
 }

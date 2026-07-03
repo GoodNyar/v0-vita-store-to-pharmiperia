@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { LangProvider, useLang, formatMoney } from "@/lib/i18n"
-import { CartProvider } from "@/components/cart-context"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
@@ -235,9 +234,7 @@ function OrdersContent() {
 export default function OrdersPage() {
   return (
     <LangProvider>
-      <CartProvider>
         <OrdersContent />
-      </CartProvider>
     </LangProvider>
   )
 }

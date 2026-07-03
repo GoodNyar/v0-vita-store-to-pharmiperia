@@ -4,7 +4,6 @@ import { useState } from "react"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { CartProvider } from "@/components/cart-context"
 import { LangProvider, useLang } from "@/lib/i18n"
 import { Star, CheckCircle } from "lucide-react"
 
@@ -253,12 +252,10 @@ function ReviewsContent() {
 export default function ReviewsPage() {
   return (
     <LangProvider>
-      <CartProvider>
         <SiteHeader />
         <CartDrawer />
         <ReviewsContent />
         <SiteFooter />
-      </CartProvider>
     </LangProvider>
   )
 }

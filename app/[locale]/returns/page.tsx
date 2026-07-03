@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { LangProvider, useLang } from "@/lib/i18n"
-import { CartProvider } from "@/components/cart-context"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
@@ -189,9 +188,7 @@ function ReturnsContent() {
 export default function ReturnsPage() {
   return (
     <LangProvider>
-      <CartProvider>
         <ReturnsContent />
-      </CartProvider>
     </LangProvider>
   )
 }

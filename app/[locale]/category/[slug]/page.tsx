@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation"
 import { CategoryPageContent } from "@/components/category-page-content"
 import { BrandsShowcase } from "@/components/brands-showcase"
-import { CartProvider } from "@/components/cart-context"
 import { LangProvider } from "@/lib/i18n"
 import { getCatalogProductsByCategorySlug } from "@/lib/commerce/catalog-source"
 import { isLocale } from "@/lib/i18n/config"
@@ -17,9 +16,7 @@ export default async function CategoryPage({
   if (slug === "brands") {
     return (
       <LangProvider>
-        <CartProvider>
           <BrandsShowcase />
-        </CartProvider>
       </LangProvider>
     )
   }
@@ -28,9 +25,7 @@ export default async function CategoryPage({
 
   return (
     <LangProvider>
-      <CartProvider>
         <CategoryPageContent slug={slug} catalogProducts={catalogProducts} />
-      </CartProvider>
     </LangProvider>
   )
 }

@@ -3,7 +3,6 @@
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { CartProvider } from "@/components/cart-context"
 import { LangProvider, useLang } from "@/lib/i18n"
 import { Package, Search } from "lucide-react"
 import { useState } from "react"
@@ -74,12 +73,10 @@ function TrackContent() {
 export default function TrackPage() {
   return (
     <LangProvider>
-      <CartProvider>
         <SiteHeader />
         <CartDrawer />
         <TrackContent />
         <SiteFooter />
-      </CartProvider>
     </LangProvider>
   )
 }

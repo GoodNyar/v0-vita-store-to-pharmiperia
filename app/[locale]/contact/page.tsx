@@ -4,7 +4,6 @@ import { useState } from "react"
 import Link from "next/link"
 import { LangProvider, useLang } from "@/lib/i18n"
 import { getInfoEmail } from "@/lib/site"
-import { CartProvider } from "@/components/cart-context"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
@@ -250,9 +249,7 @@ function ContactContent() {
 export default function ContactPage() {
   return (
     <LangProvider>
-      <CartProvider>
         <ContactContent />
-      </CartProvider>
     </LangProvider>
   )
 }

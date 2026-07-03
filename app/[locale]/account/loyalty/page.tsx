@@ -5,7 +5,6 @@ import Link from "next/link"
 import { SiteHeader } from "@/components/site-header"
 import { CartDrawer } from "@/components/cart-drawer"
 import { SiteFooter } from "@/components/site-footer"
-import { CartProvider } from "@/components/cart-context"
 import { LangProvider, useLang } from "@/lib/i18n"
 import { createClient } from "@/lib/supabase/client"
 import { 
@@ -86,7 +85,7 @@ function LoyaltyContent() {
   const [loyalty, setLoyalty] = useState<LoyaltyPoints | null>(null)
   const [transactions, setTransactions] = useState<LoyaltyTransaction[]>([])
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
 
   useEffect(() => {
     async function loadLoyaltyData() {
@@ -342,7 +341,6 @@ function LoyaltyContent() {
 export default function LoyaltyPage() {
   return (
     <LangProvider>
-      <CartProvider>
         <div className="min-h-screen bg-background">
           <SiteHeader />
           <CartDrawer />
@@ -351,7 +349,6 @@ export default function LoyaltyPage() {
           </main>
           <SiteFooter />
         </div>
-      </CartProvider>
     </LangProvider>
   )
 }

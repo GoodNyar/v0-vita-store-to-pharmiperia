@@ -4,7 +4,6 @@ import Link from "next/link"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { CartProvider } from "@/components/cart-context"
 import { LangProvider, useLang } from "@/lib/i18n"
 import { Package, RotateCcw, CreditCard, User, MessageCircle, ChevronRight } from "lucide-react"
 import { useState } from "react"
@@ -106,9 +105,7 @@ function HelpContent() {
 export default function HelpPage() {
   return (
     <LangProvider>
-      <CartProvider>
         <HelpContent />
-      </CartProvider>
     </LangProvider>
   )
 }

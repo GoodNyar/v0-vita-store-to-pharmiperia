@@ -3,7 +3,6 @@
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { CartProvider } from "@/components/cart-context"
 import { LangProvider, useLang } from "@/lib/i18n"
 import { Gift, TrendingUp, Users, CheckCircle } from "lucide-react"
 import { useState } from "react"
@@ -179,9 +178,7 @@ function PartnersContent() {
 export default function PartnersPage() {
   return (
     <LangProvider>
-      <CartProvider>
         <PartnersContent />
-      </CartProvider>
     </LangProvider>
   )
 }
