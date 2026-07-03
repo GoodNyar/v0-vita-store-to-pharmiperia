@@ -17,5 +17,6 @@
 | [0011](0011-rate-limit-api-endpoints.md) | Rate limit на публичных API | принят | Phase 1 task 17 |
 | [0012](0012-captcha-auth-turnstile.md) | CAPTCHA на auth (Turnstile) | принят | Phase 1 task 18 |
 | [0013](0013-ai-protection-phase-1.md) | AI Protection: flags, guards, budget | принят | Phase 1 task 19 |
+| [0014](0014-monitoring-health-budget-alerts.md) | Monitoring: health, budget alerts, ops | принят | Phase 1 task 20 |
 
 Blueprint: [`docs/reports/06-refactoring-blueprint.md`](../reports/06-refactoring-blueprint.md).

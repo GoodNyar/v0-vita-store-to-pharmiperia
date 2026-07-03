@@ -3,6 +3,7 @@ import 'server-only'
 import { Redis } from '@upstash/redis'
 
 import { getAiDailyRequestCap } from '@/lib/features/ai'
+import { alertAiBudgetUsage } from '@/lib/monitoring/budget-alerts'
 import { isUpstashRateLimitConfigured } from '@/lib/rate-limit'
 
 const memoryCounts = new Map<string, number>()
@@ -37,17 +38,21 @@ export async function consumeAiRequestBudget(): Promise<{
 
     if (count > cap) {
       await redis.decr(key)
+      alertAiBudgetUsage(count, cap)
       return { allowed: false, remaining: 0 }
     }
 
+    alertAiBudgetUsage(count, cap)
     return { allowed: true, remaining: Math.max(0, cap - count) }
   }
 
   const count = (memoryCounts.get(key) ?? 0) + 1
   if (count > cap) {
+    alertAiBudgetUsage(count, cap)
     return { allowed: false, remaining: 0 }
   }
 
   memoryCounts.set(key, count)
+  alertAiBudgetUsage(count, cap)
   return { allowed: true, remaining: Math.max(0, cap - count) }
 }
