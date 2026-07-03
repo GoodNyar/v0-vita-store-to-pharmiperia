@@ -53,6 +53,39 @@ interface Order {
 
 type ActiveSection = "profile" | "orders" | "favorites" | "bonus" | "addresses" | "notifications"
 
+const MOCK_ORDERS: Order[] = [
+  {
+    id: "1",
+    orderNumber: "#4521",
+    date: "2025-03-25",
+    status: "delivered",
+    total: 49.99,
+    products: [
+      { id: "1", name: "Средство для кожи", image: allProducts[0]?.image || "" },
+      { id: "2", name: "Маска для волос", image: allProducts[1]?.image || "" },
+    ],
+  },
+  {
+    id: "2",
+    orderNumber: "#4520",
+    date: "2025-03-20",
+    status: "in_progress",
+    total: 89.99,
+    products: [
+      { id: "3", name: "Крем SPF 50", image: allProducts[2]?.image || "" },
+    ],
+  },
+]
+
+function getRecommendedProducts(): Product[] {
+  const firstOrder = MOCK_ORDERS[0]
+  if (!firstOrder?.products.length) return []
+  const lastOrderIds = new Set(firstOrder.products.map((p) => p.id))
+  return allProducts
+    .filter((p) => !lastOrderIds.has(p.id.toString()))
+    .slice(0, 4)
+}
+
 export default function AccountPage() {
   const router = useRouter()
   const { user, isLoading: authLoading, signOut } = useAuth()
@@ -64,10 +97,10 @@ export default function AccountPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [formData, setFormData] = useState<Profile>({})
-  const [orders, setOrders] = useState<Order[]>([])
+  const [orders] = useState<Order[]>(MOCK_ORDERS)
   const [bonusPoints, setBonusPoints] = useState(150)
   const bonusMax = 200
-  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([])
+  const [recommendedProducts] = useState<Product[]>(getRecommendedProducts)
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
   const [toastPos, setToastPos] = useState({ x: 0, y: 0 })
   const [savedData, setSavedData] = useState<Profile | null>(null)
@@ -104,33 +137,39 @@ export default function AccountPage() {
     }
   }, [authLoading, user, router])
 
+  const openEditForm = () => {
+    if (savedData) {
+      setFormData({ ...savedData, phone: "" })
+      setErrors({})
+    }
+    setIsEditing(true)
+  }
+
   // Load profile - show cache instantly, refresh from Supabase in background
   useEffect(() => {
     if (!user) return
 
-    const authenticatedUser = user
+    void (async () => {
+      await Promise.resolve()
+      const authenticatedUser = user
 
-    // 1. Show cached data instantly (if exists)
-    const localData = localStorage.getItem(`profile_${authenticatedUser.id}`)
-    if (localData) {
-      try {
-        const parsed = JSON.parse(localData)
-        setProfile(parsed)
-        setSavedData(parsed)
-        setProfileLoading(false) // Immediate UI update with cached data
-      } catch {
-        // Corrupt cache, skip
+      const localData = localStorage.getItem(`profile_${authenticatedUser.id}`)
+      if (localData) {
+        try {
+          const parsed = JSON.parse(localData)
+          setProfile(parsed)
+          setSavedData(parsed)
+          setProfileLoading(false)
+        } catch {
+          // Corrupt cache, skip
+        }
+      } else {
+        const emptyProfile = { id: authenticatedUser.id, email: authenticatedUser.email }
+        setProfile(emptyProfile)
+        setSavedData(emptyProfile)
+        setProfileLoading(false)
       }
-    } else {
-      // No cache - show empty profile
-      const emptyProfile = { id: authenticatedUser.id, email: authenticatedUser.email }
-      setProfile(emptyProfile)
-      setSavedData(emptyProfile)
-      setProfileLoading(false)
-    }
 
-    // 2. Refresh from Supabase in background (don't block UI)
-    async function refreshFromSupabase() {
       const supabase = createClient()
       try {
         const { data, error } = await supabase
@@ -138,9 +177,9 @@ export default function AccountPage() {
           .select("id, first_name, last_name, phone, email, country, city, address, postal_code")
           .eq("id", authenticatedUser.id)
           .maybeSingle()
-        
+
         if (error) throw error
-        
+
         if (data) {
           setProfile(data)
           setSavedData(data)
@@ -148,60 +187,9 @@ export default function AccountPage() {
         }
       } catch (err) {
         console.error("[account] Supabase refresh error:", err)
-        // Keep cached data on error
       }
-    }
-
-    refreshFromSupabase()
+    })()
   }, [user])
-
-  // Sync formData with savedData when opening form
-  useEffect(() => {
-    if (isEditing && savedData) {
-      // Load saved data but NEVER auto-fill phone field for privacy
-      const dataToLoad = { ...savedData }
-      dataToLoad.phone = "" // Always start with empty phone field
-      setFormData(dataToLoad)
-      setErrors({})
-    }
-  }, [isEditing])
-
-  // Load mock orders
-  useEffect(() => {
-    const mockOrders: Order[] = [
-      {
-        id: "1",
-        orderNumber: "#4521",
-        date: "2025-03-25",
-        status: "delivered",
-        total: 49.99,
-        products: [
-          { id: "1", name: "Средство для кожи", image: allProducts[0]?.image || "" },
-          { id: "2", name: "Маска для волос", image: allProducts[1]?.image || "" },
-        ],
-      },
-      {
-        id: "2",
-        orderNumber: "#4520",
-        date: "2025-03-20",
-        status: "in_progress",
-        total: 89.99,
-        products: [
-          { id: "3", name: "Крем SPF 50", image: allProducts[2]?.image || "" },
-        ],
-      },
-    ]
-    setOrders(mockOrders)
-
-    // Get recommended products based on last order + popular items
-    if (mockOrders[0] && mockOrders[0].products.length > 0) {
-      const lastOrderIds = new Set(mockOrders[0].products.map(p => p.id))
-      const filtered = allProducts
-        .filter(p => !lastOrderIds.has(p.id.toString()))
-        .slice(0, 4)
-      setRecommendedProducts(filtered)
-    }
-  }, [])
 
   const handleSaveProfile = async (e: React.MouseEvent) => {
     if (!user) return
@@ -517,7 +505,7 @@ export default function AccountPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => setIsEditing(true)}
+                    onClick={openEditForm}
                     className="flex-shrink-0"
                   >
                     <Edit2 className="mr-2 h-4 w-4" />

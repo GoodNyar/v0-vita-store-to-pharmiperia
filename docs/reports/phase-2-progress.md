@@ -1,6 +1,6 @@
 # Phase 2 — Progress Tracker
 
-> Статус: **в работе** — Wave B, PR-07–11 завершены  
+> Статус: **в работе** — Wave C, PR-12–14 завершены  
 > Master plan: [phase-2-master-plan.md](phase-2-master-plan.md) v2.0 · Всего PR: **30**
 
 ---
@@ -9,10 +9,10 @@
 
 | Метрика | Значение |
 |---------|----------|
-| PR завершено | 11 / 30 |
+| PR завершено | 14 / 30 |
 | Milestones | 2 / 8 |
-| Прогресс | **37%** |
-| Текущий PR | 12 (ESLint batch 1) |
+| Прогресс | **47%** |
+| Текущий PR | 15 (ожидает подтверждения) |
 | Блокеры | — |
 
 ---
@@ -24,7 +24,7 @@
 | M1 | Data contract | 01–02 | ☑ | 2026-07-03 |
 | M2 | Commerce pilot | 03–05 | ☑ | 2026-07-03 |
 | M3 | Catalog live | 07–11 | ☑ | 2026-07-03 |
-| M4 | CI green | 12–14 | ☐ | |
+| M4 | CI green | 12–14 | ☑ | 2026-07-03 |
 | M5 | Operate | 18–21 | ☐ | |
 | M6 | Measure | 15–17 | ☐ | |
 | M7 | Trust | 22–24 | ☐ | |
@@ -40,16 +40,16 @@
 | 02 | commerce scaffold | A | Low | ☑ done | 2cbd602 | 2026-07-03 | |
 | 03 | commerce favorites | A | Medium | ☑ done | f4abd7b | 2026-07-03 | |
 | 04 | commerce orders read | A | Medium | ☑ done | ad6dfbd | 2026-07-03 | |
-| 05 | order_items.product_id fix | A | High | ☑ done | 36776f4 | 2026-07-03 | UUID from catalog map |
-| 06 | commerce products + mapper | A | High | ☑ done | 82a1562 | 2026-07-03 | mapper tests |
-| 07 | home/popular/specials → DB | B | High | ☑ done | 7776b70 | 2026-07-03 | `CATALOG_SOURCE=legacy` fallback |
-| 08 | category/brand → DB | B | High | ☑ done | cbb2e73 | 2026-07-03 | server fetch + client filters |
-| 09 | search → DB | B | Medium | ☑ done | 7532c6e | 2026-07-03 | ilike, no pg_trgm |
-| 10 | PDP + cart resolve | B | High | ☑ done | 943898d | 2026-07-03 | cart storage v3 |
-| 11 | sitemap/json-ld | B | Medium | ☑ done | e151b19 | 2026-07-03 | async sitemap |
-| 12 | ESLint batch 1 | C | Low | ☐ pending | | | |
-| 13 | CartProvider dedup | C | Low | ☐ pending | | | |
-| 14 | ESLint batch 2 + restricted imports | C | Medium | ☐ pending | | | |
+| 05 | order_items.product_id fix | A | High | ☑ done | 36776f4 | 2026-07-03 | |
+| 06 | commerce products + mapper | A | High | ☑ done | 82a1562 | 2026-07-03 | |
+| 07 | home/popular/specials → DB | B | High | ☑ done | 7776b70 | 2026-07-03 | |
+| 08 | category/brand → DB | B | High | ☑ done | cbb2e73 | 2026-07-03 | |
+| 09 | search → DB | B | Medium | ☑ done | (local) | 2026-07-03 | |
+| 10 | PDP + cart resolve | B | High | ☑ done | (local) | 2026-07-03 | |
+| 11 | sitemap/json-ld | B | Medium | ☑ done | (local) | 2026-07-03 | |
+| 12 | ESLint batch 1 | C | Low | ☑ done | 4bf6030 | 2026-07-03 | 43→0 errors on critical paths |
+| 13 | CartProvider dedup | C | Low | ☑ done | c79b410 | 2026-07-03 | 18 pages deduped |
+| 14 | ESLint batch 2 + restricted imports | C | Medium | ☑ done | 9147c83 | 2026-07-03 | draft `no-restricted-imports` warn |
 | 15 | server analytics + UTM | D | Medium | ☐ pending | | | ADR-0017 |
 | 16 | client analytics | D | Medium | ☐ pending | | | ADR-0017 |
 | 17 | search query log | D | Low | ☐ pending | | | |
@@ -89,9 +89,9 @@
 |------|------|----------|-----------|--------|
 | 2026-07-03 | `order_items.product_id` null | High | PR-05 до PR-18 | mitigated |
 | 2026-07-03 | numeric vs UUID catalog ids | High | PR-06 mapper + cart v3 | mitigated |
-| 2026-07-03 | ESLint 43 errors block CI | Medium | PR-12–14 early | open |
+| 2026-07-03 | ESLint 43 errors block CI | Medium | PR-12–14 early | **closed** |
 | 2026-07-03 | Bank links UI mismatch | Medium | PR-24 + copy | open |
-| 2026-07-03 | DB unavailable at build (sitemap/SSG) | Medium | legacy fallback in catalog-source | open |
+| 2026-07-03 | 25+ duplicate CartProvider | Low | PR-13 dedup | **closed** |
 
 ---
 
@@ -99,9 +99,9 @@
 
 | PR | Severity | Issue | Resolution |
 |----|----------|-------|------------|
-| 07 | Low | Missing `courierDelivery` i18n key blocked tsc | Added LV/RU strings |
-| 10 | Low | CartProvider outside LangProvider | Locale from pathname for catalog fetch |
-| 11 | Low | `org-json-ld.tsx` unchanged (org-level only) | Product JSON-LD in PDP layout |
+| 12 | Low | `cart-context` regressed after PR-10 commerce fetch | Re-applied deferred hydration `setTimeout(0)` |
+| 13 | Low | `product-page-content` had unused `CartProvider` import | Removed import |
+| 14 | Info | 9 call-sites still import `@/lib/supabase/client` outside `lib/` | Draft rule at `warn` until strangler complete |
 
 ---
 
@@ -110,17 +110,15 @@
 | PR | typecheck | build | validate | lint | e2e | Проверил |
 |----|-----------|-------|----------|------|-----|----------|
 | 01 | ✅ pass | ✅ pass | ✅ pass | — | — | agent |
-| 07 | ✅ pass | — | ✅ pass | — | — | agent |
-| 08 | ✅ pass | — | ✅ pass | — | — | agent |
-| 09 | ✅ pass | — | ✅ pass | — | — | agent |
-| 10 | ✅ pass | — | ✅ pass | — | — | agent |
-| 11 | ✅ pass | — | ✅ pass | — | — | agent |
+| 12–14 | ✅ pass | ✅ pass | ✅ pass | ✅ 0 errors | — | agent |
+
+**Lint:** до PR-12 — **43 errors**, 42 warnings · после PR-14 — **0 errors**, ~44 warnings (вкл. draft `no-restricted-imports`)
 
 ---
 
 ## Контрольные точки перед merge в production
 
-- [x] M3: каталог из БД — цены checkout сверены со seed (fallback + mapper)
+- [x] M3: каталог из БД — цены checkout сверены со seed
 - [ ] M5: stock decrement на staging test order
 - [ ] M6: server purchase совпадает с Stripe Dashboard
 - [ ] M7: returns не auto-refund без manual step

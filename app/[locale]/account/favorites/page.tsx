@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useLang, formatMoney } from "@/lib/i18n"
@@ -15,19 +15,10 @@ export default function FavoritesPage() {
   const { addToCart } = useCart()
   const { user } = useAuth()
   const { favorites, isLoading, toggleFavorite } = useFavorites()
-  const [products, setProducts] = useState<Product[]>([])
 
-  // Get product details from local data.ts
-  useEffect(() => {
-    if (isLoading) return
-    if (favorites.length === 0) {
-      setProducts([])
-      return
-    }
-
-    // Filter products from lib/data.ts by favorited IDs
-    const favoriteProducts = allProducts.filter(p => favorites.includes(p.id))
-    setProducts(favoriteProducts)
+  const products = useMemo(() => {
+    if (isLoading || favorites.length === 0) return []
+    return allProducts.filter((p) => favorites.includes(p.id))
   }, [favorites, isLoading])
 
   if (isLoading) {

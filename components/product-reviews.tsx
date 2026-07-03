@@ -1,7 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import { Star, ThumbsUp, User } from "lucide-react"
+import type { User as SupabaseUser } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 
@@ -30,7 +32,7 @@ export function ProductReviews({ productId, initialRating, initialReviewCount }:
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<SupabaseUser | null>(null)
   const [newReview, setNewReview] = useState({
     rating: 5,
     title: "",
@@ -58,7 +60,7 @@ export function ProductReviews({ productId, initialRating, initialReviewCount }:
         .limit(10)
 
       if (!error && data) {
-        setReviews(data as any)
+        setReviews(data as Review[])
       }
       setLoading(false)
     }
@@ -93,7 +95,7 @@ export function ProductReviews({ productId, initialRating, initialReviewCount }:
         .limit(10)
 
       if (data) {
-        setReviews(data as any)
+        setReviews(data as Review[])
       }
       
       setNewReview({ rating: 5, title: "", content: "" })
@@ -195,7 +197,7 @@ export function ProductReviews({ productId, initialRating, initialReviewCount }:
             </Button>
           ) : (
             <p className="mt-6 text-sm text-muted-foreground">
-              <a href="/auth/login" className="text-primary hover:underline">Piesakieties</a>, lai rakstītu atsauksmi
+              <Link href="/auth/login" className="text-primary hover:underline">Piesakieties</Link>, lai rakstītu atsauksmi
             </p>
           )}
         </div>

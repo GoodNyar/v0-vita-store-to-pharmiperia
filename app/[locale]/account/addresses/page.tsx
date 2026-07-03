@@ -37,10 +37,6 @@ export default function AddressesPage() {
     is_default: false,
   })
 
-  useEffect(() => {
-    fetchAddresses()
-  }, [])
-
   const fetchAddresses = async () => {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -59,6 +55,13 @@ export default function AddressesPage() {
     setAddresses(data || [])
     setLoading(false)
   }
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void fetchAddresses()
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

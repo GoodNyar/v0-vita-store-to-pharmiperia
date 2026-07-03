@@ -28,7 +28,7 @@ export function LiveChat() {
 function LiveChatPanel() {
   const { t } = useLang()
   const [isOpen, setIsOpen] = useState(false)
-  const [hasNewMessage, setHasNewMessage] = useState(false)
+  const [seenAssistantCount, setSeenAssistantCount] = useState(0)
   const [input, setInput] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -52,16 +52,15 @@ function LiveChatPanel() {
     }
   }, [isOpen])
 
-  // Show notification badge when new message arrives and chat is closed
-  useEffect(() => {
-    if (!isOpen && messages.length > 1 && messages[messages.length - 1].role === "assistant") {
-      setHasNewMessage(true)
-    }
-  }, [messages, isOpen])
+  const assistantMessageCount = messages.filter((m) => m.role === "assistant").length
+  const hasNewMessage =
+    !isOpen &&
+    assistantMessageCount > 1 &&
+    assistantMessageCount > seenAssistantCount
 
   const handleOpen = () => {
     setIsOpen(true)
-    setHasNewMessage(false)
+    setSeenAssistantCount(assistantMessageCount)
   }
 
   const handleSubmit = (e: React.FormEvent) => {
