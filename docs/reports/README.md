@@ -17,6 +17,8 @@
 | 11 | [Phase 1 Production Validation](11-phase-1-production-validation.md) | Финальный прогон Phase 1: 22/22, вердикт CONDITIONAL GO, ops-чеклист |
 | — | [Phase 1 Final Summary](phase-1-final-summary.md) | Полный отчёт закрытия Phase 1: файлы, ADR, CI, checks, техдолг |
 | — | [Phase 2 Prerequisites](phase-2-prerequisites.md) | Чеклист перед стартом Phase 2: env, ограничения ADR, отложенные сервисы |
+| — | [Phase 2 Master Plan](phase-2-master-plan.md) | Ревизия v2: 30 PR, зависимости, риски, milestones |
+| — | [Phase 2 Progress](phase-2-progress.md) | Трекер статуса PR и milestones (обновляется при исполнении) |
 
 Действующая техническая конституция проекта: [`docs/ENGINEERING_PLAYBOOK.md`](../ENGINEERING_PLAYBOOK.md).
 Архитектурные решения: [`docs/adr/`](../adr/README.md) (шаблон — `0000-adr-template.md`).
