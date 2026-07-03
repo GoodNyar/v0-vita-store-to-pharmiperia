@@ -9,6 +9,8 @@ import type { Locale } from '@/lib/i18n/config'
 import {
   getProductBySlug as getCommerceProductBySlug,
   listActiveProducts,
+  listProductsByBrandSlug,
+  listProductsByCategorySlug,
   mapCommerceToLegacyProduct,
 } from './products'
 import type { CommerceProduct } from './types'
@@ -85,4 +87,38 @@ export async function getCatalogProductBySlug(
   }
 
   return getLegacyProductBySlug(slug) ?? null
+}
+
+export async function getCatalogProductsByCategorySlug(
+  categorySlug: string,
+  locale: Locale
+): Promise<Product[]> {
+  if (prefersLegacyCatalog()) {
+    return legacyProducts.filter((product) => product.category === categorySlug)
+  }
+
+  const result = await listProductsByCategorySlug(categorySlug, locale)
+  if (!result.ok || result.data.length === 0) {
+    return legacyProducts.filter((product) => product.category === categorySlug)
+  }
+
+  return result.data.map(mergeLegacyExtras)
+}
+
+export async function getCatalogProductsByBrandSlug(
+  brandSlug: string,
+  locale: Locale
+): Promise<Product[]> {
+  const { getProductsByBrandSlug } = await import('@/lib/data')
+
+  if (prefersLegacyCatalog()) {
+    return getProductsByBrandSlug(brandSlug)
+  }
+
+  const result = await listProductsByBrandSlug(brandSlug, locale)
+  if (!result.ok || result.data.length === 0) {
+    return getProductsByBrandSlug(brandSlug)
+  }
+
+  return result.data.map(mergeLegacyExtras)
 }

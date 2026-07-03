@@ -62,6 +62,8 @@ export {
 export {
   getCatalogProductBySlug,
   getCatalogProducts,
+  getCatalogProductsByBrandSlug,
+  getCatalogProductsByCategorySlug,
   mergeLegacyExtras,
   type CatalogSource,
 } from './catalog-source'
@@ -70,6 +72,9 @@ export {
   getProductBySlug,
   getProductByUuid,
   listActiveProducts,
+  listProductSlugs,
+  listProductsByBrandSlug,
+  listProductsByCategorySlug,
   mapCommerceToLegacyProduct,
   mapDbProductToCommerce,
   pricesMatchLegacy,
