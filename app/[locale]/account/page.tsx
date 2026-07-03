@@ -8,7 +8,7 @@ import { useAuth } from "@/components/auth-provider"
 import { useLang, formatMoney } from "@/lib/i18n"
 import { useCart } from "@/components/cart-context"
 import { useFavorites } from "@/components/favorites-provider"
-import { products as allProducts, type Product } from "@/lib/data"
+import { products as allProducts, getProductSlug, type Product } from "@/lib/data"
 import { createClient } from "@/lib/supabase/client"
 import { 
   User, 
@@ -55,7 +55,7 @@ type ActiveSection = "profile" | "orders" | "favorites" | "bonus" | "addresses" 
 export default function AccountPage() {
   const router = useRouter()
   const { user, isLoading: authLoading, signOut } = useAuth()
-  const { t } = useLang()
+  const { t, localizedPath } = useLang()
   const { addToCart } = useCart()
   const { favorites } = useFavorites()
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -714,7 +714,7 @@ export default function AccountPage() {
                   {favoriteProducts.map((product) => (
                     <Link
                       key={product.id}
-                      href={`/products/${product.id}`}
+                      href={localizedPath(`/products/${getProductSlug(product)}`)}
                       className="group flex flex-col rounded-xl border border-border bg-card overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-primary/50"
                     >
                       <div className="relative h-32 sm:h-40 bg-muted overflow-hidden">
@@ -961,7 +961,7 @@ export default function AccountPage() {
                 {recommendedProducts.slice(0, 4).map((product) => (
                   <Link
                     key={product.id}
-                    href={`/products/${product.id}`}
+                    href={localizedPath(`/products/${getProductSlug(product)}`)}
                     className="group flex flex-col rounded-xl border border-border bg-card overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-primary/50"
                   >
                     <div className="relative h-32 sm:h-36 bg-muted overflow-hidden">

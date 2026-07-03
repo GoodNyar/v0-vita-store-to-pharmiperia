@@ -5,7 +5,7 @@ import { ToastProvider } from '@/components/toast-provider'
 import { AuthProvider } from '@/components/auth-provider'
 import { CartProvider } from '@/components/cart-context'
 import { FavoritesProvider } from '@/components/favorites-provider'
-import { LangProvider } from '@/lib/i18n'
+
 import { OrgJsonLd } from '@/components/org-json-ld'
 import './globals.css'
 
@@ -88,20 +88,18 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="lv">
+    <html lang="lv" suppressHydrationWarning>
       <body className="font-sans antialiased">
         <OrgJsonLd />
-        <LangProvider>
-          <AuthProvider>
-            <FavoritesProvider>
-              <CartProvider>
-                <ToastProvider>
-                  {children}
-                </ToastProvider>
-              </CartProvider>
-            </FavoritesProvider>
-          </AuthProvider>
-        </LangProvider>
+        <AuthProvider>
+          <FavoritesProvider>
+            <CartProvider>
+              <ToastProvider>
+                {children}
+              </ToastProvider>
+            </CartProvider>
+          </FavoritesProvider>
+        </AuthProvider>
         <Analytics />
       </body>
     </html>

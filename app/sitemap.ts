@@ -1,54 +1,63 @@
 import type { MetadataRoute } from 'next'
-import { products, categories, BRANDS_ORDERED } from '@/lib/data'
+import { products, categories, BRANDS_ORDERED, getBrandSlug, getProductSlug } from '@/lib/data'
+import { LOCALES } from '@/lib/i18n/config'
+import { localizedPath } from '@/lib/i18n/routes'
 
 const SITE_URL = 'https://pharmiperia.lv'
 
-function brandSlug(name: string): string {
-  return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-}
+const STATIC_PATHS = [
+  '/',
+  '/popular',
+  '/specials',
+  '/blog',
+  '/about',
+  '/contact',
+  '/delivery',
+  '/returns',
+  '/payment-methods',
+  '/privacy',
+  '/terms',
+  '/data-security',
+] as const
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
 
-  // Static pages
-  const staticRoutes: MetadataRoute.Sitemap = [
-    { url: SITE_URL,                        lastModified: now, changeFrequency: 'daily',   priority: 1.0 },
-    { url: `${SITE_URL}/popular`,           lastModified: now, changeFrequency: 'daily',   priority: 0.9 },
-    { url: `${SITE_URL}/specials`,          lastModified: now, changeFrequency: 'daily',   priority: 0.9 },
-    { url: `${SITE_URL}/blog`,              lastModified: now, changeFrequency: 'weekly',  priority: 0.7 },
-    { url: `${SITE_URL}/about`,             lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${SITE_URL}/contact`,           lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${SITE_URL}/delivery`,          lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${SITE_URL}/returns`,           lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
-    { url: `${SITE_URL}/payment-methods`,   lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
-    { url: `${SITE_URL}/privacy`,           lastModified: now, changeFrequency: 'yearly',  priority: 0.3 },
-    { url: `${SITE_URL}/terms`,             lastModified: now, changeFrequency: 'yearly',  priority: 0.3 },
-    { url: `${SITE_URL}/data-security`,     lastModified: now, changeFrequency: 'yearly',  priority: 0.3 },
-  ]
+  const staticRoutes: MetadataRoute.Sitemap = LOCALES.flatMap((locale) =>
+    STATIC_PATHS.map((path) => ({
+      url: `${SITE_URL}${localizedPath(locale, path)}`,
+      lastModified: now,
+      changeFrequency: path === '/' ? 'daily' : path === '/popular' || path === '/specials' ? 'daily' : 'monthly',
+      priority: path === '/' ? 1.0 : path === '/popular' || path === '/specials' ? 0.9 : 0.5,
+    }))
+  )
 
-  // Category pages
-  const categoryRoutes: MetadataRoute.Sitemap = categories.map((cat) => ({
-    url: `${SITE_URL}/category/${cat.id}`,
-    lastModified: now,
-    changeFrequency: 'weekly',
-    priority: 0.8,
-  }))
+  const categoryRoutes: MetadataRoute.Sitemap = LOCALES.flatMap((locale) =>
+    categories.map((cat) => ({
+      url: `${SITE_URL}${localizedPath(locale, `/category/${cat.id}`)}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }))
+  )
 
-  // Brand pages
-  const brandRoutes: MetadataRoute.Sitemap = BRANDS_ORDERED.map((brand) => ({
-    url: `${SITE_URL}/brand/${brandSlug(brand)}`,
-    lastModified: now,
-    changeFrequency: 'weekly',
-    priority: 0.8,
-  }))
+  const brandRoutes: MetadataRoute.Sitemap = LOCALES.flatMap((locale) =>
+    BRANDS_ORDERED.map((brand) => getBrandSlug(brand)).map((slug) => ({
+        url: `${SITE_URL}${localizedPath(locale, `/brand/${slug}`)}`,
+        lastModified: now,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      }))
+  )
 
-  // Product pages
-  const productRoutes: MetadataRoute.Sitemap = products.map((product) => ({
-    url: `${SITE_URL}/products/${product.id}`,
-    lastModified: now,
-    changeFrequency: 'weekly',
-    priority: 0.7,
-  }))
+  const productRoutes: MetadataRoute.Sitemap = LOCALES.flatMap((locale) =>
+    products.map((product) => ({
+      url: `${SITE_URL}${localizedPath(locale, `/products/${getProductSlug(product)}`)}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }))
+  )
 
   return [...staticRoutes, ...categoryRoutes, ...brandRoutes, ...productRoutes]
 }

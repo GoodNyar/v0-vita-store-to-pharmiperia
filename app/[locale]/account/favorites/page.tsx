@@ -7,11 +7,11 @@ import { useLang, formatMoney } from "@/lib/i18n"
 import { useCart } from "@/components/cart-context"
 import { useAuth } from "@/components/auth-provider"
 import { useFavorites } from "@/components/favorites-provider"
-import { products as allProducts, type Product } from "@/lib/data"
+import { products as allProducts, getProductSlug, type Product } from "@/lib/data"
 import { Heart, Star, Loader2, ChevronLeft, Trash2, ShoppingCart, LogIn } from "lucide-react"
 
 export default function FavoritesPage() {
-  const { t } = useLang()
+  const { t, localizedPath } = useLang()
   const { addToCart } = useCart()
   const { user } = useAuth()
   const { favorites, isLoading, toggleFavorite } = useFavorites()
@@ -107,7 +107,7 @@ export default function FavoritesPage() {
               className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_6px_20px_rgba(0,0,0,0.10)] transition-all duration-200 hover:shadow-[0_8px_28px_rgba(0,0,0,0.16)]"
             >
               {/* Image */}
-              <Link href={`/products/${product.id}`} className="relative block overflow-hidden bg-[#f2f3f5]">
+              <Link href={localizedPath(`/products/${getProductSlug(product)}`)} className="relative block overflow-hidden bg-[#f2f3f5]">
                 <div className="relative w-full" style={{ paddingBottom: "100%" }}>
                   {product.image && (
                     <Image
@@ -135,7 +135,7 @@ export default function FavoritesPage() {
                   {product.brand}
                 </span>
                 <Link
-                  href={`/products/${product.id}`}
+                  href={localizedPath(`/products/${getProductSlug(product)}`)}
                   className="line-clamp-2 text-sm font-bold leading-snug text-foreground transition-colors hover:text-primary"
                 >
                   {product.name}

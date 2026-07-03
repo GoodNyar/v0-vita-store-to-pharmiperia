@@ -13,12 +13,12 @@ import { ProductReviews } from "@/components/product-reviews"
 import { CartProvider, useCart } from "@/components/cart-context"
 import { LangProvider, useLang, formatMoney } from "@/lib/i18n"
 import { discountPercent, multiplyMoney } from "@/lib/money"
-import { products, getBrandSlug, type Product } from "@/lib/data"
+import { products, getBrandSlug, getProductBySlug, type Product } from "@/lib/data"
 import { useState } from "react"
 import { useFavorites } from "@/components/favorites-provider"
 
 function ProductPageContent({ product }: { product: Product }) {
-  const { t } = useLang()
+  const { t, localizedPath } = useLang()
   const { addToCart } = useCart()
   const { isFavorited, toggleFavorite } = useFavorites()
   const [quantity, setQuantity] = useState(1)
@@ -55,7 +55,7 @@ function ProductPageContent({ product }: { product: Product }) {
         <div className="mx-auto max-w-7xl px-4 py-4 sm:py-6">
           {/* Back link */}
           <Link
-            href="/"
+            href={localizedPath("/")}
             className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -112,7 +112,7 @@ function ProductPageContent({ product }: { product: Product }) {
             <div className="flex flex-col">
               {/* Brand */}
               <Link
-                href={`/brand/${getBrandSlug(product.brand)}`}
+                href={localizedPath(`/brand/${getBrandSlug(product.brand)}`)}
                 className="text-sm font-semibold text-primary hover:underline"
               >
                 {product.brand}
@@ -233,21 +233,21 @@ function ProductPageContent({ product }: { product: Product }) {
               {/* Trust badges — clickable */}
               <div className="mt-6 grid grid-cols-3 gap-3">
                 <Link
-                  href="/delivery"
+                  href={localizedPath("/delivery")}
                   className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-card p-3 text-center transition-colors hover:border-primary/50 hover:bg-primary/5"
                 >
                   <Truck className="h-5 w-5 text-primary" />
                   <span className="text-xs font-medium text-foreground">{t("productDelivery")}</span>
                 </Link>
                 <Link
-                  href="/delivery#guarantee"
+                  href={localizedPath("/delivery#guarantee")}
                   className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-card p-3 text-center transition-colors hover:border-primary/50 hover:bg-primary/5"
                 >
                   <Shield className="h-5 w-5 text-primary" />
                   <span className="text-xs font-medium text-foreground">{t("productGuarantee")}</span>
                 </Link>
                 <Link
-                  href="/delivery#returns"
+                  href={localizedPath("/delivery#returns")}
                   className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-card p-3 text-center transition-colors hover:border-primary/50 hover:bg-primary/5"
                 >
                   <RotateCcw className="h-5 w-5 text-primary" />
@@ -376,11 +376,10 @@ function ProductPageContent({ product }: { product: Product }) {
 export default function ProductPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ slug: string }>
 }) {
-  const { id } = use(params)
-  const productId = parseInt(id, 10)
-  const product = products.find((p) => p.id === productId)
+  const { slug } = use(params)
+  const product = getProductBySlug(slug)
 
   if (!product) {
     notFound()

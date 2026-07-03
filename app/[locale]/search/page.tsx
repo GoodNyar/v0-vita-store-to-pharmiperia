@@ -18,6 +18,7 @@ import { Search, Star, Loader2, ChevronRight, X } from "lucide-react"
 interface DbProduct {
   id: string
   sku: string
+  slug: string
   name: string
   description: string
   volume: string
@@ -34,6 +35,7 @@ interface DbProduct {
 interface Product {
   id: string
   sku: string
+  slug: string
   name: string
   description: string
   volume: string
@@ -59,7 +61,7 @@ function mapDbProduct(row: DbProduct): Product {
 function SearchContent() {
   const searchParams = useSearchParams()
   const query = searchParams.get("q") || ""
-  const { t } = useLang()
+  const { t, localizedPath } = useLang()
   const { addItem } = useCart()
   
   const [products, setProducts] = useState<Product[]>([])
@@ -101,7 +103,7 @@ function SearchContent() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchInput.trim()) {
-      window.location.href = `/search?q=${encodeURIComponent(searchInput.trim())}`
+      window.location.href = localizedPath(`/search?q=${encodeURIComponent(searchInput.trim())}`)
     }
   }
 
@@ -191,7 +193,7 @@ function SearchContent() {
                     key={product.id}
                     className="group rounded-xl border border-border bg-card p-3 transition-shadow hover:shadow-md"
                   >
-                    <Link href={`/products/${product.id}`}>
+                    <Link href={localizedPath(`/products/${product.slug}`)}>
                       <div className="relative aspect-square overflow-hidden rounded-lg bg-secondary">
                         <Image
                           src={product.image_url}
@@ -209,7 +211,7 @@ function SearchContent() {
 
                     <div className="mt-3">
                       <p className="text-xs text-muted-foreground">{product.brand.name}</p>
-                      <Link href={`/products/${product.id}`}>
+                      <Link href={localizedPath(`/products/${product.slug}`)}>
                         <h3 className="mt-1 font-medium text-foreground line-clamp-2 hover:text-primary">
                           {product.name}
                         </h3>

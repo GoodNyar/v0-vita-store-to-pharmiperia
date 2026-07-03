@@ -5,7 +5,7 @@ import { Leaf } from "lucide-react"
 import { useLang } from "@/lib/i18n"
 
 export function SiteFooter() {
-  const { t } = useLang()
+  const { t, localizedPath } = useLang()
 
   const footerColumns = [
     {
@@ -63,7 +63,7 @@ export function SiteFooter() {
         <div className="grid grid-cols-2 gap-8 md:grid-cols-5">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href={localizedPath("/")} className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <Leaf className="h-4 w-4 text-primary-foreground" />
               </div>
@@ -82,7 +82,7 @@ export function SiteFooter() {
                 {col.links.map((link) => (
                   <li key={link.href}>
                     <Link
-                      href={link.href}
+                      href={localizedPath(link.href)}
                       className="text-sm text-muted-foreground transition-colors hover:text-primary"
                     >
                       {t(link.labelKey)}
@@ -103,7 +103,7 @@ export function SiteFooter() {
             {legalLinks.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                href={localizedPath(link.href)}
                 className="text-xs text-muted-foreground transition-colors hover:text-primary"
               >
                 {t(link.labelKey)}

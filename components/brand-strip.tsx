@@ -7,7 +7,7 @@ import { getBrandsWithCounts } from "@/lib/data"
 import { useLang } from "@/lib/i18n"
 
 export function BrandStrip() {
-  const { t } = useLang()
+  const { t, localizedPath } = useLang()
   const brands = getBrandsWithCounts()
 
   return (
@@ -21,7 +21,7 @@ export function BrandStrip() {
           </p>
         </div>
         <Link
-          href="/category/brands"
+          href={localizedPath("/category/brands")}
           className="group flex flex-shrink-0 items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80"
         >
           {t("viewAllBrands")}
@@ -34,7 +34,7 @@ export function BrandStrip() {
         {brands.map((brand) => (
           <Link
             key={brand.slug}
-            href={`/brand/${brand.slug}`}
+            href={localizedPath(`/brand/${brand.slug}`)}
             aria-label={`${brand.name} — ${brand.productCount} ${t("productsLabel")}`}
             className="group flex flex-col items-center justify-between gap-5 rounded-3xl border border-border/60 bg-white px-5 py-7 text-center shadow-[0_2px_12px_rgba(0,0,0,0.05)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:scale-[1.03] hover:border-primary/30 hover:shadow-[0_18px_44px_rgba(0,0,0,0.13)]"
           >

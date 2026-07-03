@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server"
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get("code")
-  const next = searchParams.get("next") ?? "/account"
+  const next = searchParams.get("next") ?? "/lv/account"
 
   if (code) {
     const cookieStore = await cookies()
@@ -33,5 +33,5 @@ export async function GET(request: NextRequest) {
   }
 
   // Auth failed — redirect to error page
-  return NextResponse.redirect(`${origin}/auth/login?error=confirmation_failed`)
+  return NextResponse.redirect(`${origin}/lv/auth/login?error=confirmation_failed`)
 }

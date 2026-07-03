@@ -6,7 +6,7 @@ import { useCart } from "@/components/cart-context"
 import { useAuth } from "@/components/auth-provider"
 import { useLang, type TranslationKey } from "@/lib/i18n"
 import { useFavorites } from "@/components/favorites-provider"
-import { categories, BRANDS_ORDERED, promoBarItems } from "@/lib/data"
+import { categories, BRANDS_ORDERED, promoBarItems, getBrandSlug } from "@/lib/data"
 import {
   Search,
   ShoppingCart,
@@ -29,25 +29,13 @@ const promoIconMap = {
 
 const isBrandName = (sub: string) => BRANDS_ORDERED.includes(sub)
 
-const getBrandSlug = (brand: string): string => {
-  return brand
-    .toLowerCase()
-    .replace(/[èéêë]/g, "e")
-    .replace(/[âäà]/g, "a")
-    .replace(/[ôöò]/g, "o")
-    .replace(/[ûüù]/g, "u")
-    .replace(/[ïî]/g, "i")
-    .replace(/[ç]/g, "c")
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "")
-}
 import { Button } from "@/components/ui/button"
 
 export function SiteHeader() {
   const { totalItems, setIsCartOpen } = useCart()
   const { user, isLoading: authLoading } = useAuth()
   const { favorites } = useFavorites()
-  const { lang, setLang, t } = useLang()
+  const { lang, setLang, t, localizedPath } = useLang()
   const [searchValue, setSearchValue] = useState("")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -111,10 +99,10 @@ export function SiteHeader() {
             <span className="font-medium text-foreground">EUR</span>
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <Link href="/help" className="transition-colors hover:text-primary">
+            <Link href={localizedPath("/help")} className="transition-colors hover:text-primary">
               {t("help")}
             </Link>
-            <Link href="/track" className="transition-colors hover:text-primary">
+            <Link href={localizedPath("/track")} className="transition-colors hover:text-primary">
               {t("trackOrder")}
             </Link>
           </div>
@@ -138,7 +126,7 @@ export function SiteHeader() {
           </button>
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-1.5 flex-shrink-0">
+          <Link href={localizedPath("/")} className="flex items-center gap-1.5 flex-shrink-0">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary lg:h-9 lg:w-9">
               <Leaf className="h-4 w-4 text-primary-foreground lg:h-5 lg:w-5" />
             </div>
@@ -153,7 +141,7 @@ export function SiteHeader() {
               onSubmit={(e) => {
                 e.preventDefault()
                 if (searchValue.trim()) {
-                  window.location.href = `/search?q=${encodeURIComponent(searchValue.trim())}`
+                  window.location.href = localizedPath(`/search?q=${encodeURIComponent(searchValue.trim())}`)
                 }
               }}
               className="relative"
@@ -173,7 +161,7 @@ export function SiteHeader() {
           <div className="ml-auto flex items-center md:ml-0 lg:gap-1">
             {/* Account */}
             <Link
-              href={user ? "/account" : "/auth/login"}
+              href={localizedPath(user ? "/account" : "/auth/login")}
               className="flex flex-col items-center gap-0.5 rounded-lg p-2 text-foreground transition-colors hover:bg-muted md:px-3"
               aria-label={user ? t("account") : t("signIn")}
             >
@@ -184,7 +172,7 @@ export function SiteHeader() {
             </Link>
             {/* Favorites */}
             <Link
-              href="/account/favorites"
+              href={localizedPath("/account/favorites")}
               className="relative flex flex-col items-center gap-0.5 rounded-lg p-2 text-foreground transition-colors hover:bg-muted md:px-3"
               aria-label={t("wishlist")}
             >
@@ -219,7 +207,7 @@ export function SiteHeader() {
             onSubmit={(e) => {
               e.preventDefault()
               if (searchValue.trim()) {
-                window.location.href = `/search?q=${encodeURIComponent(searchValue.trim())}`
+                window.location.href = localizedPath(`/search?q=${encodeURIComponent(searchValue.trim())}`)
               }
             }}
             className="relative"
@@ -250,7 +238,7 @@ export function SiteHeader() {
               >
                 {/* All categories: regular link with dropdown on hover */}
                 <Link 
-                  href={`/category/${category.id}`}
+                  href={localizedPath(`/category/${category.id}`)}
                   className="flex items-center gap-1 px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:text-primary"
                 >
                   {getCategoryName(category.id)}
@@ -263,7 +251,7 @@ export function SiteHeader() {
                       BRANDS_ORDERED.map((brand) => (
                         <Link
                           key={brand}
-                          href={`/brand/${getBrandSlug(brand)}`}
+                          href={localizedPath(`/brand/${getBrandSlug(brand)}`)}
                           className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
                         >
                           {brand}
@@ -273,7 +261,7 @@ export function SiteHeader() {
                       category.subcategories.map((sub) => (
                         <Link
                           key={sub}
-                          href={`/category/${category.id}?filter=${sub}`}
+                          href={localizedPath(`/category/${category.id}?filter=${sub}`)}
                           className="block px-4 py-2 text-sm text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
                         >
                           {t(sub as TranslationKey)}
@@ -285,7 +273,7 @@ export function SiteHeader() {
               </li>
             ))}
             <li>
-              <Link href="/specials">
+              <Link href={localizedPath("/specials")}>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -296,7 +284,7 @@ export function SiteHeader() {
               </Link>
             </li>
             <li>
-              <Link href="/popular">
+              <Link href={localizedPath("/popular")}>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -326,7 +314,7 @@ export function SiteHeader() {
     >
       {/* Sidebar header */}
       <div className="flex items-center justify-between border-b border-border p-4">
-        <Link href="/" className="flex items-center gap-1.5" onClick={() => setSidebarOpen(false)}>
+        <Link href={localizedPath("/")} className="flex items-center gap-1.5" onClick={() => setSidebarOpen(false)}>
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
             <Leaf className="h-4 w-4 text-primary-foreground" />
           </div>
@@ -389,7 +377,7 @@ export function SiteHeader() {
 
         {/* Favorites */}
         <Link
-          href="/account/favorites"
+          href={localizedPath("/account/favorites")}
           className="flex items-center gap-3 py-3 px-2 border-b border-border/50 text-sm font-medium text-foreground hover:text-primary transition-colors"
           onClick={() => setSidebarOpen(false)}
         >
@@ -423,14 +411,14 @@ export function SiteHeader() {
       {/* Help links */}
       <div className="border-b border-border p-4">
         <Link 
-          href="/help" 
+          href={localizedPath("/help")}
           className="block py-2 text-sm text-muted-foreground hover:text-primary"
           onClick={() => setSidebarOpen(false)}
         >
           {t("help")}
         </Link>
         <Link 
-          href="/track" 
+          href={localizedPath("/track")}
           className="block py-2 text-sm text-muted-foreground hover:text-primary"
           onClick={() => setSidebarOpen(false)}
         >
@@ -462,7 +450,7 @@ export function SiteHeader() {
                       {BRANDS_ORDERED.map((brand) => (
                         <Link
                           key={brand}
-                          href={`/brand/${getBrandSlug(brand)}`}
+                          href={localizedPath(`/brand/${getBrandSlug(brand)}`)}
                           className="block py-2 pl-3 text-sm text-foreground/80 hover:text-primary transition-colors"
                           onClick={() => setSidebarOpen(false)}
                         >
@@ -486,14 +474,14 @@ export function SiteHeader() {
             )
           })}
           <Link 
-            href="/specials" 
+            href={localizedPath("/specials")}
             className="border-b border-border/50 py-3 text-sm font-medium text-destructive"
             onClick={() => setSidebarOpen(false)}
           >
             {t("specials")}
           </Link>
           <Link 
-            href="/popular" 
+            href={localizedPath("/popular")}
             className="py-3 text-sm font-medium text-primary"
             onClick={() => setSidebarOpen(false)}
           >

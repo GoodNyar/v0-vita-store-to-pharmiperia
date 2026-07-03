@@ -1,7 +1,16 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  type ReactNode,
+} from "react"
+import { usePathname, useRouter } from "next/navigation"
 import { formatMoney, moneyFromMajorEUR } from "./money"
+import { localizedPath as buildLocalizedPath, swapLocaleInPath } from "./i18n/routes"
 
 export { formatMoney } from "./money"
 
@@ -1747,46 +1756,46 @@ interface LangContextValue {
   lang: Lang
   setLang: (l: Lang) => void
   t: (key: TranslationKey | string) => string
+  /** Prefix an app path with the active locale, e.g. `/checkout` → `/lv/checkout`. */
+  localizedPath: (path: string) => string
 }
 
 const LangContext = createContext<LangContextValue>({
-  lang: "ru",
+  lang: "lv",
   setLang: () => {},
-  t: (key) => (translations.ru as Record<string, string>)[key] ?? String(key),
+  t: (key) => (translations.lv as Record<string, string>)[key] ?? String(key),
+  localizedPath: (path) => path,
 })
 
-export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("lv")
+export function LangProvider({
+  children,
+  initialLang = "lv",
+}: {
+  children: ReactNode
+  initialLang?: Lang
+}) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const [lang, setLangState] = useState<Lang>(initialLang)
   const [isHydrated, setIsHydrated] = useState(false)
 
-  // Detect browser language on first load and manage localStorage
   useEffect(() => {
-    // Check if user has previously selected a language
-    const savedLang = localStorage.getItem("preferredLang") as Lang | null
-
-    if (savedLang) {
-      // Use saved preference
-      setLangState(savedLang)
-    } else {
-      // Auto-detect browser language
-      const browserLang = navigator.language || navigator.languages?.[0]
-      const detectedLang: Lang = browserLang?.toLowerCase().startsWith("lv")
-        ? "lv"
-        : browserLang?.toLowerCase().startsWith("ru")
-          ? "ru"
-          : "lv" // Default to LV if unknown
-
-      setLangState(detectedLang)
-      localStorage.setItem("preferredLang", detectedLang)
-    }
-
+    setLangState(initialLang)
+    localStorage.setItem("preferredLang", initialLang)
     setIsHydrated(true)
-  }, [])
+  }, [initialLang])
 
-  // Update localStorage when user manually changes language
+  const localizedPath = useCallback(
+    (path: string) => buildLocalizedPath(lang, path),
+    [lang]
+  )
+
   const setLang = (newLang: Lang) => {
     setLangState(newLang)
     localStorage.setItem("preferredLang", newLang)
+    if (pathname) {
+      router.push(swapLocaleInPath(pathname, newLang))
+    }
   }
 
   const t = (key: TranslationKey | string): string => {
@@ -1794,17 +1803,24 @@ export function LangProvider({ children }: { children: ReactNode }) {
     return dict[key] ?? String(key)
   }
 
-  // Return default language content until hydrated to avoid hydration mismatch
   if (!isHydrated) {
     return (
-      <LangContext.Provider value={{ lang: "lv", setLang: () => {}, t: (key) => (translations.lv as Record<string, string>)[key] ?? String(key) }}>
+      <LangContext.Provider
+        value={{
+          lang: initialLang,
+          setLang: () => {},
+          t: (key) =>
+            (translations[initialLang] as Record<string, string>)[key] ?? String(key),
+          localizedPath: (path) => buildLocalizedPath(initialLang, path),
+        }}
+      >
         {children}
       </LangContext.Provider>
     )
   }
 
   return (
-    <LangContext.Provider value={{ lang, setLang, t }}>
+    <LangContext.Provider value={{ lang, setLang, t, localizedPath }}>
       {children}
     </LangContext.Provider>
   )

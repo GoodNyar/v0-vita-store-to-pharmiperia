@@ -3,7 +3,14 @@
 import { useEffect, useState, use } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { products as allProducts, categories, BRANDS_ORDERED, normalizeProductId } from "@/lib/data"
+import {
+  products as allProducts,
+  categories,
+  BRANDS_ORDERED,
+  normalizeProductId,
+  getBrandSlug,
+  getProductSlug,
+} from "@/lib/data"
 import { LangProvider, useLang, formatMoney } from "@/lib/i18n"
 import { compareMoney, discountPercent, moneyToMajor, type Money } from "@/lib/money"
 import { CartProvider, useCart } from "@/components/cart-context"
@@ -45,21 +52,9 @@ interface Brand {
   slug: string
 }
 
-const getBrandSlug = (brand: string): string =>
-  brand
-    .toLowerCase()
-    .replace(/[èéêë]/g, "e")
-    .replace(/[âäà]/g, "a")
-    .replace(/[ôöò]/g, "o")
-    .replace(/[ûüù]/g, "u")
-    .replace(/[ïî]/g, "i")
-    .replace(/[ç]/g, "c")
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "")
-
 function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params)
-  const { t } = useLang()
+  const { t, localizedPath } = useLang()
   const { addItem } = useCart()
   
   const [products, setProducts] = useState<Product[]>([])
@@ -357,7 +352,7 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
                       }`}
                     >
                       <Link 
-                        href={`/products/${product.id}`}
+                        href={localizedPath(`/products/${getProductSlug({ name: product.name, sku: product.sku })}`)}
                         className={viewMode === "list" ? "w-32 flex-shrink-0" : ""}
                       >
                         <div className={`relative overflow-hidden rounded-lg bg-secondary ${
@@ -379,7 +374,7 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
 
                       <div className={viewMode === "list" ? "flex flex-1 flex-col" : "mt-3"}>
                         <p className="text-xs text-muted-foreground">{product.brand.name}</p>
-                        <Link href={`/products/${product.id}`}>
+                        <Link href={localizedPath(`/products/${getProductSlug({ name: product.name, sku: product.sku })}`)}>
                           <h3 className="mt-1 font-medium text-foreground line-clamp-2 hover:text-primary">
                             {product.name}
                           </h3>

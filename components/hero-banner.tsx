@@ -42,7 +42,7 @@ const slides = [
 ]
 
 export function HeroBanner() {
-  const { t } = useLang()
+  const { t, localizedPath } = useLang()
   const router = useRouter()
   const [current, setCurrent] = useState(0)
   const [isAutoPlay, setIsAutoPlay] = useState(true)
@@ -108,7 +108,7 @@ export function HeroBanner() {
 
   const handleBannerClick = () => {
     if (!isDragging.current) {
-      router.push(`/brands/${slides[current].slug}`)
+      router.push(localizedPath(`/brand/${slides[current].slug}`))
     }
   }
 
@@ -155,7 +155,7 @@ export function HeroBanner() {
             className="mt-3 w-fit rounded-lg bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-95 sm:mt-4 sm:px-5 sm:py-2 sm:text-sm md:px-6 md:py-2.5"
             onClick={(e) => {
               e.stopPropagation()
-              router.push(`/brands/${slide.slug}`)
+              router.push(localizedPath(`/brand/${slide.slug}`))
             }}
           >
             {t("viewCatalog")}

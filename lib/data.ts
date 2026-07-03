@@ -1,4 +1,5 @@
 import { eur, type Money } from "./money"
+import { brandSlug, productSlug } from "./commerce/slugs"
 
 export const BRANDS_ORDERED = [
   "Bioderma",
@@ -497,17 +498,19 @@ export const promoBarItems: Record<
 // for accented names like "Avène" or hyphenated ones like "La Roche-Posay".
 // ---------------------------------------------------------------------------
 
-export const getBrandSlug = (brand: string): string =>
-  brand
-    .toLowerCase()
-    .replace(/[èéêë]/g, "e")
-    .replace(/[âäà]/g, "a")
-    .replace(/[ôöò]/g, "o")
-    .replace(/[ûüù]/g, "u")
-    .replace(/[ïî]/g, "i")
-    .replace(/[ç]/g, "c")
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "")
+export const getBrandSlug = brandSlug
+
+const productsBySlug = new Map(
+  products.map((product) => [productSlug(product), product] as const)
+)
+
+export function getProductBySlug(slug: string): Product | undefined {
+  return productsBySlug.get(slug)
+}
+
+export function getProductSlug(product: Pick<Product, "name" | "sku">): string {
+  return productSlug(product)
+}
 
 /** Number of products that belong to a given brand name. */
 export const getBrandProductCount = (brand: string): number =>

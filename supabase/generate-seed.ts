@@ -17,6 +17,7 @@ import {
   products,
   type Product,
 } from "../lib/data"
+import { productSlug } from "../lib/commerce/slugs"
 import { productDescriptions } from "../lib/i18n"
 
 const CATEGORY_LV: Record<string, string> = {
@@ -51,14 +52,6 @@ const BRAND_LOGO_SLUGS = new Set([
 
 function sqlStr(value: string): string {
   return `'${value.replace(/'/g, "''")}'`
-}
-
-function productSlug(product: Product): string {
-  const base = product.name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-  return `${base}-${product.sku.toLowerCase()}`
 }
 
 function descFor(product: Product): { ru: string; lv: string } {

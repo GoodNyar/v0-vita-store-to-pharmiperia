@@ -13,7 +13,7 @@ import Link from "next/link"
 export function CartDrawer() {
   const { items, removeFromCart, updateQuantity, totalMoney, isCartOpen, setIsCartOpen } = useCart()
   const { user } = useAuth()
-  const { t } = useLang()
+  const { t, localizedPath } = useLang()
   const [showAuthModal, setShowAuthModal] = useState(false)
 
   if (!isCartOpen) return null
@@ -117,7 +117,7 @@ export function CartDrawer() {
                 </span>
               </div>
               {!!user ? (
-                <Link href="/checkout" className="block">
+                <Link href={localizedPath("/checkout")} className="block">
                   <Button
                     className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                     size="lg"
@@ -175,7 +175,7 @@ export function CartDrawer() {
             </p>
             <div className="mt-5 flex flex-col gap-3">
               <Link
-                href="/auth/login"
+                href={localizedPath("/auth/login")}
                 onClick={() => { setShowAuthModal(false); setIsCartOpen(false) }}
                 className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
               >
@@ -183,7 +183,7 @@ export function CartDrawer() {
                 {t("cartLoginButton")}
               </Link>
               <Link
-                href="/auth/sign-up"
+                href={localizedPath("/auth/sign-up")}
                 onClick={() => { setShowAuthModal(false); setIsCartOpen(false) }}
                 className="flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
               >
