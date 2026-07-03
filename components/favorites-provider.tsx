@@ -2,21 +2,22 @@
 
 import { createContext, useContext, useCallback, useEffect, useState, type ReactNode } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { isCatalogProductId, normalizeProductId } from "@/lib/data"
+import { isCatalogProductId } from "@/lib/data"
+import {
+  addUserFavorite,
+  listUserFavoriteLegacyIds,
+  normalizeFavoriteRowId,
+  parseStoredFavoriteIds,
+  removeUserFavorite,
+  syncLocalFavoritesToUser,
+} from "@/lib/commerce/favorites"
 
 const LS_KEY = "pharmiperia_favorites"
-
-function parseFavoriteIds(raw: unknown): number[] {
-  if (!Array.isArray(raw)) return []
-  return raw
-    .map((id) => normalizeProductId(id as string | number))
-    .filter(isCatalogProductId)
-}
 
 function getLocalFavorites(): number[] {
   if (typeof window === "undefined") return []
   try {
-    return parseFavoriteIds(JSON.parse(localStorage.getItem(LS_KEY) || "[]"))
+    return parseStoredFavoriteIds(JSON.parse(localStorage.getItem(LS_KEY) || "[]"))
   } catch {
     return []
   }
@@ -44,7 +45,6 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   const supabase = createClient()
 
   useEffect(() => {
-    // Load localStorage immediately for instant display
     const localFavs = getLocalFavorites()
     if (localFavs.length > 0) {
       setFavorites(localFavs)
@@ -52,47 +52,23 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 
     const init = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
-        setUser(user ? { id: user.id } : null)
+        const {
+          data: { user: authUser },
+        } = await supabase.auth.getUser()
+        setUser(authUser ? { id: authUser.id } : null)
 
-        if (user) {
-          // Fetch from DB
-          const { data, error } = await supabase
-            .from("favorites")
-            .select("product_id")
-            .eq("user_id", user.id)
-
-          if (error) {
-            setIsLoading(false)
-            return
+        if (authUser) {
+          const localIds = getLocalFavorites()
+          const synced = await syncLocalFavoritesToUser(authUser.id, localIds)
+          if (synced.ok) {
+            setFavorites(synced.data)
+            if (localIds.length > 0) setLocalFavorites([])
+          } else {
+            const listed = await listUserFavoriteLegacyIds(authUser.id)
+            if (listed.ok) setFavorites(listed.data)
           }
-
-          const dbFavs =
-            data
-              ?.map((f: { product_id: string | number }) =>
-                normalizeProductId(f.product_id)
-              )
-              .filter(isCatalogProductId) || []
-
-          // Merge any locally saved favorites into DB
-          const localFavs = getLocalFavorites()
-          const toSync = localFavs.filter((id) => !dbFavs.includes(id))
-
-          if (toSync.length > 0) {
-            await supabase.from("favorites").insert(
-              toSync.map((product_id) => ({
-                user_id: user.id,
-                product_id: String(product_id),
-              }))
-            )
-            setLocalFavorites([])
-          }
-
-          const merged = [...new Set([...dbFavs, ...toSync])]
-          setFavorites(merged)
         }
-        // For guests, favorites are already loaded from localStorage above
-      } catch (error) {
+      } catch {
         // Keep localStorage favorites on error
       } finally {
         setIsLoading(false)
@@ -101,84 +77,45 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 
     init()
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
         setUser({ id: session.user.id })
         const localFavs = getLocalFavorites()
-        
-        // First fetch existing DB favorites
-        const { data: existingData } = await supabase
-          .from("favorites")
-          .select("product_id")
-          .eq("user_id", session.user.id)
-        const existingIds =
-          existingData
-            ?.map((f: { product_id: string | number }) =>
-              normalizeProductId(f.product_id)
-            )
-            .filter(isCatalogProductId) || []
-        
-        // Merge local into DB (only new ones, skip duplicates)
-        if (localFavs.length > 0) {
-          const toInsert = localFavs.filter(id => !existingIds.includes(id))
-          if (toInsert.length > 0) {
-            await supabase.from("favorites").insert(
-              toInsert.map((product_id) => ({
-                user_id: session.user.id,
-                product_id: String(product_id),
-              }))
-            )
-          }
-          setLocalFavorites([]) // Clear local after merge
+        const synced = await syncLocalFavoritesToUser(session.user.id, localFavs)
+        if (synced.ok) {
+          setFavorites(synced.data)
+          setLocalFavorites([])
         }
-        
-        // Set merged favorites
-        const merged = [...new Set([...existingIds, ...localFavs])]
-        setFavorites(merged)
       } else if (event === "SIGNED_OUT") {
         setUser(null)
-        // Keep favorites for guest use after logout - don't clear localStorage
-        // Only clear in-memory state, guest will use localStorage
         setFavorites(getLocalFavorites())
       }
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [supabase.auth])
 
   const toggleFavorite = useCallback(
     async (productId: number) => {
+      if (!isCatalogProductId(productId)) return
+
       const isFav = favorites.includes(productId)
-      
-      // Update state IMMEDIATELY for instant UI feedback
       const newFavorites = isFav
         ? favorites.filter((id) => id !== productId)
         : [...favorites, productId]
-      
+
       setFavorites(newFavorites)
 
       if (user) {
-        // Logged in — sync with DB in background
-        try {
-          if (isFav) {
-            await supabase
-              .from("favorites")
-              .delete()
-              .eq("user_id", user.id)
-              .eq("product_id", String(productId))
-          } else {
-            await supabase.from("favorites").insert({
-              user_id: user.id,
-              product_id: String(productId),
-            })
-          }
-        } catch (error) {
-          // Revert on error
+        const result = isFav
+          ? await removeUserFavorite(user.id, productId)
+          : await addUserFavorite(user.id, productId)
+        if (!result.ok) {
           setFavorites(favorites)
         }
       } else {
-        // Not logged in — save to localStorage
         setLocalFavorites(newFavorites)
       }
     },
@@ -191,7 +128,9 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   )
 
   return (
-    <FavoritesContext.Provider value={{ favorites, isLoading, toggleFavorite, isFavorited, isLoggedIn: !!user }}>
+    <FavoritesContext.Provider
+      value={{ favorites, isLoading, toggleFavorite, isFavorited, isLoggedIn: !!user }}
+    >
       {children}
     </FavoritesContext.Provider>
   )
@@ -204,3 +143,5 @@ export function useFavorites() {
   }
   return context
 }
+
+export { normalizeFavoriteRowId }
