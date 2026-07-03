@@ -6,11 +6,14 @@ import {
   useState,
   useCallback,
   useEffect,
+  useRef,
   type ReactNode,
 } from "react"
-import { products, type Product } from "@/lib/data"
+import { products as legacyProducts, type Product } from "@/lib/data"
 import { multiplyMoney, sumMoney, type Money } from "@/lib/money"
+import { fetchCatalogProducts } from "@/app/actions/catalog"
 import { createClient } from "@/lib/supabase/client"
+import { isLocale, type Locale } from "@/lib/i18n/config"
 
 interface CartItem {
   product: Product
@@ -42,7 +45,12 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
-const CART_STORAGE_KEY = "pharmiperia:v2:cart"
+const CART_STORAGE_KEY = "pharmiperia:v3:cart"
+
+function localeFromPathname(): Locale {
+  if (typeof window === "undefined") return "lv"
+  return window.location.pathname.startsWith("/ru") ? "ru" : "lv"
+}
 
 function isMoney(value: unknown): value is Money {
   return (
@@ -88,9 +96,12 @@ function saveCartToStorage(items: CartItem[]) {
   }
 }
 
-function resolveProduct(input: QuickAddItem): Product {
-  const catalog = products.find((p) => p.id === input.id)
-  if (catalog) return catalog
+function resolveProduct(input: QuickAddItem, catalog: Product[]): Product {
+  const fromCatalog = catalog.find((p) => p.id === input.id)
+  if (fromCatalog) return fromCatalog
+
+  const legacy = legacyProducts.find((p) => p.id === input.id)
+  if (legacy) return legacy
 
   return {
     id: input.id,
@@ -127,11 +138,21 @@ function mergeCartItem(
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const catalogRef = useRef<Product[]>(legacyProducts)
   const supabase = createClient()
 
   useEffect(() => {
     const saved = loadCartFromStorage()
     setItems(saved)
+
+    const locale = localeFromPathname()
+    if (isLocale(locale)) {
+      void fetchCatalogProducts(locale).then((catalog) => {
+        if (catalog.length > 0) {
+          catalogRef.current = catalog
+        }
+      })
+    }
 
     const {
       data: { subscription },
@@ -158,7 +179,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const addItem = useCallback((input: QuickAddItem) => {
-    const product = resolveProduct(input)
+    const product = resolveProduct(input, catalogRef.current)
     const quantity = Math.max(1, input.quantity ?? 1)
     setItems((prev) => {
       const updated = mergeCartItem(prev, product, quantity)
