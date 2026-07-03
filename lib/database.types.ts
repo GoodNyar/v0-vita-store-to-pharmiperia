@@ -624,6 +624,41 @@ export type Database = {
         }
         Relationships: []
       }
+      search_queries: {
+        Row: {
+          created_at: string
+          id: string
+          locale: string
+          query: string
+          results_count: number
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          locale?: string
+          query: string
+          results_count?: number
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          locale?: string
+          query?: string
+          results_count?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "search_queries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           content: string | null
