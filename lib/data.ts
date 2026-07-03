@@ -11,6 +11,24 @@ export const BRANDS_ORDERED = [
   "La Roche-Posay",
 ]
 
+/** Active ingredient highlight shown in the product card education block.
+ *  Both fields store i18n translation keys (LV primary, RU fallback). */
+export interface ActiveIngredient {
+  /** i18n key for the ingredient title, e.g. "ingRetinolName" */
+  name: string
+  /** i18n key for the short benefit description, e.g. "ingRetinolDesc" */
+  shortDescription: string
+}
+
+/** Normalize catalog product ids from app state, URLs, or external string sources. */
+export function normalizeProductId(value: string | number): number {
+  return typeof value === "number" ? value : Number(value)
+}
+
+export function isCatalogProductId(value: number): boolean {
+  return Number.isInteger(value) && value > 0
+}
+
 export interface Product {
   id: number
   sku: string
@@ -22,10 +40,28 @@ export interface Product {
   originalPrice?: number
   rating: number
   reviewCount: number
+  /** Packshot URL — product only (tube/bottle/jar) on plain white (#fff).
+   *  No lifestyle, hands, water splashes, droplets, towels, or props. */
   image: string
   category: string
   badge?: string
   inStock: boolean
+  /** i18n keys for skin-type + benefit pill badges */
+  tags?: string[]
+  /** highlighted active ingredient (i18n keys) */
+  activeIngredient?: ActiveIngredient
+  /** Extra packshots for quick-view gallery */
+  images?: string[]
+  /** Additional actives for quick-view (falls back to activeIngredient) */
+  activeIngredients?: ActiveIngredient[]
+  /** i18n keys for "why choose" bullets in quick view */
+  whyChoose?: string[]
+  /** i18n key for texture line in quick view */
+  texture?: string
+  /** i18n key for application line in quick view */
+  application?: string
+  /** i18n key for "free from" disclaimer in quick view */
+  freeFrom?: string
 }
 
 export interface Category {
@@ -129,6 +165,11 @@ export const categories: Category[] = [
   },
 ]
 
+// Packshot only — product on plain white. No water, droplets, splashes, hands, or props.
+// Sources: Unsplash mockup-free & Curology studio shots.
+const IMG = (id: string) =>
+  `https://images.unsplash.com/photo-${id}?w=800&h=800&fit=crop&auto=format&q=85&bg=ffffff`
+
 export const products: Product[] = [
   {
     id: 1,
@@ -140,8 +181,22 @@ export const products: Product[] = [
     price: 18.99,
     originalPrice: 24.99,
     rating: 4.9,
-    reviewCount: 24560,
-    image: "/images/products/bioderma-sensibio.jpg",
+    reviewCount: 87,
+    image: IMG("1693990437506-dac9d69697a9"),
+    images: [
+      IMG("1693990437506-dac9d69697a9"),
+      IMG("1556228578-8c89e6adf883"),
+    ],
+    tags: ["tagSensitive", "tagCleansing"],
+    activeIngredient: { name: "ingMicellesName", shortDescription: "ingMicellesDesc" },
+    activeIngredients: [
+      { name: "ingMicellesName", shortDescription: "ingMicellesDesc" },
+      { name: "ingGlycerinName", shortDescription: "ingGlycerinDesc" },
+    ],
+    whyChoose: ["qvWhyDaily", "qvWhyAbsorbs", "qvWhyDermRecommended"],
+    texture: "textureMicellarWater",
+    application: "applicationDaily",
+    freeFrom: "qvFreeFromDefault",
     category: "skincare",
     badge: "bestSeller",
     inStock: true,
@@ -155,8 +210,10 @@ export const products: Product[] = [
     description: "Успокаивающий спрей с термальной водой",
     price: 12.50,
     rating: 4.8,
-    reviewCount: 18340,
-    image: "/images/products/avene-thermal.jpg",
+    reviewCount: 64,
+    image: IMG("1639112389900-a858bf671be1"),
+    tags: ["tagSensitive", "tagSoothing"],
+    activeIngredient: { name: "ingThermalName", shortDescription: "ingThermalDesc" },
     category: "skincare",
     badge: "popular",
     inStock: true,
@@ -171,8 +228,24 @@ export const products: Product[] = [
     price: 29.95,
     originalPrice: 37.00,
     rating: 4.8,
-    reviewCount: 15890,
-    image: "/images/products/vichy-mineral89.jpg",
+    reviewCount: 52,
+    image: IMG("1556228721-e65f06ab45c8"),
+    images: [IMG("1556228721-e65f06ab45c8"), IMG("1556227834-09f1de7a7d14")],
+    tags: ["tagAllSkin", "tagHydration"],
+    activeIngredient: { name: "ingHyaluronicName", shortDescription: "ingHyaluronicDesc" },
+    activeIngredients: [
+      { name: "ingHyaluronicName", shortDescription: "ingHyaluronicDesc" },
+      { name: "ingGlycerinName", shortDescription: "ingGlycerinDesc" },
+    ],
+    whyChoose: [
+      "qvWhyReducesBlemishes",
+      "qvWhyReducesBreakouts",
+      "qvWhyRegulatesSebum",
+      "qvWhyNoDryness",
+    ],
+    texture: "textureSerum",
+    application: "applicationMorningEvening",
+    freeFrom: "qvFreeFromDefault",
     category: "skincare",
     badge: "topRated",
     inStock: true,
@@ -187,8 +260,10 @@ export const products: Product[] = [
     price: 49.00,
     originalPrice: 62.00,
     rating: 4.7,
-    reviewCount: 9210,
-    image: "/images/products/biotherm-serum.jpg",
+    reviewCount: 31,
+    image: IMG("1556227834-09f1de7a7d14"),
+    tags: ["tagNormalDry", "tagAntiAge"],
+    activeIngredient: { name: "ingRetinolName", shortDescription: "ingRetinolDesc" },
     category: "skincare",
     badge: "discount",
     inStock: true,
@@ -202,8 +277,10 @@ export const products: Product[] = [
     description: "Увлажняющий крем на 100 часов",
     price: 42.00,
     rating: 4.6,
-    reviewCount: 11450,
-    image: "/images/products/clinique-moisture.jpg",
+    reviewCount: 45,
+    image: IMG("1640967378425-50dbf90aee8a"),
+    tags: ["tagAllSkin", "tagHydration"],
+    activeIngredient: { name: "ingHyaluronicName", shortDescription: "ingHyaluronicDesc" },
     category: "skincare",
     inStock: true,
   },
@@ -217,8 +294,10 @@ export const products: Product[] = [
     price: 34.95,
     originalPrice: 42.00,
     rating: 4.9,
-    reviewCount: 20130,
-    image: "/images/products/nuxe-huile.jpg",
+    reviewCount: 118,
+    image: IMG("1696894756299-345f1c0feb00"),
+    tags: ["tagAllSkin", "tagNourishing"],
+    activeIngredient: { name: "ingArganName", shortDescription: "ingArganDesc" },
     category: "bodycare",
     badge: "bestSeller",
     inStock: true,
@@ -232,8 +311,10 @@ export const products: Product[] = [
     description: "Питательный бальзам для губ с медом",
     price: 9.99,
     rating: 4.8,
-    reviewCount: 31200,
-    image: "/images/products/nuxe-lip-balm.jpg",
+    reviewCount: 96,
+    image: IMG("1693990437531-720851467ffe"),
+    tags: ["tagDrySensitive", "tagNourishing"],
+    activeIngredient: { name: "ingHoneyName", shortDescription: "ingHoneyDesc" },
     category: "makeup",
     badge: "popular",
     inStock: true,
@@ -247,8 +328,10 @@ export const products: Product[] = [
     description: "Солнцезащитный флюид для лица SPF 50+",
     price: 22.50,
     rating: 4.7,
-    reviewCount: 8760,
-    image: "/images/products/vichy-sunscreen.jpg",
+    reviewCount: 38,
+    image: IMG("1707555647418-627729a66329"),
+    tags: ["tagAllSkin", "tagProtection"],
+    activeIngredient: { name: "ingMineralFilterName", shortDescription: "ingMineralFilterDesc" },
     category: "sunprotection",
     inStock: true,
   },
@@ -262,8 +345,10 @@ export const products: Product[] = [
     price: 21.99,
     originalPrice: 27.00,
     rating: 4.7,
-    reviewCount: 7430,
-    image: "/images/products/bioderma-sensibio-cream.jpg",
+    reviewCount: 41,
+    image: IMG("1556228578-8c89e6adf883"),
+    tags: ["tagSensitive", "tagSoothing"],
+    activeIngredient: { name: "ingGlycerinName", shortDescription: "ingGlycerinDesc" },
     category: "skincare",
     badge: "discount",
     inStock: true,
@@ -277,8 +362,10 @@ export const products: Product[] = [
     description: "Успокаивающий спрей с термальной водой Эвиана",
     price: 8.99,
     rating: 4.5,
-    reviewCount: 14200,
-    image: "/images/products/evian-spray.jpg",
+    reviewCount: 19,
+    image: IMG("1694101455025-bc2f91667841"),
+    tags: ["tagAllSkin", "tagSoothing"],
+    activeIngredient: { name: "ingThermalName", shortDescription: "ingThermalDesc" },
     category: "skincare",
     inStock: true,
   },
@@ -292,8 +379,10 @@ export const products: Product[] = [
     price: 68.00,
     originalPrice: 82.00,
     rating: 4.8,
-    reviewCount: 6540,
-    image: "/images/products/biotherm-essence.jpg",
+    reviewCount: 27,
+    image: IMG("1699373384241-06b627ae2c8c"),
+    tags: ["tagAllSkin", "tagAntiAge"],
+    activeIngredient: { name: "ingPlanktonName", shortDescription: "ingPlanktonDesc" },
     category: "skincare",
     badge: "discount",
     inStock: true,
@@ -307,56 +396,78 @@ export const products: Product[] = [
     description: "Мягкий гель для очищения с термальной водой",
     price: 14.95,
     rating: 4.6,
-    reviewCount: 9870,
-    image: "/images/products/avene-cleansing.jpg",
+    reviewCount: 73,
+    image: IMG("1701992678972-d5a053ad0fb0"),
+    tags: ["tagSensitive", "tagCleansing"],
+    activeIngredient: { name: "ingThermalName", shortDescription: "ingThermalDesc" },
     category: "skincare",
     inStock: true,
   },
   {
     id: 13,
+    sku: "04718",
     name: "Dercos Anti-Dandruff Shampoo 200ml",
     brand: "Vichy",
+    volume: "200 ml",
+    description: "Дерматологический шампунь против перхоти для ежедневного применения",
     price: 17.50,
     originalPrice: 22.00,
     rating: 4.6,
-    reviewCount: 12300,
-    image: "/images/products/vichy-shampoo.jpg",
+    reviewCount: 56,
+    image: IMG("1701992678972-d5a053ad0fb0"),
+    tags: ["tagAllSkin", "tagAntiDandruff"],
+    activeIngredient: { name: "ingZincName", shortDescription: "ingZincDesc" },
     category: "haircare",
     badge: "discount",
     inStock: true,
   },
   {
     id: 14,
+    sku: "05136",
     name: "Aquasource Gel Moisturizer 50ml",
     brand: "Biotherm",
+    volume: "50 ml",
+    description: "Лёгкий гель-крем для интенсивного увлажнения нормальной и сухой кожи",
     price: 39.00,
     rating: 4.5,
-    reviewCount: 5670,
-    image: "/images/products/biotherm-aquasource.jpg",
+    reviewCount: 22,
+    image: IMG("1704297004675-bf0ef33713e4"),
+    tags: ["tagNormalDry", "tagHydration"],
+    activeIngredient: { name: "ingGlycerinName", shortDescription: "ingGlycerinDesc" },
     category: "skincare",
     inStock: true,
   },
   {
     id: 15,
+    sku: "03904",
     name: "Atoderm Intensive Baume 500ml",
     brand: "Bioderma",
+    volume: "500 ml",
+    description: "Восстанавливающий бальзам для очень сухой и атопичной кожи тела",
     price: 26.99,
     originalPrice: 33.00,
     rating: 4.8,
-    reviewCount: 10890,
-    image: "/images/products/bioderma-atoderm.jpg",
+    reviewCount: 104,
+    image: IMG("1697201358649-ca8e6ecc3ac0"),
+    tags: ["tagDrySensitive", "tagNourishing"],
+    activeIngredient: { name: "ingSheaName", shortDescription: "ingSheaDesc" },
     category: "bodycare",
     badge: "popular",
     inStock: true,
   },
   {
     id: 16,
+    sku: "04287",
     name: "Dramatically Different Moisturizing Lotion 125ml",
     brand: "Clinique",
+    volume: "125 ml",
+    description: "Культовый увлажняющий лосьон для укрепления кожного барьера",
     price: 35.00,
     rating: 4.7,
-    reviewCount: 17650,
-    image: "/images/products/clinique-ddml.jpg",
+    reviewCount: 68,
+    image: IMG("1693990437506-dac9d69697a9"),
+    tags: ["tagNormalDry", "tagHydration"],
+    activeIngredient: { name: "ingNiacinamideName", shortDescription: "ingNiacinamideDesc" },
     category: "skincare",
     inStock: true,
   },

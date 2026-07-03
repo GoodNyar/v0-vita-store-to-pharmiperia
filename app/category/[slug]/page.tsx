@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { products as allProducts, categories, BRANDS_ORDERED } from "@/lib/data"
+import { products as allProducts, categories, BRANDS_ORDERED, normalizeProductId } from "@/lib/data"
 import { LangProvider, useLang, formatEur } from "@/lib/i18n"
 import { CartProvider, useCart } from "@/components/cart-context"
 import { SiteHeader } from "@/components/site-header"
@@ -410,7 +410,7 @@ function CategoryPageContent({ params }: { params: Promise<{ slug: string }> }) 
                             size="sm"
                             className="bg-primary text-primary-foreground hover:bg-primary/90"
                             onClick={() => addItem({
-                              id: product.id,
+                              id: normalizeProductId(product.id),
                               name: product.name,
                               price: product.price,
                               image: product.image_url,

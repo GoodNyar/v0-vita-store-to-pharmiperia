@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Sparkles, ChevronRight, X, Loader2 } from "lucide-react"
 import { useLang, formatEur } from "@/lib/i18n"
 import { useCart } from "@/components/cart-context"
+import { normalizeProductId } from "@/lib/data"
 import Image from "next/image"
 
 interface Recommendation {
@@ -43,7 +44,7 @@ const CONCERNS = [
 
 export function AIRecommendations() {
   const { t } = useLang()
-  const { addToCart } = useCart()
+  const { addItem } = useCart()
   const [isOpen, setIsOpen] = useState(false)
   const [step, setStep] = useState<"quiz" | "loading" | "results">("quiz")
   const [skinType, setSkinType] = useState<string | null>(null)
@@ -88,12 +89,12 @@ export function AIRecommendations() {
   }
 
   const handleAddToCart = (product: Recommendation["product"]) => {
-    addToCart({
-      id: product.id,
+    addItem({
+      id: normalizeProductId(product.id),
       name: product.name,
       price: product.price,
       image: product.image_url || "/placeholder.jpg",
-      quantity: 1
+      quantity: 1,
     })
   }
 

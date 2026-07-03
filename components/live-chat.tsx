@@ -3,23 +3,31 @@
 import { useState, useRef, useEffect } from "react"
 import { MessageCircle, X, Send, Loader2, Bot, User } from "lucide-react"
 import { useChat } from "@ai-sdk/react"
-import { DefaultChatTransport } from "ai"
+import { DefaultChatTransport, type UIMessage } from "ai"
+
+const welcomeMessages: UIMessage[] = [
+  {
+    id: "welcome",
+    role: "assistant",
+    parts: [
+      {
+        type: "text",
+        text: "Здравствуйте! Я консультант Pharmiperia. Чем могу помочь?",
+      },
+    ],
+  },
+]
 
 export function LiveChat() {
   const [isOpen, setIsOpen] = useState(false)
   const [hasNewMessage, setHasNewMessage] = useState(false)
+  const [input, setInput] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const { messages, sendMessage, status, input, setInput } = useChat({
+  const { messages, sendMessage, status } = useChat<UIMessage>({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
-    initialMessages: [
-      {
-        id: "welcome",
-        role: "assistant",
-        parts: [{ type: "text", text: "Здравствуйте! Я консультант Pharmiperia. Чем могу помочь?" }],
-      },
-    ],
+    messages: welcomeMessages,
   })
 
   const isLoading = status === "streaming" || status === "submitted"

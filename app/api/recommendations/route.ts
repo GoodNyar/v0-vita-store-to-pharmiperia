@@ -12,6 +12,28 @@ const recommendationSchema = z.object({
   concerns: z.array(z.string())
 })
 
+type RecommendationOutput = z.infer<typeof recommendationSchema>
+
+type RelatedName = { name: string }
+
+interface ProductRow {
+  id: string
+  name: string
+  description: string
+  price: number
+  rating: number
+  brand: RelatedName | RelatedName[] | null
+  category: RelatedName | RelatedName[] | null
+}
+
+function getRelatedName(
+  relation: RelatedName | RelatedName[] | null | undefined
+): string {
+  if (!relation) return 'Unknown'
+  if (Array.isArray(relation)) return relation[0]?.name ?? 'Unknown'
+  return relation.name
+}
+
 export async function POST(req: Request) {
   try {
     const { skinType, concerns, budget, currentProducts } = await req.json()
@@ -37,14 +59,16 @@ export async function POST(req: Request) {
       return Response.json({ recommendations: [], message: 'No products available' })
     }
 
-    const productList = products.map(p => ({
+    const productRows = products as ProductRow[]
+
+    const productList = productRows.map((p) => ({
       id: p.id,
       name: p.name,
       description: p.description,
       price: p.price,
       rating: p.rating,
-      brand: p.brand?.name || 'Unknown',
-      category: p.category?.name || 'Unknown'
+      brand: getRelatedName(p.brand),
+      category: getRelatedName(p.category),
     }))
 
     const prompt = `You are a skincare expert at Pharmiperia, a European pharmacy cosmetics store.
@@ -72,16 +96,20 @@ Focus on:
       output: Output.object({ schema: recommendationSchema })
     })
 
-    const recommendations = result.object
+    const recommendations: RecommendationOutput = result.output
 
     // Enrich recommendations with full product data
-    const enrichedRecommendations = recommendations.recommendations.map(rec => {
-      const product = products.find(p => p.id === rec.productId)
-      return {
-        ...rec,
-        product: product || null
-      }
-    }).filter(rec => rec.product !== null)
+    const enrichedRecommendations = recommendations.recommendations
+      .map((rec) => {
+        const product = productRows.find((p) => p.id === rec.productId)
+        return {
+          ...rec,
+          product: product ?? null,
+        }
+      })
+      .filter((rec): rec is RecommendationOutput['recommendations'][number] & {
+        product: ProductRow
+      } => rec.product !== null)
 
     return Response.json({
       recommendations: enrichedRecommendations,

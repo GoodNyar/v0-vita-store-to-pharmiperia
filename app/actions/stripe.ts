@@ -1,59 +1,118 @@
-'use server'
+"use server"
 
-import { stripe } from '@/lib/stripe'
+import { products } from "@/lib/data"
+import { stripe } from "@/lib/stripe"
 
-interface CartItem {
-  id: string
+const ALLOWED_SHIPPING_COSTS = [0, 2.95, 2.99, 3.2, 3.5, 5.99]
+const MAX_QUANTITY_PER_LINE = 99
+
+export interface CheckoutCartItem {
+  id: number
+  quantity: number
+}
+
+interface ResolvedLineItem {
+  id: number
   name: string
   price: number
   quantity: number
 }
 
+function resolveLineItems(items: CheckoutCartItem[]): ResolvedLineItem[] {
+  if (!items?.length) {
+    throw new Error("Cart is empty")
+  }
+
+  return items.map((item) => {
+    const productId = Number(item.id)
+    const product = products.find((p) => p.id === productId)
+
+    if (!product) {
+      throw new Error(`Product not found: ${item.id}`)
+    }
+    if (!product.inStock) {
+      throw new Error(`Product out of stock: ${product.name}`)
+    }
+
+    const quantity = Math.max(
+      1,
+      Math.min(MAX_QUANTITY_PER_LINE, Math.floor(Number(item.quantity) || 1))
+    )
+
+    return {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity,
+    }
+  })
+}
+
+function validateShippingCost(cost: number): number {
+  const normalized = Math.round(Number(cost) * 100) / 100
+  const isAllowed = ALLOWED_SHIPPING_COSTS.some(
+    (allowed) => Math.abs(allowed - normalized) < 0.01
+  )
+  if (!isAllowed) {
+    throw new Error("Invalid shipping cost")
+  }
+  return normalized
+}
+
 export async function createCheckoutSession(
-  items: CartItem[],
+  items: CheckoutCartItem[],
   shippingCost: number,
   customerEmail?: string
 ) {
-  if (!items || items.length === 0) {
-    throw new Error('Cart is empty')
-  }
+  const resolvedItems = resolveLineItems(items)
+  const validatedShipping = validateShippingCost(shippingCost)
 
-  // Build line items from cart - prices validated server-side
-  const lineItems = items.map((item) => ({
+  const lineItems = resolvedItems.map((item) => ({
     price_data: {
-      currency: 'eur',
+      currency: "eur",
       product_data: {
         name: item.name,
+        metadata: {
+          product_id: String(item.id),
+        },
       },
-      unit_amount: Math.round(item.price * 100), // Convert to cents
+      unit_amount: Math.round(item.price * 100),
     },
     quantity: item.quantity,
   }))
 
-  // Add shipping as a line item
-  if (shippingCost > 0) {
+  if (validatedShipping > 0) {
     lineItems.push({
       price_data: {
-        currency: 'eur',
+        currency: "eur",
         product_data: {
-          name: 'Piegāde / Shipping',
+          name: "Piegāde / Shipping",
+          metadata: {
+            product_id: "shipping",
+          },
         },
-        unit_amount: Math.round(shippingCost * 100),
+        unit_amount: Math.round(validatedShipping * 100),
       },
       quantity: 1,
     })
   }
 
   const session = await stripe.checkout.sessions.create({
-    ui_mode: 'embedded',
-    redirect_on_completion: 'never',
+    ui_mode: "embedded_page",
+    redirect_on_completion: "never",
     line_items: lineItems,
-    mode: 'payment',
+    mode: "payment",
     customer_email: customerEmail || undefined,
     metadata: {
-      order_items: JSON.stringify(items.map(i => ({ id: i.id, qty: i.quantity }))),
+      order_items: JSON.stringify(
+        resolvedItems.map((i) => ({ id: i.id, qty: i.quantity }))
+      ),
     },
   })
+
+  if (!session.client_secret) {
+    throw new Error("Failed to create checkout session")
+  }
 
   return session.client_secret
 }

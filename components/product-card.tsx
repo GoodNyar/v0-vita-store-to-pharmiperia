@@ -21,7 +21,7 @@ function ProductCardComponent({ product }: { product: Product }) {
 
   // Get localized description — fall back to product.description if not found
   const productDesc =
-    productDescriptions[product.id as keyof typeof productDescriptions]?.[lang as "lv" | "ru"] ||
+    productDescriptions[String(product.id) as keyof typeof productDescriptions]?.[lang as "lv" | "ru"] ||
     product.description
 
   // Calculate discount percentage if there's an original price

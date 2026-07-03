@@ -11,6 +11,7 @@ import { useLang } from "@/lib/i18n"
 
 export default function SignUpPage() {
   const router = useRouter()
+  const { refreshAuth } = useAuth()
   const { t } = useLang()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")

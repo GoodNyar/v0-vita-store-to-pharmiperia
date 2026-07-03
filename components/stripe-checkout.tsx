@@ -11,9 +11,7 @@ import { createCheckoutSession } from '@/app/actions/stripe'
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 interface CartItem {
-  id: string
-  name: string
-  price: number
+  id: number
   quantity: number
 }
 

@@ -49,9 +49,12 @@ export default function SettingsPage() {
         .eq("id", user.id)
         .maybeSingle()
 
-      const profile = data || {}
-      setProfile(profile)
-      setFirstName(profile.first_name || "")
+      const profileData: Profile = {
+        first_name: data?.first_name ?? undefined,
+        last_name: data?.last_name ?? undefined,
+      }
+      setProfile(profileData)
+      setFirstName(profileData.first_name ?? "")
       setProfileLoading(false)
     }
 
