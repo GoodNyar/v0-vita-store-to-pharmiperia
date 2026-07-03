@@ -8,6 +8,7 @@ import {
   hasProcessedStripeEvent,
   recordStripeEvent,
 } from "@/lib/orders"
+import { decrementStockForOrder } from "@/lib/inventory/decrement"
 import { captureCheckoutError } from "@/lib/sentry/capture-checkout"
 
 export const runtime = "nodejs"
@@ -53,6 +54,8 @@ export async function POST(request: Request) {
           orderId: result.orderId,
           alreadyPaid: result.alreadyPaid,
         })
+
+        await decrementStockForOrder(result.orderId)
 
         try {
           const emailResult = await sendOrderConfirmationEmail(result.orderId)

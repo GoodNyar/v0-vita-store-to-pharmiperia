@@ -293,6 +293,7 @@ export type Database = {
           email: string
           first_name: string
           id: string
+          inventory_adjusted_at: string | null
           last_name: string
           locale: string
           notes: string | null
@@ -323,6 +324,7 @@ export type Database = {
           email: string
           first_name: string
           id?: string
+          inventory_adjusted_at?: string | null
           last_name: string
           locale?: string
           notes?: string | null
@@ -353,6 +355,7 @@ export type Database = {
           email?: string
           first_name?: string
           id?: string
+          inventory_adjusted_at?: string | null
           last_name?: string
           locale?: string
           notes?: string | null
@@ -543,6 +546,7 @@ export type Database = {
           phone: string | null
           postal_code: string | null
           preferred_language: string | null
+          role: string
           updated_at: string | null
         }
         Insert: {
@@ -559,6 +563,7 @@ export type Database = {
           phone?: string | null
           postal_code?: string | null
           preferred_language?: string | null
+          role?: string
           updated_at?: string | null
         }
         Update: {
@@ -575,6 +580,7 @@ export type Database = {
           phone?: string | null
           postal_code?: string | null
           preferred_language?: string | null
+          role?: string
           updated_at?: string | null
         }
         Relationships: []
@@ -736,7 +742,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      decrement_stock: {
+        Args: { p_order_id: string }
+        Returns: boolean
+      }
+      is_admin: {
+        Args: Record<string, never>
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
