@@ -1,5 +1,3 @@
-import type { Locale } from "./config"
-
 export const translations = {
   ru: {
     trustStrip: "Аптечный уход за кожей из Франции",

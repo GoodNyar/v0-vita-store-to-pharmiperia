@@ -11,6 +11,7 @@ import {
 } from "react"
 import { products as legacyProducts, type Product } from "@/lib/data"
 import { multiplyMoney, sumMoney, type Money } from "@/lib/money"
+import { mergeGuestCartToServer } from "@/app/actions/cart"
 import { fetchCatalogProducts } from "@/app/actions/catalog"
 import { createClient } from "@/lib/supabase/client"
 import { isLocale, type Locale } from "@/lib/i18n/config"
@@ -163,6 +164,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (event === "SIGNED_IN" && session?.user) {
         const guestCart = loadCartFromStorage()
         if (guestCart.length > 0) {
+          const locale = localeFromPathname()
+          if (isLocale(locale)) {
+            await mergeGuestCartToServer(
+              locale,
+              guestCart.map((line) => ({
+                legacyId: line.product.id,
+                quantity: line.quantity,
+              }))
+            )
+          }
           setItems(guestCart)
           saveCartToStorage(guestCart)
         }

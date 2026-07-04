@@ -1,7 +1,7 @@
 import 'server-only'
 
 import type Stripe from 'stripe'
-import { products } from '@/lib/data'
+import { getProductByLegacyId } from '@/lib/commerce/products'
 import {
   addMoney,
   eur,
@@ -53,36 +53,47 @@ export interface CheckoutCustomerInput {
   utmCampaign?: string | null
 }
 
-export function resolveOrderLines(items: CheckoutLineInput[]): ResolvedOrderLine[] {
+export async function resolveOrderLines(
+  items: CheckoutLineInput[],
+  locale: Locale = DEFAULT_LOCALE
+): Promise<ResolvedOrderLine[]> {
   if (!items?.length) {
     throw new Error('Cart is empty')
   }
 
-  return items.map((item) => {
+  const lines: ResolvedOrderLine[] = []
+
+  for (const item of items) {
     const productId = Number(item.id)
-    const product = products.find((p) => p.id === productId)
-
-    if (!product) {
-      throw new Error(`Product not found: ${item.id}`)
-    }
-    if (!product.inStock) {
-      throw new Error(`Product out of stock: ${product.name}`)
-    }
-
     const quantity = Math.max(
       1,
       Math.min(MAX_QUANTITY_PER_LINE, Math.floor(Number(item.quantity) || 1))
     )
 
-    return {
-      catalogProductId: product.id,
+    const result = await getProductByLegacyId(productId, locale)
+    if (!result.ok) {
+      throw new Error(`Product not found: ${item.id}`)
+    }
+
+    const product = result.data
+    if (!product.legacyId) {
+      throw new Error(`Product missing legacy id: ${item.id}`)
+    }
+    if (!product.inStock || product.stockQuantity < quantity) {
+      throw new Error(`Product out of stock: ${product.name}`)
+    }
+
+    lines.push({
+      catalogProductId: product.legacyId,
       name: product.name,
       sku: product.sku,
       unitPrice: product.price,
       quantity,
       lineTotal: multiplyMoney(product.price, quantity),
-    }
-  })
+    })
+  }
+
+  return lines
 }
 
 function generateOrderNumber(): string {
@@ -103,12 +114,12 @@ export async function createDraftOrder(
   items: CheckoutLineInput[],
   customer: CheckoutCustomerInput
 ): Promise<DraftOrderResult> {
-  const lines = resolveOrderLines(items)
+  const locale = isLocale(customer.locale) ? customer.locale : DEFAULT_LOCALE
+  const lines = await resolveOrderLines(items, locale)
   const shippingCost = validateShippingMoney(customer.shippingCost)
   const subtotal = sumMoney(lines.map((line) => line.lineTotal))
   const total = addMoney(subtotal, shippingCost)
   const taxCents = extractInclusiveVatCents(total.amount)
-  const locale = isLocale(customer.locale) ? customer.locale : DEFAULT_LOCALE
 
   const supabase = createAdminClient()
   const orderNumber = generateOrderNumber()
@@ -182,21 +193,47 @@ export async function createDraftOrder(
   }
 }
 
-export async function hasProcessedStripeEvent(eventId: string): Promise<boolean> {
+export async function markOrderNeedsInventoryAttention(orderId: string): Promise<void> {
   const supabase = createAdminClient()
-  const { data } = await supabase
+  const { error } = await supabase
+    .from('orders')
+    .update({
+      status: 'needs_attention',
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', orderId)
+
+  if (error) {
+    throw new Error(`Failed to mark order needs_attention: ${error.message}`)
+  }
+}
+
+/** Atomically claim a Stripe event (M-10). Returns true if this caller owns processing. */
+export async function claimStripeEvent(eventId: string, type: string): Promise<boolean> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
     .from('stripe_webhook_events')
+    .insert({ id: eventId, type })
     .select('id')
-    .eq('id', eventId)
     .maybeSingle()
+
+  if (error) {
+    if (error.code === '23505') {
+      return false
+    }
+    throw new Error(`Failed to claim webhook event: ${error.message}`)
+  }
+
   return data != null
 }
 
-export async function recordStripeEvent(eventId: string, type: string): Promise<void> {
+/** Release a failed claim so Stripe retries can re-process (ADR-0022). */
+export async function releaseStripeEventClaim(eventId: string): Promise<void> {
   const supabase = createAdminClient()
-  const { error } = await supabase.from('stripe_webhook_events').insert({ id: eventId, type })
-  if (error && error.code !== '23505') {
-    throw new Error(`Failed to record webhook event: ${error.message}`)
+  const { error } = await supabase.from('stripe_webhook_events').delete().eq('id', eventId)
+
+  if (error) {
+    throw new Error(`Failed to release webhook event claim: ${error.message}`)
   }
 }
 
@@ -248,12 +285,17 @@ export async function fulfillOrderFromCheckoutSession(
       })
     }
 
+    const paymentIntentId =
+      typeof session.payment_intent === 'string'
+        ? session.payment_intent
+        : session.payment_intent?.id ?? null
+
     const { error: updateError } = await supabase
       .from('orders')
       .update({
         status: 'paid',
         payment_status: 'paid',
-        payment_intent_id: session.id,
+        payment_intent_id: paymentIntentId ?? session.id,
         tax_cents: taxCents,
         updated_at: new Date().toISOString(),
       })

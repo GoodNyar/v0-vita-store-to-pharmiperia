@@ -5,7 +5,7 @@ import {
   type Locale,
   isLocale,
 } from "@/lib/i18n/config"
-import { localizedPath } from "@/lib/i18n/routes"
+import { localizedPath, stripLocalePrefix } from "@/lib/i18n/routes"
 import { type NextRequest, NextResponse } from "next/server"
 
 const SKIP_LOCALE_PREFIXES = [
@@ -45,6 +45,25 @@ function redirectWithLocaleCookie(
     maxAge: 60 * 60 * 24 * 365,
   })
   return response
+}
+
+const SESSION_REFRESH_PREFIXES = [
+  "/account",
+  "/admin",
+  "/api",
+  "/auth",
+  "/checkout",
+  "/protected",
+]
+
+function pathnameNeedsSessionRefresh(pathname: string): boolean {
+  if (shouldSkipLocale(pathname)) {
+    return true
+  }
+  const { path } = stripLocalePrefix(pathname)
+  return SESSION_REFRESH_PREFIXES.some(
+    (prefix) => path === prefix || path.startsWith(`${prefix}/`)
+  )
 }
 
 function legacyProductRedirect(
@@ -93,7 +112,9 @@ export async function middleware(request: NextRequest) {
     return redirectWithLocaleCookie(url, locale, 307)
   }
 
-  const response = await updateSession(request)
+  const response = pathnameNeedsSessionRefresh(pathname)
+    ? await updateSession(request)
+    : NextResponse.next()
   response.cookies.set("preferredLang", firstSegment as Locale, {
     path: "/",
     maxAge: 60 * 60 * 24 * 365,

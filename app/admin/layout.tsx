@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { AdminAccessError, requireAdmin } from '@/lib/admin/auth'
+import { AdminAccessError, requireStaff } from '@/lib/admin/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,7 +9,7 @@ export default async function AdminLayout({
   children: React.ReactNode
 }) {
   try {
-    await requireAdmin()
+    await requireStaff()
   } catch (error) {
     if (error instanceof AdminAccessError) {
       return (
@@ -46,6 +46,9 @@ export default async function AdminLayout({
               </Link>
               <Link href="/admin/products" className="text-foreground hover:text-primary">
                 Products
+              </Link>
+              <Link href="/admin/promo" className="text-foreground hover:text-primary">
+                Promo
               </Link>
             </nav>
           </div>

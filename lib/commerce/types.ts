@@ -20,6 +20,7 @@ export type UserId = string
 export const ORDER_STATUSES = [
   'pending',
   'paid',
+  'needs_attention',
   'processing',
   'shipped',
   'delivered',

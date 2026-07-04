@@ -1,3 +1,4 @@
+import { ProductStockForm } from '@/components/admin/product-stock-form'
 import { listAdminProductStock } from '@/lib/commerce/admin-products'
 
 export const dynamic = 'force-dynamic'
@@ -10,7 +11,7 @@ export default async function AdminProductsPage() {
       <div>
         <h1 className="text-2xl font-semibold text-foreground">Product stock</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Read-only inventory view from Supabase. Stock updates happen via webhook decrement.
+          Inventory and activation controls. Stock also decrements on paid orders via webhook.
         </p>
       </div>
 
@@ -22,11 +23,18 @@ export default async function AdminProductsPage() {
               <th className="px-4 py-3 text-left font-medium text-foreground">Name (LV)</th>
               <th className="px-4 py-3 text-left font-medium text-foreground">Name (RU)</th>
               <th className="px-4 py-3 text-right font-medium text-foreground">Stock</th>
-              <th className="px-4 py-3 text-left font-medium text-foreground">Active</th>
+              <th className="px-4 py-3 text-left font-medium text-foreground">Stock / Active</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border bg-card">
-            {products.map((product) => (
+            {products.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                  No products found.
+                </td>
+              </tr>
+            ) : (
+            products.map((product) => (
               <tr key={product.id}>
                 <td className="px-4 py-3 font-mono text-xs text-foreground">{product.sku}</td>
                 <td className="px-4 py-3 text-foreground">{product.nameLv}</td>
@@ -35,18 +43,15 @@ export default async function AdminProductsPage() {
                   {product.stockQuantity}
                 </td>
                 <td className="px-4 py-3">
-                  <span
-                    className={
-                      product.isActive
-                        ? 'text-green-600'
-                        : 'text-muted-foreground'
-                    }
-                  >
-                    {product.isActive ? 'yes' : 'no'}
-                  </span>
+                  <ProductStockForm
+                    productId={product.id}
+                    initialStock={product.stockQuantity}
+                    initialActive={product.isActive}
+                  />
                 </td>
               </tr>
-            ))}
+            ))
+            )}
           </tbody>
         </table>
       </div>

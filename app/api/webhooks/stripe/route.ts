@@ -1,14 +1,13 @@
 import { headers } from "next/headers"
 import { NextResponse } from "next/server"
 import type Stripe from "stripe"
+import { dispatchCommerceEvent } from "@/lib/events"
 import { getStripe } from "@/lib/stripe"
-import { sendOrderConfirmationEmail } from "@/lib/email/order-confirmation"
 import {
+  claimStripeEvent,
   fulfillOrderFromCheckoutSession,
-  hasProcessedStripeEvent,
-  recordStripeEvent,
+  releaseStripeEventClaim,
 } from "@/lib/orders"
-import { decrementStockForOrder } from "@/lib/inventory/decrement"
 import { captureCheckoutError } from "@/lib/sentry/capture-checkout"
 
 export const runtime = "nodejs"
@@ -35,7 +34,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 400 })
   }
 
-  if (await hasProcessedStripeEvent(event.id)) {
+  const claimed = await claimStripeEvent(event.id, event.type)
+  if (!claimed) {
     return NextResponse.json({ received: true, duplicate: true })
   }
 
@@ -55,34 +55,26 @@ export async function POST(request: Request) {
           alreadyPaid: result.alreadyPaid,
         })
 
-        await decrementStockForOrder(result.orderId)
-
-        try {
-          const emailResult = await sendOrderConfirmationEmail(result.orderId)
-          if (emailResult.sent) {
-            console.info("[webhooks/stripe] order confirmation email sent", {
-              orderId: result.orderId,
-              messageId: emailResult.messageId,
-            })
-          }
-        } catch (emailErr) {
-          captureCheckoutError(emailErr, {
-            stage: "webhook_email",
-            orderId: result.orderId,
-            sessionId: checkoutSessionId,
-          })
-          throw emailErr
-        }
+        await dispatchCommerceEvent({
+          type: "order.paid",
+          orderId: result.orderId,
+          alreadyPaid: result.alreadyPaid,
+          stripeEventId: event.id,
+          checkoutSessionId: session.id,
+        })
       }
     }
-
-    await recordStripeEvent(event.id, event.type)
   } catch (err) {
     const message = err instanceof Error ? err.message : "Webhook handler failed"
     captureCheckoutError(err, {
       stage: "webhook_fulfill",
       sessionId: checkoutSessionId,
     })
+    try {
+      await releaseStripeEventClaim(event.id)
+    } catch (releaseErr) {
+      console.error("[webhooks/stripe] Failed to release event claim:", releaseErr)
+    }
     console.error("[webhooks/stripe] Handler error:", message)
     return NextResponse.json({ error: message }, { status: 500 })
   }

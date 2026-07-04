@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -9,6 +9,14 @@ import { useLang, formatMoney } from "@/lib/i18n"
 import { discountPercent } from "@/lib/money"
 import { useCart } from "@/components/cart-context"
 import { normalizeProductId, getProductSlug, type Product } from "@/lib/data"
+import {
+  EMPTY_SEARCH_FACET_FILTERS,
+  applySearchFacetFilters,
+  buildSearchFacets,
+  hasActiveSearchFacetFilters,
+  type SearchFacetFilters,
+} from "@/lib/commerce/search-facets"
+import { SearchFacetsPanel } from "@/components/search-facets"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
@@ -22,8 +30,17 @@ export function SearchPageContent() {
   const { addItem } = useCart()
 
   const [products, setProducts] = useState<Product[]>([])
+  const [facetFilters, setFacetFilters] = useState<SearchFacetFilters>(
+    EMPTY_SEARCH_FACET_FILTERS
+  )
   const [loading, setLoading] = useState(true)
   const [searchInput, setSearchInput] = useState(query)
+
+  const facets = useMemo(() => buildSearchFacets(products), [products])
+  const filteredProducts = useMemo(
+    () => applySearchFacetFilters(products, facetFilters),
+    [products, facetFilters]
+  )
 
   useEffect(() => {
     let cancelled = false
@@ -31,11 +48,13 @@ export function SearchPageContent() {
     const runSearch = async () => {
       if (!query) {
         setProducts([])
+        setFacetFilters(EMPTY_SEARCH_FACET_FILTERS)
         setLoading(false)
         return
       }
 
       setLoading(true)
+      setFacetFilters(EMPTY_SEARCH_FACET_FILTERS)
       const results = await searchCatalogProducts(lang, query)
       if (!cancelled) {
         setProducts(results)
@@ -105,7 +124,7 @@ export function SearchPageContent() {
               <h2 className="text-xl font-semibold text-foreground">{t("searchStartSearch")}</h2>
               <p className="mt-2 text-muted-foreground">{t("searchStartSearchDesc")}</p>
             </div>
-          ) : products.length === 0 ? (
+          ) : filteredProducts.length === 0 && products.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <Search className="mb-4 h-16 w-16 text-muted-foreground/50" />
               <h2 className="text-xl font-semibold text-foreground">
@@ -125,16 +144,36 @@ export function SearchPageContent() {
                   {t("searchResults")} «{query}»
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  {t("searchFound")} {products.length} {t("searchFoundProducts")}
+                  {t("searchFound")} {filteredProducts.length}
+                  {hasActiveSearchFacetFilters(facetFilters) && products.length !== filteredProducts.length
+                    ? ` / ${products.length}`
+                    : ''}{' '}
+                  {t("searchFoundProducts")}
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                {products.map((product) => (
-                  <div
-                    key={product.id}
-                    className="group rounded-xl border border-border bg-card p-3 transition-shadow hover:shadow-md"
-                  >
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+                <SearchFacetsPanel
+                  facets={facets}
+                  filters={facetFilters}
+                  onChange={setFacetFilters}
+                />
+
+                {filteredProducts.length === 0 ? (
+                  <div className="flex flex-1 flex-col items-center justify-center py-16 text-center">
+                    <Search className="mb-4 h-16 w-16 text-muted-foreground/50" />
+                    <h2 className="text-xl font-semibold text-foreground">
+                      {t("searchNotFound1")} «{query}» {t("searchNotFound2")}
+                    </h2>
+                    <p className="mt-2 text-muted-foreground">{t("filterClearAll")}</p>
+                  </div>
+                ) : (
+                  <div className="grid flex-1 grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
+                    {filteredProducts.map((product) => (
+                      <div
+                        key={product.id}
+                        className="group rounded-xl border border-border bg-card p-3 transition-shadow hover:shadow-md"
+                      >
                     <Link href={localizedPath(`/products/${getProductSlug(product)}`)}>
                       <div className="relative aspect-square overflow-hidden rounded-lg bg-secondary">
                         <Image
@@ -199,8 +238,10 @@ export function SearchPageContent() {
                         </Button>
                       </div>
                     </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             </>
           )}

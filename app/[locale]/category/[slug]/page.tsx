@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation"
+
+export const revalidate = 3600
 import { CategoryPageContent } from "@/components/category-page-content"
 import { BrandsShowcase } from "@/components/brands-showcase"
 import { LangProvider } from "@/lib/i18n"

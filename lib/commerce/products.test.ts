@@ -35,6 +35,7 @@ const sampleRow: DbProduct & {
   is_bestseller: true,
   rating: 4.8,
   review_count: 42,
+  search_vector: null,
   ingredients: null,
   created_at: null,
   updated_at: null,

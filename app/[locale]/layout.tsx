@@ -25,7 +25,10 @@ export async function generateMetadata({
   if (!isLocale(locale)) return {}
 
   return {
-    alternates: buildHreflangAlternates(localizedPath(locale as Locale, "/")),
+    alternates: buildHreflangAlternates(
+      localizedPath(locale as Locale, "/"),
+      locale as Locale
+    ),
   }
 }
 

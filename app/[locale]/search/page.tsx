@@ -1,4 +1,6 @@
 import { Suspense } from "react"
+
+export const revalidate = 3600
 import { Loader2 } from "lucide-react"
 import { SearchPageContent } from "@/components/search-page-content"
 

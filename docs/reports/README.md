@@ -15,6 +15,10 @@
 | 09 | [Финансовая модель на 36 месяцев](09-finansovaya-model-36-mesyacev.md) | CFO-модель: помесячная выручка, P&L, cash flow, 3 сценария, юнит-экономика, формулы для Excel |
 | 10 | [VC Due Diligence](10-vc-due-diligence.md) | Оценка как инвестиции: 14 категорий риска с баллами, вердикт, условия закрытия, топ-25 решений по ROI |
 | 11 | [Phase 1 Production Validation](11-phase-1-production-validation.md) | Финальный прогон Phase 1: 22/22, вердикт CONDITIONAL GO, ops-чеклист |
+| 12 | [Независимый аудит после Phase 1–2](12-nezavisimyj-audit-post-phase-2.md) | Аудит без доверия к отчётам проекта: 4 High / 10 Medium / 6 Low, соответствие ADR, оценки по 6 осям, вердикт **B** |
+| 13 | [Самоаудит Phase 3 (Grok)](13-self-audit-phase-3.md) | Самоаудит после Phase 3: pipeline не прогнан, код заявлен PASS |
+| 14 | [Бриф для аудита Claude](14-claude-audit-brief.md) | Гипотезы и обязательные прогоны для независимой проверки Phase 3 |
+| 15 | [Независимый аудит Phase 3](15-nezavisimyj-audit-phase-3.md) | Проверка отчёта Grok: 13 PASS / 8 PARTIAL / 4 FAIL; tsc 19 ошибок; 2 Critical (claim-then-fail, Phase 3 вне git); вердикт: фаза не завершена |
 | — | [Phase 1 Final Summary](phase-1-final-summary.md) | Полный отчёт закрытия Phase 1: файлы, ADR, CI, checks, техдолг |
 | — | [Phase 2 Prerequisites](phase-2-prerequisites.md) | Чеклист перед стартом Phase 2: env, ограничения ADR, отложенные сервисы |
 | — | [Phase 2 Master Plan](phase-2-master-plan.md) | Ревизия v2: 30 PR, зависимости, риски, milestones |

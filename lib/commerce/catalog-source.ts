@@ -7,12 +7,12 @@ import {
 } from '@/lib/data'
 import type { Locale } from '@/lib/i18n/config'
 import {
-  getProductBySlug as getCommerceProductBySlug,
-  listActiveProducts,
-  listProductsByBrandSlug,
-  listProductsByCategorySlug,
-  mapCommerceToLegacyProduct,
-} from './products'
+  cachedGetProductBySlug,
+  cachedListActiveProducts,
+  cachedListProductsByBrandSlug,
+  cachedListProductsByCategorySlug,
+} from '@/lib/cache/catalog'
+import { mapCommerceToLegacyProduct } from './products'
 import type { CommerceProduct } from './types'
 
 export type CatalogSource = 'db' | 'legacy'
@@ -62,7 +62,7 @@ export async function getCatalogProducts(
     return { products: legacyProducts, source: 'legacy' }
   }
 
-  const result = await listActiveProducts(locale)
+  const result = await cachedListActiveProducts(locale)
   if (!result.ok || result.data.length === 0) {
     return { products: legacyProducts, source: 'legacy' }
   }
@@ -81,7 +81,7 @@ export async function getCatalogProductBySlug(
     return getLegacyProductBySlug(slug) ?? null
   }
 
-  const result = await getCommerceProductBySlug(slug, locale)
+  const result = await cachedGetProductBySlug(slug, locale)
   if (result.ok) {
     return mergeLegacyExtras(result.data)
   }
@@ -97,7 +97,7 @@ export async function getCatalogProductsByCategorySlug(
     return legacyProducts.filter((product) => product.category === categorySlug)
   }
 
-  const result = await listProductsByCategorySlug(categorySlug, locale)
+  const result = await cachedListProductsByCategorySlug(categorySlug, locale)
   if (!result.ok || result.data.length === 0) {
     return legacyProducts.filter((product) => product.category === categorySlug)
   }
@@ -115,7 +115,7 @@ export async function getCatalogProductsByBrandSlug(
     return getProductsByBrandSlug(brandSlug)
   }
 
-  const result = await listProductsByBrandSlug(brandSlug, locale)
+  const result = await cachedListProductsByBrandSlug(brandSlug, locale)
   if (!result.ok || result.data.length === 0) {
     return getProductsByBrandSlug(brandSlug)
   }

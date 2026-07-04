@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { BRANDS_ORDERED, getBrandSlug, getBrandNameFromSlug } from '@/lib/data'
-
+import { isLocale, type Locale } from '@/lib/i18n/config'
+import { localizedPath } from '@/lib/i18n/routes'
+import { buildPageMetadata } from '@/lib/seo/metadata'
 import { getSiteUrl } from '@/lib/site'
 
 const SITE_URL = getSiteUrl()
@@ -10,34 +12,27 @@ function slugToName(slug: string): string {
 }
 
 interface Props {
-  params: Promise<{ slug: string }>
+  params: Promise<{ locale: string; slug: string }>
   children: React.ReactNode
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>
+}): Promise<Metadata> {
+  const { locale, slug } = await params
+  const resolvedLocale: Locale = isLocale(locale) ? locale : 'lv'
   const brandName = slugToName(slug)
   const title = `${brandName} — официальный интернет-магазин в Латвии`
   const description = `Купить оригинальную косметику ${brandName} в Pharmiperia. Доставка по всей Латвии. Аутентичная французская дермо-косметика.`
-  const url = `${SITE_URL}/brand/${slug}`
 
-  return {
-    title: brandName,
+  return buildPageMetadata({
+    locale: resolvedLocale,
+    path: `/brand/${slug}`,
+    title,
     description,
-    alternates: { canonical: url },
-    openGraph: {
-      type: 'website',
-      url,
-      title,
-      description,
-      images: [{ url: '/og-default.jpg', width: 1200, height: 630, alt: `${brandName} в Pharmiperia` }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-    },
-  }
+  })
 }
 
 export async function generateStaticParams() {
@@ -47,16 +42,22 @@ export async function generateStaticParams() {
 }
 
 export default async function BrandLayout({ params, children }: Props) {
-  const { slug } = await params
+  const { locale, slug } = await params
+  const resolvedLocale: Locale = isLocale(locale) ? locale : 'lv'
   const brandName = slugToName(slug)
-  const url = `${SITE_URL}/brand/${slug}`
+  const url = `${SITE_URL}${localizedPath(resolvedLocale, `/brand/${slug}`)}`
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Pharmiperia', item: SITE_URL },
-      { '@type': 'ListItem', position: 2, name: 'Бренды', item: `${SITE_URL}/category/brands` },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Бренды',
+        item: `${SITE_URL}${localizedPath(resolvedLocale, '/category/brands')}`,
+      },
       { '@type': 'ListItem', position: 3, name: brandName, item: url },
     ],
   }

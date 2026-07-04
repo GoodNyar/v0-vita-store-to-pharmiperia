@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation"
+
+export const revalidate = 3600
 import { HomePageContent } from "@/components/home-page-content"
 import { getCatalogProducts } from "@/lib/commerce/catalog-source"
 import { isLocale } from "@/lib/i18n/config"

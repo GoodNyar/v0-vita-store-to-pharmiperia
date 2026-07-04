@@ -123,17 +123,3 @@ export async function createCheckoutSession(
     throw err
   }
 }
-
-export async function getCheckoutSession(sessionId: string) {
-  const stripe = getStripe()
-  const session = await stripe.checkout.sessions.retrieve(sessionId)
-  return {
-    status: session.status,
-    customerEmail: session.customer_details?.email,
-    paymentStatus: session.payment_status,
-    amountTotal: session.amount_total,
-    taxAmount: session.total_details?.amount_tax ?? null,
-    orderId: session.metadata?.order_id ?? null,
-    orderNumber: session.metadata?.order_number ?? null,
-  }
-}

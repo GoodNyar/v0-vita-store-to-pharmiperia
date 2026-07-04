@@ -20,7 +20,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:install": "playwright install chromium",
     "validate:production": "node scripts/validate-production.mjs",
-    "test:commerce": "tsx --test lib/commerce/products.test.ts"
+    "test": "pnpm test:commerce",
+    "test:commerce": "node --experimental-test-module-mocks --test-isolation=process --import tsx --test lib/commerce/products.test.ts lib/commerce/search-facets.test.ts lib/money.test.ts lib/orders.resolveOrderLines.test.ts lib/orders.resolveOrderLines.stock.test.ts lib/events/order-paid.test.ts"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.143",

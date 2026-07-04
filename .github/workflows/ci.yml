@@ -104,3 +104,6 @@ jobs:
           VALIDATE_RUN_BUILD: "false"
           VALIDATE_RUN_TYPECHECK: "false"
           NEXT_PUBLIC_SITE_URL: https://pharm.lv
+
+      - name: Commerce unit tests
+        run: pnpm run test:commerce

@@ -23,19 +23,22 @@ function absoluteUrl(path: string): string {
 }
 
 /** Build hreflang alternates for lv + ru (+ x-default → default locale). */
-export function buildHreflangAlternates(path: string): Metadata['alternates'] {
+export function buildHreflangAlternates(
+  path: string,
+  locale: Locale
+): Metadata['alternates'] {
   const normalized = path.startsWith('/') ? path : `/${path}`
   const { path: withoutLocale } = stripLocalePrefix(normalized)
   const basePath = withoutLocale === '/' ? '/' : withoutLocale
 
   const languages: Record<string, string> = {}
-  for (const locale of LOCALES) {
-    languages[locale] = absoluteUrl(localizedPath(locale, basePath))
+  for (const loc of LOCALES) {
+    languages[loc] = absoluteUrl(localizedPath(loc, basePath))
   }
   languages['x-default'] = absoluteUrl(localizedPath('lv', basePath))
 
   return {
-    canonical: absoluteUrl(localizedPath('lv', basePath)),
+    canonical: absoluteUrl(localizedPath(locale, basePath)),
     languages,
   }
 }
@@ -63,15 +66,12 @@ export function buildPageMetadata(input: PageMetadataInput): Metadata {
     ? ogImage.url
     : absoluteUrl(ogImage.url)
 
-  const alternates = buildHreflangAlternates(pagePath)
+  const alternates = buildHreflangAlternates(pagePath, locale)
 
   return {
     title,
     description,
-    alternates: {
-      ...alternates,
-      canonical: url,
-    },
+    alternates,
     robots: noindex
       ? { index: false, follow: false }
       : { index: true, follow: true },

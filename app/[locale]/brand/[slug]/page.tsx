@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation"
+
+export const revalidate = 3600
 import { BrandPageContent } from "@/components/brand-page-content"
 import { getCatalogProductsByBrandSlug } from "@/lib/commerce/catalog-source"
 import { isLocale } from "@/lib/i18n/config"

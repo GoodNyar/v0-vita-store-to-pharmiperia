@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { localizedPath } from '@/lib/i18n/routes'
 import { isLocale, type Locale } from '@/lib/i18n/config'
 import { getCatalogProductBySlug, getCatalogProducts } from '@/lib/commerce/catalog-source'
 import { buildProductBreadcrumbJsonLd, buildProductJsonLd } from '@/lib/commerce/json-ld'

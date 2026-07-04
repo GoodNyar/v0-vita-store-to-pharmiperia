@@ -93,3 +93,24 @@ export {
   type ReturnRequest,
   type ReturnStatus,
 } from './returns'
+export {
+  createAdminProduct,
+  deactivateAdminProduct,
+  getAdminProductById,
+  listAdminProductStock,
+  updateAdminProduct,
+  type AdminProductDetail,
+  type AdminProductInput,
+  type AdminProductStockItem,
+  type AdminProductUpdateInput,
+} from './admin-products'
+export { listAdminPromoCodes, type AdminPromoListItem } from './admin-promo'
+export {
+  EMPTY_SEARCH_FACET_FILTERS,
+  applySearchFacetFilters,
+  buildSearchFacets,
+  hasActiveSearchFacetFilters,
+  type SearchFacetFilters,
+  type SearchFacetOption,
+  type SearchFacets,
+} from './search-facets'
