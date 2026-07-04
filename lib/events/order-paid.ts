@@ -71,8 +71,25 @@ export async function handleOrderPaid(event: OrderPaidEvent): Promise<void> {
 
   if (order?.promo_code_id) {
     try {
-      await consumePromoCode(order.promo_code_id, orderId)
+      const consumed = await consumePromoCode(order.promo_code_id, orderId)
+      if (!consumed) {
+        const err = new Error(`Promo consumption declined for order ${orderId}`)
+        captureCheckoutError(err, {
+          stage: 'webhook_promo',
+          orderId,
+          sessionId: checkoutSessionId,
+        })
+        console.warn('[events/order.paid] promo not consumed (max_uses or mismatch)', {
+          orderId,
+          promoId: order.promo_code_id,
+        })
+      }
     } catch (promoErr) {
+      captureCheckoutError(promoErr, {
+        stage: 'webhook_promo',
+        orderId,
+        sessionId: checkoutSessionId,
+      })
       console.warn('[events/order.paid] promo consumption failed', { orderId, promoErr })
     }
   }

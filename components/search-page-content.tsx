@@ -12,9 +12,9 @@ import { normalizeProductId, getProductSlug, type Product } from "@/lib/data"
 import {
   EMPTY_SEARCH_FACET_FILTERS,
   applySearchFacetFilters,
-  buildSearchFacets,
   hasActiveSearchFacetFilters,
   type SearchFacetFilters,
+  type SearchFacets,
 } from "@/lib/commerce/search-facets"
 import { SearchFacetsPanel } from "@/components/search-facets"
 import { SiteHeader } from "@/components/site-header"
@@ -30,13 +30,16 @@ export function SearchPageContent() {
   const { addItem } = useCart()
 
   const [products, setProducts] = useState<Product[]>([])
+  const [facets, setFacets] = useState<SearchFacets>({
+    brands: [],
+    categories: [],
+    onSaleCount: 0,
+  })
   const [facetFilters, setFacetFilters] = useState<SearchFacetFilters>(
     EMPTY_SEARCH_FACET_FILTERS
   )
   const [loading, setLoading] = useState(true)
   const [searchInput, setSearchInput] = useState(query)
-
-  const facets = useMemo(() => buildSearchFacets(products), [products])
   const filteredProducts = useMemo(
     () => applySearchFacetFilters(products, facetFilters),
     [products, facetFilters]
@@ -48,6 +51,7 @@ export function SearchPageContent() {
     const runSearch = async () => {
       if (!query) {
         setProducts([])
+        setFacets({ brands: [], categories: [], onSaleCount: 0 })
         setFacetFilters(EMPTY_SEARCH_FACET_FILTERS)
         setLoading(false)
         return
@@ -55,9 +59,13 @@ export function SearchPageContent() {
 
       setLoading(true)
       setFacetFilters(EMPTY_SEARCH_FACET_FILTERS)
-      const results = await searchCatalogProducts(lang, query)
+      const { products: results, facets: serverFacets } = await searchCatalogProducts(
+        lang,
+        query
+      )
       if (!cancelled) {
         setProducts(results)
+        setFacets(serverFacets)
         setLoading(false)
       }
     }

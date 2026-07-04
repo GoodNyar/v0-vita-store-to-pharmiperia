@@ -201,6 +201,16 @@ export async function createDraftOrder(
     throw new Error(`Failed to create order items: ${itemsError.message}`)
   }
 
+  try {
+    const { reserveInventoryForOrder } = await import('@/lib/inventory/reserve')
+    await reserveInventoryForOrder(order.id)
+  } catch (reserveErr) {
+    console.warn('[orders] inventory reservation skipped', {
+      orderId: order.id,
+      error: reserveErr instanceof Error ? reserveErr.message : reserveErr,
+    })
+  }
+
   return {
     orderId: order.id,
     orderNumber: order.order_number,

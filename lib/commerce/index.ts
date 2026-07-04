@@ -72,6 +72,7 @@ export {
   getProductBySlug,
   getProductByUuid,
   listActiveProducts,
+  listActiveProductsKeyset,
   listProductSlugs,
   listProductsByBrandSlug,
   listProductsByCategorySlug,
@@ -81,6 +82,21 @@ export {
 } from './products'
 export { buildProductBreadcrumbJsonLd, buildProductJsonLd } from './json-ld'
 export { searchProducts } from './search'
+export { searchProductFacets } from './search-facets-server'
+export {
+  decodeKeysetCursor,
+  encodeKeysetCursor,
+  type KeysetCursor,
+  type KeysetPage,
+} from './pagination'
+export { listVariantsForProduct, type ProductVariant } from './variants'
+export { validateFeedRow } from './feed-import-validation'
+export {
+  createFeedImportBatch,
+  listPendingFeedBatches,
+  type FeedImportBatchSummary,
+} from './feed-import'
+export { isMeilisearchEnabled, searchMeilisearch } from './meilisearch'
 export { brandSlug, productSlug, slugify } from './slugs'
 export { LEGACY_PRODUCT_ID_REDIRECTS } from './redirects'
 export {

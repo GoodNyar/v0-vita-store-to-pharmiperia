@@ -9,8 +9,8 @@ Next.js 16 витрина + Supabase commerce-ядро + Stripe Embedded Checkou
 | **1** — Launch readiness | `v1.0-phase1-complete` | ✅ Закрыта | [phase-1-final-summary](docs/reports/phase-1-final-summary.md) |
 | **2** — Data layer & admin v0 | `v2.0-phase2-complete` | ✅ Закрыта | [phase-2-final-summary](docs/reports/phase-2-final-summary.md) |
 | **3** — Retention & events | `v3.0-phase3-complete` | ✅ **Baseline** | [phase-3-final-summary](docs/reports/phase-3-final-summary.md) |
-| **4** — Feature gaps | `v4.0-phase4-complete` | ✅ **Закрыта** | [phase-4-final-summary](docs/reports/phase-4-final-summary.md) |
-| **5** — 100k SKU & PIM | — | 🔜 По триггеру | [phase-4-prerequisites](docs/reports/phase-4-prerequisites.md) |
+| **4** — Feature gaps | `v4.0-phase4-complete` | ✅ Закрыта | [phase-4-final-summary](docs/reports/phase-4-final-summary.md) |
+| **5** — Catalog foundation | `v5.0-phase5-complete` | ✅ **Закрыта (foundation)** | [phase-5-final-summary](docs/reports/phase-5-final-summary.md) |
 
 **Активная ветка:** `phase-2/pr-02-commerce-scaffold` (Phase 3 смержена в неё, commit `2195a70`).
 
@@ -44,7 +44,7 @@ bash scripts/tag-phase-3.sh
 pnpm install
 cp .env.example .env.local   # заполнить ключи
 pnpm db:start                # локальный Supabase (Docker)
-pnpm db:reset                # 18 миграций + seed
+pnpm db:reset                # 22 миграции + seed
 pnpm dev
 ```
 
@@ -58,7 +58,7 @@ pnpm dev
 | `pnpm build` | Production build |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm lint` | ESLint |
-| `pnpm test` | Unit-тесты commerce (18) |
+| `pnpm test` | Unit-тесты commerce (30) |
 | `pnpm validate:production` | Pre-deploy checklist |
 | `pnpm db:reset` | Миграции + seed |
 | `pnpm db:types` | Сгенерировать `lib/database.types.ts` |
@@ -99,11 +99,17 @@ supabase/         → миграции (не scripts/)
 
 Tag: `bash scripts/tag-phase-4.sh`
 
-## Phase 5 (бывший CTO Phase 4) — когда начинать
+## Phase 5 — что закрыто (foundation)
 
-**Триггер:** подписан крупный поставщик с товарным фидом → PIM, variants, Meilisearch.
+- Schema: `product_variants`, feed staging, `inventory_reservations`
+- SQL search facets (полный match-set, не top-50)
+- Keyset pagination, sitemap shards (45k)
+- Meilisearch adapter stub (env-gated)
+- Promo consume observability
 
-См. [phase-4-prerequisites.md](docs/reports/phase-4-prerequisites.md).
+**Полный PIM publish + Meilisearch prod** — по триггеру поставщика. См. [phase-5-final-summary](docs/reports/phase-5-final-summary.md).
+
+Tag: `bash scripts/tag-phase-5.sh`
 
 ## Документация
 

@@ -8,6 +8,7 @@ export type CheckoutStage =
   | 'embedded_checkout'
   | 'webhook_fulfill'
   | 'webhook_email'
+  | 'webhook_promo'
 
 export interface CheckoutErrorContext {
   stage: CheckoutStage

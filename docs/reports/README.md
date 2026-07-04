@@ -30,7 +30,9 @@
 | — | [Phase 4 Final Summary](phase-4-final-summary.md) | Feature gaps closed, tag `v4.0-phase4-complete` |
 | 16 | [Самоаудит Phase 4](16-self-audit-phase-4.md) | Self-audit после closure (superseded) |
 | 17 | [Независимый аудит Phase 4](17-nezavisimyj-audit-phase-4.md) | **Для Claude** — нулевое доверие, audit-fixes |
-| 18 | [Zero-Trust Production Audit (Phase 4)](18-zero-trust-production-audit-phase-4.md) | Личный прогон tsc/build/eslint/тестов: build ✓, тесты 22/23 (1 падает); 1 Critical (alreadyPaid теряет декремент), git без тега; вердикт **CONDITIONAL PASS**, деплой — NO до 4 правок |
+| 18 | [Zero-Trust Production Audit (Phase 4)](18-zero-trust-production-audit-phase-4.md) | Личный прогон tsc/build/eslint/тестов; C-1/H-1/H-2/M-2 закрыты в addendum |
+| — | [Phase 5 Final Summary](phase-5-final-summary.md) | Catalog foundation, tag `v5.0-phase5-complete` |
+| 19 | [Self Audit Phase 5](19-self-audit-phase-5.md) | Foundation PASS; Meilisearch/feed publish отложены |
 
 Действующая техническая конституция проекта: [`docs/ENGINEERING_PLAYBOOK.md`](../ENGINEERING_PLAYBOOK.md).
 Архитектурные решения: [`docs/adr/`](../adr/README.md) (шаблон — `0000-adr-template.md`).
