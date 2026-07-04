@@ -79,7 +79,8 @@ describe('handleOrderPaid (integration stub)', () => {
     ]
     assert.equal(rpcArgs[0], 'accrue_loyalty_for_order')
     assert.equal(supabaseMock.from.mock.callCount(), 1)
-    assert.equal(supabaseMock.from.mock.calls[0]?.arguments[0], 'orders')
+    const fromArgs = supabaseMock.from.mock.calls[0]?.arguments as unknown as [string] | undefined
+    assert.equal(fromArgs?.[0], 'orders')
   })
 
   it('runs idempotent effects when order row is already paid (webhook retry)', async () => {
