@@ -1,4 +1,5 @@
 import type { Product } from '@/lib/data'
+import type { CommerceProduct } from '@/lib/commerce/types'
 
 export interface SearchFacetOption {
   value: string
@@ -24,7 +25,25 @@ export const EMPTY_SEARCH_FACET_FILTERS: SearchFacetFilters = {
   onSaleOnly: false,
 }
 
-function countByField(products: Product[], field: 'brand' | 'category'): SearchFacetOption[] {
+export interface SearchFacetProduct {
+  brand: string
+  category: string
+  price: { amount: number }
+  originalPrice?: { amount: number } | null
+}
+
+/** Human-readable label from category slug (skincare → Skincare). */
+export function formatCategoryFacetLabel(slug: string): string {
+  const trimmed = slug.trim()
+  if (!trimmed) return trimmed
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).replace(/-/g, ' ')
+}
+
+function countByField(
+  products: SearchFacetProduct[],
+  field: 'brand' | 'category',
+  formatLabel?: (value: string) => string
+): SearchFacetOption[] {
   const counts = new Map<string, number>()
 
   for (const product of products) {
@@ -34,26 +53,54 @@ function countByField(products: Product[], field: 'brand' | 'category'): SearchF
   }
 
   return [...counts.entries()]
-    .map(([value, count]) => ({ value, label: value, count }))
+    .map(([value, count]) => ({
+      value,
+      label: formatLabel ? formatLabel(value) : value,
+      count,
+    }))
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
 }
 
-export function buildSearchFacets(products: Product[]): SearchFacets {
-  const onSaleCount = products.filter(
-    (product) => product.originalPrice != null && product.originalPrice.amount > product.price.amount
-  ).length
+function isOnSale(product: SearchFacetProduct): boolean {
+  return (
+    product.originalPrice != null && product.originalPrice.amount > product.price.amount
+  )
+}
 
+export function buildSearchFacetsFromProducts(
+  products: SearchFacetProduct[]
+): SearchFacets {
   return {
     brands: countByField(products, 'brand'),
-    categories: countByField(products, 'category'),
-    onSaleCount,
+    categories: countByField(products, 'category', formatCategoryFacetLabel),
+    onSaleCount: products.filter(isOnSale).length,
   }
 }
 
-export function applySearchFacetFilters(
-  products: Product[],
+export function buildSearchFacets(products: Product[]): SearchFacets {
+  return buildSearchFacetsFromProducts(
+    products.map((product) => ({
+      brand: product.brand,
+      category: product.category,
+      price: product.price,
+      originalPrice: product.originalPrice ?? null,
+    }))
+  )
+}
+
+export function commerceToFacetProduct(product: CommerceProduct): SearchFacetProduct {
+  return {
+    brand: product.brandName ?? '',
+    category: product.categorySlug ?? '',
+    price: product.price,
+    originalPrice: product.originalPrice,
+  }
+}
+
+export function applySearchFacetFilters<T extends SearchFacetProduct>(
+  products: T[],
   filters: SearchFacetFilters
-): Product[] {
+): T[] {
   return products.filter((product) => {
     if (filters.brands.length > 0 && !filters.brands.includes(product.brand)) {
       return false
@@ -63,10 +110,8 @@ export function applySearchFacetFilters(
       return false
     }
 
-    if (filters.onSaleOnly) {
-      const onSale =
-        product.originalPrice != null && product.originalPrice.amount > product.price.amount
-      if (!onSale) return false
+    if (filters.onSaleOnly && !isOnSale(product)) {
+      return false
     }
 
     return true

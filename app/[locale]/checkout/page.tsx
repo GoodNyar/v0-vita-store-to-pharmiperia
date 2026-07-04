@@ -7,7 +7,8 @@ import { useParams, useRouter } from "next/navigation"
 import { useCart } from "@/components/cart-context"
 import { useLang, formatMoney, type TranslationKey } from "@/lib/i18n"
 import { isLocale, type Locale } from "@/lib/i18n/config"
-import { addMoney, eur, extractInclusiveVatCents, multiplyMoney } from "@/lib/money"
+import { addMoney, eur, extractInclusiveVatCents, multiplyMoney, subtractMoney } from "@/lib/money"
+import { validateCheckoutPromoCode } from "@/app/actions/promo"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, MapPin, Truck, AlertCircle, CreditCard, CheckCircle } from "lucide-react"
 import { StripeCheckout } from "@/components/stripe-checkout"
@@ -66,10 +67,22 @@ function CheckoutContent() {
     orderId: string
     orderNumber: string
   } | null>(null)
+  const [promoInput, setPromoInput] = useState("")
+  const [appliedPromo, setAppliedPromo] = useState<{
+    code: string
+    discountCents: number
+  } | null>(null)
+  const [promoError, setPromoError] = useState<string | null>(null)
+  const [promoPending, setPromoPending] = useState(false)
 
   const shippingOption = SHIPPING_OPTIONS.find((opt) => opt.id === selectedShipping)
   const shippingCost = shippingOption?.price ?? eur(350)
-  const finalTotal = addMoney(totalMoney, shippingCost)
+  const discountMoney = appliedPromo ? eur(appliedPromo.discountCents) : eur(0)
+  const subtotalAfterDiscount =
+    discountMoney.amount > 0
+      ? subtractMoney(totalMoney, discountMoney)
+      : totalMoney
+  const finalTotal = addMoney(subtotalAfterDiscount, shippingCost)
   const vatAmount = eur(extractInclusiveVatCents(finalTotal.amount))
   const isCourier = selectedShipping === "courier"
 
@@ -151,6 +164,25 @@ function CheckoutContent() {
     utmSource: utm.utm_source,
     utmMedium: utm.utm_medium,
     utmCampaign: utm.utm_campaign,
+    promoCode: appliedPromo?.code ?? null,
+  }
+
+  const handleApplyPromo = async () => {
+    const code = promoInput.trim()
+    if (!code) return
+    setPromoPending(true)
+    setPromoError(null)
+    const result = await validateCheckoutPromoCode(code, totalMoney.amount)
+    setPromoPending(false)
+    if (!result.valid) {
+      setAppliedPromo(null)
+      setPromoError(result.error ?? "invalid")
+      return
+    }
+    setAppliedPromo({
+      code: result.code ?? code,
+      discountCents: result.discountCents ?? 0,
+    })
   }
 
   // Empty cart state
@@ -477,12 +509,53 @@ function CheckoutContent() {
               ))}
             </div>
 
+            {/* Promo code */}
+            {step === "details" && (
+              <div className="mb-4 space-y-2 border-b border-border pb-4">
+                <label className="text-sm font-medium text-card-foreground">
+                  Promo kods
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={promoInput}
+                    onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                    placeholder="PIEMĒRAM10"
+                    className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm uppercase"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={promoPending || !promoInput.trim()}
+                    onClick={() => void handleApplyPromo()}
+                  >
+                    {promoPending ? "..." : "Pielietot"}
+                  </Button>
+                </div>
+                {promoError && (
+                  <p className="text-xs text-red-500">Nederīgs promo kods</p>
+                )}
+                {appliedPromo && (
+                  <p className="text-xs text-green-600">
+                    {appliedPromo.code}: −{formatMoney(eur(appliedPromo.discountCents))}
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Summary lines */}
             <div className="space-y-2 border-t border-border pt-4">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Preču summa</span>
                 <span className="text-foreground">{formatMoney(totalMoney)}</span>
               </div>
+              {appliedPromo && (
+                <div className="flex justify-between text-sm text-green-600">
+                  <span>Atlaide</span>
+                  <span>−{formatMoney(discountMoney)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{t("shippingCost")}</span>
                 <span className="text-foreground">{formatMoney(shippingCost)}</span>

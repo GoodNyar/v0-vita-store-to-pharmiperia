@@ -9,9 +9,15 @@ import {
   useRef,
   type ReactNode,
 } from "react"
-import { products as legacyProducts, type Product } from "@/lib/data"
+import { type Product } from "@/lib/data"
 import { multiplyMoney, sumMoney, type Money } from "@/lib/money"
-import { mergeGuestCartToServer } from "@/app/actions/cart"
+import {
+  loadAuthenticatedCart,
+  mergeGuestCartToServer,
+  persistCartLine,
+  persistClearCart,
+  persistRemoveCartLine,
+} from "@/app/actions/cart"
 import { fetchCatalogProducts } from "@/app/actions/catalog"
 import { createClient } from "@/lib/supabase/client"
 import { isLocale, type Locale } from "@/lib/i18n/config"
@@ -43,6 +49,7 @@ interface CartContextType {
   totalMoney: Money
   isCartOpen: boolean
   setIsCartOpen: (open: boolean) => void
+  isServerBacked: boolean
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -102,9 +109,6 @@ function resolveProduct(input: QuickAddItem, catalog: Product[]): Product {
   const fromCatalog = catalog.find((p) => p.id === input.id)
   if (fromCatalog) return fromCatalog
 
-  const legacy = legacyProducts.find((p) => p.id === input.id)
-  if (legacy) return legacy
-
   return {
     id: input.id,
     sku: String(input.id),
@@ -140,8 +144,22 @@ function mergeCartItem(
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
-  const catalogRef = useRef<Product[]>(legacyProducts)
+  const [isServerBacked, setIsServerBacked] = useState(false)
+  const catalogRef = useRef<Product[]>([])
+  const userIdRef = useRef<string | null>(null)
   const supabase = createClient()
+
+  const hydrateFromServer = useCallback(async (locale: Locale) => {
+    const result = await loadAuthenticatedCart(locale)
+    if (result.ok) {
+      setItems(result.items)
+      saveCartToStorage(result.items)
+      setIsServerBacked(true)
+      return true
+    }
+    setIsServerBacked(false)
+    return false
+  }, [])
 
   useEffect(() => {
     const saved = loadCartFromStorage()
@@ -156,27 +174,40 @@ export function CartProvider({ children }: { children: ReactNode }) {
           catalogRef.current = catalog
         }
       })
+
+      void supabase.auth.getUser().then(({ data }) => {
+        userIdRef.current = data.user?.id ?? null
+        if (data.user) {
+          void hydrateFromServer(locale)
+        }
+      })
     }
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      userIdRef.current = session?.user?.id ?? null
+      const currentLocale = localeFromPathname()
+      if (!isLocale(currentLocale)) return
+
       if (event === "SIGNED_IN" && session?.user) {
         const guestCart = loadCartFromStorage()
         if (guestCart.length > 0) {
-          const locale = localeFromPathname()
-          if (isLocale(locale)) {
-            await mergeGuestCartToServer(
-              locale,
-              guestCart.map((line) => ({
-                legacyId: line.product.id,
-                quantity: line.quantity,
-              }))
-            )
-          }
-          setItems(guestCart)
-          saveCartToStorage(guestCart)
+          await mergeGuestCartToServer(
+            currentLocale,
+            guestCart.map((line) => ({
+              legacyId: line.product.id,
+              quantity: line.quantity,
+            }))
+          )
         }
+        await hydrateFromServer(currentLocale)
+      }
+
+      if (event === "SIGNED_OUT") {
+        setIsServerBacked(false)
+        const localOnly = loadCartFromStorage()
+        setItems(localOnly)
       }
     })
 
@@ -184,7 +215,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
       window.clearTimeout(hydrationTimer)
       subscription.unsubscribe()
     }
-  }, [supabase.auth])
+  }, [supabase.auth, hydrateFromServer])
+
+  const persistIfAuthenticated = useCallback(
+    async (legacyId: number, quantity: number) => {
+      if (!userIdRef.current) return
+      const locale = localeFromPathname()
+      if (!isLocale(locale)) return
+      await persistCartLine(locale, legacyId, quantity)
+    },
+    []
+  )
 
   const addToCart = useCallback((product: Product) => {
     trackAddToCart({
@@ -195,12 +236,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       quantity: 1,
     })
     setItems((prev) => {
+      const existing = prev.find((item) => item.product.id === product.id)
+      const nextQty = (existing?.quantity ?? 0) + 1
       const updated = mergeCartItem(prev, product, 1)
       saveCartToStorage(updated)
+      void persistIfAuthenticated(product.id, nextQty)
       return updated
     })
     setIsCartOpen(true)
-  }, [])
+  }, [persistIfAuthenticated])
 
   const addItem = useCallback((input: QuickAddItem) => {
     const product = resolveProduct(input, catalogRef.current)
@@ -213,17 +257,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
       quantity,
     })
     setItems((prev) => {
+      const existing = prev.find((item) => item.product.id === product.id)
+      const nextQty = (existing?.quantity ?? 0) + quantity
       const updated = mergeCartItem(prev, product, quantity)
       saveCartToStorage(updated)
+      void persistIfAuthenticated(product.id, nextQty)
       return updated
     })
     setIsCartOpen(true)
-  }, [])
+  }, [persistIfAuthenticated])
 
   const removeFromCart = useCallback((productId: number) => {
     setItems((prev) => {
       const updated = prev.filter((item) => item.product.id !== productId)
       saveCartToStorage(updated)
+      void persistRemoveCartLine(productId)
       return updated
     })
   }, [])
@@ -233,6 +281,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setItems((prev) => {
         const updated = prev.filter((item) => item.product.id !== productId)
         saveCartToStorage(updated)
+        void persistRemoveCartLine(productId)
         return updated
       })
       return
@@ -242,13 +291,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
         item.product.id === productId ? { ...item, quantity } : item
       )
       saveCartToStorage(updated)
+      void persistIfAuthenticated(productId, quantity)
       return updated
     })
-  }, [])
+  }, [persistIfAuthenticated])
 
   const clearCart = useCallback(() => {
     setItems([])
     saveCartToStorage([])
+    void persistClearCart()
   }, [])
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
@@ -269,6 +320,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         totalMoney,
         isCartOpen,
         setIsCartOpen,
+        isServerBacked,
       }}
     >
       {children}

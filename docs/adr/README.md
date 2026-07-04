@@ -25,5 +25,10 @@
 | [0019](0019-inventory-decrement.md) | Inventory decrement RPC + idempotency | принят | Phase 2 PR-18 |
 | [0020](0020-baltic-stripe-payment-methods.md) | Baltic Stripe payment methods | принят | Phase 2 PR-24 |
 | [0021](0021-image-optimization-cwv.md) | Image optimization + CWV budget | принят | Phase 2 PR-28–29 |
+| [0022](0022-event-handlers-webhook-claim.md) | Event handlers + atomic webhook claim | принят | Phase 3 |
+| [0023](0023-server-side-cart.md) | Server-side cart | принят | Phase 3–4 cutover |
+| [0024](0024-loyalty-accrual.md) | Loyalty accrual | принят | Phase 3 |
+| [0025](0025-search-pgtrgm.md) | Search pg_trgm + search_vector | принят | Phase 3–4 |
+| [0026](0026-phase4-feature-gaps.md) | Phase 4 feature-gap closure | принят | Phase 4 |
 
 Blueprint: [`docs/reports/06-refactoring-blueprint.md`](../reports/06-refactoring-blueprint.md).

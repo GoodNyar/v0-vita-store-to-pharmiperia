@@ -63,8 +63,8 @@ export async function getCatalogProducts(
   }
 
   const result = await cachedListActiveProducts(locale)
-  if (!result.ok || result.data.length === 0) {
-    return { products: legacyProducts, source: 'legacy' }
+  if (!result.ok) {
+    return { products: [], source: 'db' }
   }
 
   return {
@@ -98,8 +98,8 @@ export async function getCatalogProductsByCategorySlug(
   }
 
   const result = await cachedListProductsByCategorySlug(categorySlug, locale)
-  if (!result.ok || result.data.length === 0) {
-    return legacyProducts.filter((product) => product.category === categorySlug)
+  if (!result.ok) {
+    return []
   }
 
   return result.data.map(mergeLegacyExtras)
@@ -116,8 +116,8 @@ export async function getCatalogProductsByBrandSlug(
   }
 
   const result = await cachedListProductsByBrandSlug(brandSlug, locale)
-  if (!result.ok || result.data.length === 0) {
-    return getProductsByBrandSlug(brandSlug)
+  if (!result.ok) {
+    return []
   }
 
   return result.data.map(mergeLegacyExtras)

@@ -51,7 +51,7 @@
 | 27 | Helpdesk ticket stub API | Ops |
 | 28 | Welcome email series | Retention |
 | 29 | Post-delivery review request email | Retention |
-| 30 | Phase 3 final summary + tag `v3.0-phase3-complete` | Closure |
+| 30 | Phase 3 final summary + tag `v3.0-phase3-complete` | Closure ✅ |
 
 ---
 

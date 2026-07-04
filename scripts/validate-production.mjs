@@ -132,6 +132,7 @@ const requiredPaths = [
   ['e2e-checkout', 'e2e/checkout.spec.ts'],
   ['locale-error-boundary', 'app/[locale]/error.tsx'],
   ['checkout-error-boundary', 'app/[locale]/checkout/error.tsx'],
+  ['retention-cron', 'app/api/cron/retention/route.ts'],
   ['supabase-baseline', 'supabase/migrations/20260703120000_baseline.sql'],
   ['supabase-seed', 'supabase/seed.sql'],
   ['database-types', 'lib/database.types.ts'],

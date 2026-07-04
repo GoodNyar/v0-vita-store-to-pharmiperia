@@ -1,8 +1,10 @@
 import 'server-only'
 
 import type { Locale } from '@/lib/i18n/config'
+import { mergeLegacyExtras } from '@/lib/commerce/catalog-source'
 import { legacyProductIdToUuid, uuidToLegacyProductId } from '@/lib/commerce/ids'
 import { getProductByLegacyId } from '@/lib/commerce/products'
+import type { Product } from '@/lib/data'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { eur, type Money } from '@/lib/money'
@@ -32,6 +34,16 @@ type CartItemRow = {
     name_ru: string
     name_lv: string
   } | null
+}
+
+const MAX_QUANTITY = 99
+
+async function touchCart(cartId: string): Promise<void> {
+  const supabase = createAdminClient()
+  await supabase
+    .from('carts')
+    .update({ updated_at: new Date().toISOString() })
+    .eq('id', cartId)
 }
 
 export async function getOrCreateUserCart(
@@ -105,11 +117,12 @@ export async function syncLocalCartToServer(
     if (!product.ok) continue
 
     const productId = legacyProductIdToUuid(item.legacyId)
+    const quantity = Math.max(1, Math.min(MAX_QUANTITY, item.quantity))
     await supabase.from('cart_items').upsert(
       {
         cart_id: cart.id,
         product_id: productId,
-        quantity: item.quantity,
+        quantity,
         unit_price_cents: product.data.price.amount,
         currency: product.data.price.currency,
         updated_at: new Date().toISOString(),
@@ -118,7 +131,80 @@ export async function syncLocalCartToServer(
     )
   }
 
+  await touchCart(cart.id)
   return loadCart(cart.id, locale)
+}
+
+export async function upsertServerCartLine(
+  userId: string,
+  locale: Locale,
+  legacyId: number,
+  quantity: number
+): Promise<ServerCart> {
+  const cart = await getOrCreateUserCart(userId, locale)
+  const product = await getProductByLegacyId(legacyId, locale)
+  if (!product.ok) {
+    throw new Error(`Product not found: ${legacyId}`)
+  }
+
+  const clampedQty = Math.max(1, Math.min(MAX_QUANTITY, Math.floor(quantity)))
+  const supabase = createAdminClient()
+  const productId = legacyProductIdToUuid(legacyId)
+
+  await supabase.from('cart_items').upsert(
+    {
+      cart_id: cart.id,
+      product_id: productId,
+      quantity: clampedQty,
+      unit_price_cents: product.data.price.amount,
+      currency: product.data.price.currency,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'cart_id,product_id' }
+  )
+
+  await touchCart(cart.id)
+  return loadCart(cart.id, locale)
+}
+
+export async function removeServerCartLine(
+  userId: string,
+  legacyId: number
+): Promise<ServerCart> {
+  const supabase = createAdminClient()
+  const { data: existing } = await supabase
+    .from('carts')
+    .select('id, locale')
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (!existing?.id) {
+    return { id: '', locale: 'lv', lines: [] }
+  }
+
+  const productId = legacyProductIdToUuid(legacyId)
+  await supabase
+    .from('cart_items')
+    .delete()
+    .eq('cart_id', existing.id)
+    .eq('product_id', productId)
+
+  await touchCart(existing.id)
+  return loadCart(existing.id, (existing.locale as Locale) ?? 'lv')
+}
+
+export async function clearServerCart(userId: string): Promise<void> {
+  const supabase = createAdminClient()
+  const { data: cart } = await supabase
+    .from('carts')
+    .select('id')
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (!cart?.id) return
+
+  await supabase.from('cart_items').delete().eq('cart_id', cart.id)
+  await touchCart(cart.id)
 }
 
 export async function getAuthenticatedUserCart(locale: Locale): Promise<ServerCart | null> {
@@ -128,4 +214,24 @@ export async function getAuthenticatedUserCart(locale: Locale): Promise<ServerCa
   } = await supabase.auth.getUser()
   if (!user) return null
   return getOrCreateUserCart(user.id, locale)
+}
+
+/** Map server cart lines to storefront Product[] for CartProvider. */
+export async function serverCartToStorefrontProducts(
+  cart: ServerCart
+): Promise<Product[]> {
+  const products: Product[] = []
+
+  for (const line of cart.lines) {
+    if (line.legacyId == null) continue
+    const result = await getProductByLegacyId(line.legacyId, cart.locale)
+    if (!result.ok) continue
+    const mapped = mergeLegacyExtras(result.data)
+    products.push({
+      ...mapped,
+      price: line.unitPrice,
+    })
+  }
+
+  return products
 }

@@ -41,6 +41,11 @@ export function assertSameCurrency(money: Money, currency: CurrencyCode): void {
   }
 }
 
+export function subtractMoney(minuend: Money, subtrahend: Money): Money {
+  assertSameCurrency(minuend, subtrahend.currency)
+  return { ...minuend, amount: Math.max(0, minuend.amount - subtrahend.amount) }
+}
+
 export function addMoney(...amounts: Money[]): Money {
   if (amounts.length === 0) return eur(0)
   const currency = amounts[0].currency

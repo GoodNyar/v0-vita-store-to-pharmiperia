@@ -106,6 +106,11 @@ export {
 } from './admin-products'
 export { listAdminPromoCodes, type AdminPromoListItem } from './admin-promo'
 export {
+  validatePromoCode,
+  consumePromoCode,
+  type PromoValidationResult,
+} from './promo'
+export {
   EMPTY_SEARCH_FACET_FILTERS,
   applySearchFacetFilters,
   buildSearchFacets,

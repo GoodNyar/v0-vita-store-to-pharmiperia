@@ -48,3 +48,21 @@ export async function validatePromoCode(
     discountType: String(payload.discount_type),
   }
 }
+
+/** Increment promo used_count once after successful payment (idempotent per order). */
+export async function consumePromoCode(
+  promoId: string,
+  orderId: string
+): Promise<boolean> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase.rpc('consume_promo_code', {
+    p_promo_id: promoId,
+    p_order_id: orderId,
+  })
+
+  if (error) {
+    throw new Error(`Promo consumption failed: ${error.message}`)
+  }
+
+  return data === true
+}

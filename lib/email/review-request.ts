@@ -16,11 +16,31 @@ interface OrderRow {
   last_name: string
   locale: string
   status: string | null
+  review_request_email_sent_at: string | null
 }
 
 export type SendReviewRequestResult =
   | { sent: true; messageId: string }
   | { sent: false; reason: 'disabled' | 'no_recipient' | 'not_delivered' | 'already_sent' }
+
+export async function processReviewRequestBatch(
+  limit = 25
+): Promise<{ processed: number; sent: number; skipped: number }> {
+  const orderIds = await listOrdersPendingReviewRequest(limit)
+  let sent = 0
+  let skipped = 0
+
+  for (const orderId of orderIds) {
+    const result = await sendReviewRequestEmail(orderId)
+    if (result.sent) {
+      sent += 1
+    } else {
+      skipped += 1
+    }
+  }
+
+  return { processed: orderIds.length, sent, skipped }
+}
 
 function buildReviewRequestHtml(params: {
   locale: Locale
@@ -49,10 +69,23 @@ function buildReviewRequestHtml(params: {
   })
 }
 
-/**
- * Phase 3 stub — post-delivery review request (PR-29).
- * Idempotency column `review_request_email_sent_at` will land with delivery automation.
- */
+export async function listOrdersPendingReviewRequest(limit = 25): Promise<string[]> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('orders')
+    .select('id')
+    .eq('status', 'delivered')
+    .is('review_request_email_sent_at', null)
+    .order('updated_at', { ascending: true })
+    .limit(limit)
+
+  if (error) {
+    throw new Error(`Failed to list review-request orders: ${error.message}`)
+  }
+
+  return (data ?? []).map((row) => row.id)
+}
+
 export async function sendReviewRequestEmail(
   orderId: string
 ): Promise<SendReviewRequestResult> {
@@ -64,7 +97,7 @@ export async function sendReviewRequestEmail(
   const supabase = createAdminClient()
   const { data: order, error } = await supabase
     .from('orders')
-    .select('id, order_number, email, first_name, last_name, locale, status')
+    .select('id, order_number, email, first_name, last_name, locale, status, review_request_email_sent_at')
     .eq('id', orderId)
     .maybeSingle()
 
@@ -84,6 +117,24 @@ export async function sendReviewRequestEmail(
     return { sent: false, reason: 'no_recipient' }
   }
 
+  // Atomic claim before send — prevents duplicate emails (admin + cron race)
+  const { data: claimed, error: claimError } = await supabase
+    .from('orders')
+    .update({ review_request_email_sent_at: new Date().toISOString() })
+    .eq('id', orderId)
+    .eq('status', 'delivered')
+    .is('review_request_email_sent_at', null)
+    .select('id')
+    .maybeSingle()
+
+  if (claimError) {
+    throw new Error(`Failed to claim review request for ${orderId}: ${claimError.message}`)
+  }
+
+  if (!claimed) {
+    return { sent: false, reason: 'already_sent' }
+  }
+
   const locale: Locale = isLocale(typed.locale) ? typed.locale : DEFAULT_LOCALE
   const copy = getReviewRequestCopy(locale)
   const html = buildReviewRequestHtml({ locale, order: typed })
@@ -96,10 +147,14 @@ export async function sendReviewRequestEmail(
   })
 
   if (sendError) {
+    await supabase
+      .from('orders')
+      .update({ review_request_email_sent_at: null })
+      .eq('id', orderId)
     throw new Error(`Resend failed for review request ${orderId}: ${sendError.message}`)
   }
 
-  console.info('[email] review request sent (stub)', {
+  console.info('[email] review request sent', {
     orderId,
     orderNumber: typed.order_number,
     messageId: data?.id,

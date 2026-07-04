@@ -168,15 +168,32 @@ export async function sendOrderConfirmationEmail(
 
   const typedOrder = order as OrderRow
 
-  if (typedOrder.confirmation_email_sent_at) {
-    return { sent: false, reason: 'already_sent' }
-  }
-
   const recipient = typedOrder.email.trim()
   if (!recipient) {
     console.warn('[email] order confirmation skipped — missing recipient', { orderId })
     return { sent: false, reason: 'no_recipient' }
   }
+
+  // Atomic claim before send — prevents duplicate emails on webhook retry
+  const { data: claimed, error: claimError } = await supabase
+    .from('orders')
+    .update({ confirmation_email_sent_at: new Date().toISOString() })
+    .eq('id', orderId)
+    .is('confirmation_email_sent_at', null)
+    .select(
+      'id, order_number, email, first_name, last_name, locale, subtotal_cents, shipping_cost_cents, tax_cents, total_cents, shipping_method, parcel_station, confirmation_email_sent_at'
+    )
+    .maybeSingle()
+
+  if (claimError) {
+    throw new Error(`Failed to claim confirmation email for ${orderId}: ${claimError.message}`)
+  }
+
+  if (!claimed) {
+    return { sent: false, reason: 'already_sent' }
+  }
+
+  const claimedOrder = claimed as OrderRow
 
   const { data: items, error: itemsError } = await supabase
     .from('order_items')
@@ -185,46 +202,39 @@ export async function sendOrderConfirmationEmail(
     .order('created_at', { ascending: true })
 
   if (itemsError) {
+    await supabase
+      .from('orders')
+      .update({ confirmation_email_sent_at: null })
+      .eq('id', orderId)
     throw new Error(`Failed to load order items for email: ${itemsError.message}`)
   }
 
-  const locale: Locale = isLocale(typedOrder.locale) ? typedOrder.locale : DEFAULT_LOCALE
+  const locale: Locale = isLocale(claimedOrder.locale) ? claimedOrder.locale : DEFAULT_LOCALE
   const copy = getOrderConfirmationCopy(locale)
   const html = buildOrderConfirmationHtml({
     locale,
-    order: typedOrder,
+    order: claimedOrder,
     items: (items ?? []) as OrderItemRow[],
   })
 
   const { data, error: sendError } = await getResend().emails.send({
     from: getEmailFrom(),
     to: recipient,
-    subject: copy.subject(typedOrder.order_number),
+    subject: copy.subject(claimedOrder.order_number),
     html,
   })
 
   if (sendError) {
+    await supabase
+      .from('orders')
+      .update({ confirmation_email_sent_at: null })
+      .eq('id', orderId)
     throw new Error(`Resend failed for order ${orderId}: ${sendError.message}`)
-  }
-
-  const sentAt = new Date().toISOString()
-  const { error: updateError } = await supabase
-    .from('orders')
-    .update({ confirmation_email_sent_at: sentAt })
-    .eq('id', orderId)
-    .is('confirmation_email_sent_at', null)
-
-  if (updateError) {
-    console.error('[email] failed to mark confirmation_email_sent_at', {
-      orderId,
-      messageId: data?.id,
-      error: updateError.message,
-    })
   }
 
   console.info('[email] order confirmation sent', {
     orderId,
-    orderNumber: typedOrder.order_number,
+    orderNumber: claimedOrder.order_number,
     messageId: data?.id,
     locale,
   })

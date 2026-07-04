@@ -1,5 +1,7 @@
 import 'server-only'
 
+import { consumePromoCode } from '@/lib/commerce/promo'
+import { clearServerCart } from '@/lib/commerce/server-cart'
 import { sendOrderConfirmationEmail } from '@/lib/email/order-confirmation'
 import { decrementStockForOrder } from '@/lib/inventory/decrement'
 import { isInsufficientStockError } from '@/lib/inventory/errors'
@@ -18,6 +20,11 @@ async function accrueLoyaltyForOrder(orderId: string): Promise<void> {
   }
 }
 
+/**
+ * Runs paid-order side effects idempotently. Each step guards itself (email sent_at,
+ * inventory_adjusted_at, loyalty UNIQUE, promo_consumed_at) — safe on webhook retry
+ * regardless of orders.payment_status already being paid.
+ */
 export async function handleOrderPaid(event: OrderPaidEvent): Promise<void> {
   const { orderId, checkoutSessionId } = event
 
@@ -54,4 +61,27 @@ export async function handleOrderPaid(event: OrderPaidEvent): Promise<void> {
   }
 
   await accrueLoyaltyForOrder(orderId)
+
+  const supabase = createAdminClient()
+  const { data: order } = await supabase
+    .from('orders')
+    .select('promo_code_id, user_id')
+    .eq('id', orderId)
+    .maybeSingle()
+
+  if (order?.promo_code_id) {
+    try {
+      await consumePromoCode(order.promo_code_id, orderId)
+    } catch (promoErr) {
+      console.warn('[events/order.paid] promo consumption failed', { orderId, promoErr })
+    }
+  }
+
+  if (order?.user_id) {
+    try {
+      await clearServerCart(order.user_id)
+    } catch (cartErr) {
+      console.warn('[events/order.paid] server cart clear failed', { orderId, cartErr })
+    }
+  }
 }

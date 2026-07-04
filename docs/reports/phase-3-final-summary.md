@@ -1,7 +1,8 @@
 # Phase 3 — Final Summary
 
-> **Статус:** завершена инженерно (scaffold + core flows) · Ветка: `phase-3/pr-01-foundation` (от `phase-2/pr-02-commerce-scaffold`)  
-> **База:** `v2.0-phase2-complete` · **30/30 PR (engineering scope)** · CTO Roadmap §Phase 3
+> **Статус:** ✅ **ЗАКРЫТА** · Tag: **`v3.0-phase3-complete`** · Commit: `2195a70`  
+> **Ветка:** `phase-2/pr-02-commerce-scaffold` · **База:** `v2.0-phase2-complete`  
+> **30/30 PR (engineering scope)** · CTO Roadmap §Phase 3 · **Baseline для Phase 4**
 
 ---
 
@@ -185,35 +186,40 @@ bash scripts/complete-phase-3.sh
 
 Скрипт выполняет: `pnpm install` → `lint` → `typecheck` → `build` → `validate:production` → `test` → `git add .` → `git commit -m "feat(phase-3): complete post-audit remediation"` → проверка clean tree.
 
-| Шаг | Статус агента | Примечание |
-|-----|---------------|------------|
-| `pnpm install` | ❌ BLOCKED | Shell spawn failure (среда агента) |
-| `pnpm lint` | ❌ NOT RUN | — |
-| `pnpm typecheck` | ❌ NOT RUN | Статические фиксы H-1 применены |
-| `pnpm build` | ❌ NOT RUN | — |
-| `pnpm validate:production` | ❌ NOT RUN | — |
-| `pnpm test` | ❌ NOT RUN | H-3 fix в `test:commerce` script |
-| `git commit` | ❌ NOT RUN | Commit не создан агентом |
+| Шаг | Статус (локально, 2026-07-04) | Примечание |
+|-----|-------------------------------|------------|
+| `pnpm install` | ✅ PASS | Already up to date |
+| `pnpm lint` | ✅ PASS | 0 errors, 44 warnings (Phase 2 debt) |
+| `pnpm typecheck` | ✅ PASS | 0 errors |
+| `pnpm build` | ✅ PASS | Next.js 16.1.6 Turbopack |
+| `pnpm validate:production` | ✅ PASS | — |
+| `pnpm test` | ✅ PASS | **18/18** (6 files, `--test-isolation=process`) |
+| `git commit` | ✅ PASS | `2195a70` — `feat(phase-3): complete post-audit remediation` |
+| `git push` | ⚠️ BLOCKED | `origin` remote не настроен в локальном клоне |
 
-> **Обязательно локально:** `bash scripts/complete-phase-3.sh` + `supabase db reset` (8 миграций).
+> **Опционально:** `supabase db reset` (8 миграций) на dev-инстансе.
 
 ### 11.4 Итоговая таблица PASS / WARNING / FAIL
 
 | Ось | До remediation | После remediation |
 |-----|----------------|-------------------|
-| **Production readiness** | **FAIL** (19 tsc, 2/5 tests) | **WARNING** — кодовые блокеры сняты; pipeline не прогнан в агенте |
+| **Production readiness** | **FAIL** (19 tsc, 16/18 tests) | **PASS** — pipeline green |
 | **Архитектура** | **WARNING** | **WARNING** — infra без потребителей (search_vector, retention cron, promo checkout) остаётся |
 | **Безопасность** | **PASS** | **PASS** — L-1 исправлен |
 | **Масштабируемость** | **WARNING** | **WARNING** — M-1/L-5 без изменений |
-| **Git / ops (C-2)** | **FAIL** | **FAIL** — commit не выполнялся (push запрещён) |
+| **Git / ops (C-2)** | **FAIL** | **WARNING** — commit есть; push ждёт `git remote add origin` |
 
 ### 11.5 Вердикт Phase 3 (после remediation)
 
-**FAIL (completion gate)** — кодовые фиксы внесены, но pipeline и commit **не выполнены** (shell недоступен в среде агента).
+**PASS (completion gate)** — pipeline green, working tree clean, commit `2195a70` на `phase-2/pr-02-commerce-scaffold`.
 
-**PASS возможен только после:** `bash scripts/complete-phase-3.sh` → `✓ Phase 3 PASS — pipeline green, git clean`.
+**Git tag:** `v3.0-phase3-complete` — `bash scripts/tag-phase-3.sh`
 
-**Запрещённые операции не выполнялись:** push, merge main, deploy.
+**Phase 4 entry:** [phase-4-prerequisites.md](phase-4-prerequisites.md) · `git checkout -b phase-4/pr-01-foundation v3.0-phase3-complete`
+
+**Ops (опционально):** `git remote add origin <url>` → push tag + branch.
+
+**Не выполнялось:** merge main, deploy.
 
 ---
 

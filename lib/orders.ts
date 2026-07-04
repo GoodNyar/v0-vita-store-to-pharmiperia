@@ -15,6 +15,7 @@ import { legacyProductIdToUuid } from '@/lib/commerce/ids'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/i18n/config'
 import { recordPurchaseEvent } from '@/lib/analytics/server'
+import { validatePromoCode } from '@/lib/commerce/promo'
 import { resolveTaxCentsFromSession } from '@/lib/stripe/tax'
 
 const MAX_QUANTITY_PER_LINE = 99
@@ -51,6 +52,7 @@ export interface CheckoutCustomerInput {
   utmSource?: string | null
   utmMedium?: string | null
   utmCampaign?: string | null
+  promoCode?: string | null
 }
 
 export async function resolveOrderLines(
@@ -104,10 +106,12 @@ export interface DraftOrderResult {
   orderId: string
   orderNumber: string
   subtotal: Money
+  discount: Money
   shippingCost: Money
   tax: Money
   total: Money
   lines: ResolvedOrderLine[]
+  promoCodeId: string | null
 }
 
 export async function createDraftOrder(
@@ -118,7 +122,21 @@ export async function createDraftOrder(
   const lines = await resolveOrderLines(items, locale)
   const shippingCost = validateShippingMoney(customer.shippingCost)
   const subtotal = sumMoney(lines.map((line) => line.lineTotal))
-  const total = addMoney(subtotal, shippingCost)
+
+  let discount = eur(0)
+  let promoCodeId: string | null = null
+  const promoInput = customer.promoCode?.trim()
+  if (promoInput) {
+    const promo = await validatePromoCode(promoInput, subtotal.amount)
+    if (!promo.valid) {
+      throw new Error(`Invalid promo code: ${promo.error ?? 'invalid'}`)
+    }
+    discount = eur(promo.discountCents ?? 0)
+    promoCodeId = promo.promoId ?? null
+  }
+
+  const discountedSubtotal = eur(Math.max(0, subtotal.amount - discount.amount))
+  const total = addMoney(discountedSubtotal, shippingCost)
   const taxCents = extractInclusiveVatCents(total.amount)
 
   const supabase = createAdminClient()
@@ -149,7 +167,8 @@ export async function createDraftOrder(
       shipping_address: shippingAddress,
       parcel_station: customer.parcelStation ?? null,
       subtotal_cents: subtotal.amount,
-      discount_cents: 0,
+      discount_cents: discount.amount,
+      promo_code_id: promoCodeId,
       tax_cents: taxCents,
       total_cents: total.amount,
       currency: total.currency,
@@ -186,10 +205,12 @@ export async function createDraftOrder(
     orderId: order.id,
     orderNumber: order.order_number,
     subtotal,
+    discount,
     shippingCost,
     tax: eur(taxCents),
     total,
     lines,
+    promoCodeId,
   }
 }
 

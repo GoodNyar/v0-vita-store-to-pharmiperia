@@ -5,6 +5,7 @@ import {
   eur,
   extractInclusiveVatCents,
   multiplyMoney,
+  subtractMoney,
   sumMoney,
 } from '@/lib/money'
 
@@ -27,5 +28,10 @@ describe('lib/money', () => {
 
   it('sumMoney empty returns zero EUR', () => {
     assert.deepEqual(sumMoney([]), eur(0))
+  })
+
+  it('subtractMoney clamps at zero', () => {
+    assert.deepEqual(subtractMoney(eur(500), eur(200)), eur(300))
+    assert.deepEqual(subtractMoney(eur(100), eur(500)), eur(0))
   })
 })

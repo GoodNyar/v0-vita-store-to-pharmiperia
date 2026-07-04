@@ -16,6 +16,7 @@ import {
 } from "@/lib/orders"
 import { captureCheckoutError } from "@/lib/sentry/capture-checkout"
 import { getCheckoutPaymentMethodTypes } from "@/lib/stripe/payment-methods"
+import { distributeDiscountAcrossLines } from "@/lib/stripe/discount-line-items"
 
 export type { CheckoutCustomerInput, CheckoutLineInput }
 
@@ -49,7 +50,12 @@ export async function createCheckoutSession(
 
   const taxFields = stripeInclusivePriceTaxFields()
 
-  const lineItems = draft.lines.map((item) => ({
+  const discountedLines = distributeDiscountAcrossLines(
+    draft.lines,
+    draft.discount.amount
+  )
+
+  const lineItems = discountedLines.map((item) => ({
     price_data: {
       currency: item.unitPrice.currency.toLowerCase(),
       product_data: {

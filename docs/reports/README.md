@@ -23,6 +23,14 @@
 | — | [Phase 2 Prerequisites](phase-2-prerequisites.md) | Чеклист перед стартом Phase 2: env, ограничения ADR, отложенные сервисы |
 | — | [Phase 2 Master Plan](phase-2-master-plan.md) | Ревизия v2: 30 PR, зависимости, риски, milestones |
 | — | [Phase 2 Progress](phase-2-progress.md) | Трекер статуса PR и milestones (обновляется при исполнении) |
+| — | [Phase 2 Final Summary](phase-2-final-summary.md) | Закрытие Phase 2, tag `v2.0-phase2-complete` |
+| — | [Phase 3 Master Plan](phase-3-master-plan.md) | 30 PR, события, корзина, admin v1, поиск v1 |
+| — | [Phase 3 Final Summary](phase-3-final-summary.md) | Закрытие Phase 3, tag `v3.0-phase3-complete`, remediation |
+| — | [Phase 4 Prerequisites](phase-4-prerequisites.md) | **Baseline Phase 4** — триггер, чеклист, scope, откат |
+| — | [Phase 4 Final Summary](phase-4-final-summary.md) | Feature gaps closed, tag `v4.0-phase4-complete` |
+| 16 | [Самоаудит Phase 4](16-self-audit-phase-4.md) | Self-audit после closure (superseded) |
+| 17 | [Независимый аудит Phase 4](17-nezavisimyj-audit-phase-4.md) | **Для Claude** — нулевое доверие, audit-fixes |
+| 18 | [Zero-Trust Production Audit (Phase 4)](18-zero-trust-production-audit-phase-4.md) | Личный прогон tsc/build/eslint/тестов: build ✓, тесты 22/23 (1 падает); 1 Critical (alreadyPaid теряет декремент), git без тега; вердикт **CONDITIONAL PASS**, деплой — NO до 4 правок |
 
 Действующая техническая конституция проекта: [`docs/ENGINEERING_PLAYBOOK.md`](../ENGINEERING_PLAYBOOK.md).
 Архитектурные решения: [`docs/adr/`](../adr/README.md) (шаблон — `0000-adr-template.md`).

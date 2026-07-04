@@ -302,7 +302,10 @@ export type Database = {
           payment_intent_id: string | null
           payment_status: string | null
           phone: string | null
+          promo_code_id: string | null
+          promo_consumed_at: string | null
           refund_notice_sent_at: string | null
+          review_request_email_sent_at: string | null
           shipped_email_sent_at: string | null
           shipping_address: Json | null
           shipping_cost_cents: number
@@ -336,7 +339,10 @@ export type Database = {
           payment_intent_id?: string | null
           payment_status?: string | null
           phone?: string | null
+          promo_code_id?: string | null
+          promo_consumed_at?: string | null
           refund_notice_sent_at?: string | null
+          review_request_email_sent_at?: string | null
           shipped_email_sent_at?: string | null
           shipping_address?: Json | null
           shipping_cost_cents: number
@@ -370,7 +376,10 @@ export type Database = {
           payment_intent_id?: string | null
           payment_status?: string | null
           phone?: string | null
+          promo_code_id?: string | null
+          promo_consumed_at?: string | null
           refund_notice_sent_at?: string | null
+          review_request_email_sent_at?: string | null
           shipped_email_sent_at?: string | null
           shipping_address?: Json | null
           shipping_cost_cents?: number
@@ -629,6 +638,7 @@ export type Database = {
       }
       carts: {
         Row: {
+          abandoned_email_sent_at: string | null
           created_at: string
           guest_token: string | null
           id: string
@@ -637,6 +647,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          abandoned_email_sent_at?: string | null
           created_at?: string
           guest_token?: string | null
           id?: string
@@ -645,6 +656,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          abandoned_email_sent_at?: string | null
           created_at?: string
           guest_token?: string | null
           id?: string
@@ -1022,6 +1034,14 @@ export type Database = {
       validate_promo_code: {
         Args: { p_code: string; p_subtotal_cents: number }
         Returns: Json
+      }
+      consume_promo_code: {
+        Args: { p_promo_id: string; p_order_id: string }
+        Returns: boolean
+      }
+      search_products_vector: {
+        Args: { p_query: string; p_limit?: number }
+        Returns: { product_id: string; rank: number }[]
       }
     }
     Enums: {
