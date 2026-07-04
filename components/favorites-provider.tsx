@@ -2,35 +2,43 @@
 
 import { createContext, useContext, useCallback, useEffect, useState, type ReactNode } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { isCatalogProductId, normalizeProductId } from "@/lib/data"
 
 const LS_KEY = "pharmiperia_favorites"
 
-function getLocalFavorites(): string[] {
+function parseFavoriteIds(raw: unknown): number[] {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .map((id) => normalizeProductId(id as string | number))
+    .filter(isCatalogProductId)
+}
+
+function getLocalFavorites(): number[] {
   if (typeof window === "undefined") return []
   try {
-    return JSON.parse(localStorage.getItem(LS_KEY) || "[]")
+    return parseFavoriteIds(JSON.parse(localStorage.getItem(LS_KEY) || "[]"))
   } catch {
     return []
   }
 }
 
-function setLocalFavorites(ids: string[]) {
+function setLocalFavorites(ids: number[]) {
   if (typeof window === "undefined") return
   localStorage.setItem(LS_KEY, JSON.stringify(ids))
 }
 
 type FavoritesContextType = {
-  favorites: string[]
+  favorites: number[]
   isLoading: boolean
-  toggleFavorite: (productId: string) => Promise<void>
-  isFavorited: (productId: string) => boolean
+  toggleFavorite: (productId: number) => Promise<void>
+  isFavorited: (productId: number) => boolean
   isLoggedIn: boolean
 }
 
 const FavoritesContext = createContext<FavoritesContextType | null>(null)
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
-  const [favorites, setFavorites] = useState<string[]>([])
+  const [favorites, setFavorites] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<{ id: string } | null>(null)
   const supabase = createClient()
@@ -59,7 +67,12 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
             return
           }
 
-          const dbFavs = data?.map((f: any) => f.product_id) || []
+          const dbFavs =
+            data
+              ?.map((f: { product_id: string | number }) =>
+                normalizeProductId(f.product_id)
+              )
+              .filter(isCatalogProductId) || []
 
           // Merge any locally saved favorites into DB
           const localFavs = getLocalFavorites()
@@ -67,7 +80,10 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 
           if (toSync.length > 0) {
             await supabase.from("favorites").insert(
-              toSync.map((product_id) => ({ user_id: user.id, product_id }))
+              toSync.map((product_id) => ({
+                user_id: user.id,
+                product_id: String(product_id),
+              }))
             )
             setLocalFavorites([])
           }
@@ -96,14 +112,22 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
           .from("favorites")
           .select("product_id")
           .eq("user_id", session.user.id)
-        const existingIds = existingData?.map((f: any) => f.product_id) || []
+        const existingIds =
+          existingData
+            ?.map((f: { product_id: string | number }) =>
+              normalizeProductId(f.product_id)
+            )
+            .filter(isCatalogProductId) || []
         
         // Merge local into DB (only new ones, skip duplicates)
         if (localFavs.length > 0) {
           const toInsert = localFavs.filter(id => !existingIds.includes(id))
           if (toInsert.length > 0) {
             await supabase.from("favorites").insert(
-              toInsert.map((product_id) => ({ user_id: session.user.id, product_id }))
+              toInsert.map((product_id) => ({
+                user_id: session.user.id,
+                product_id: String(product_id),
+              }))
             )
           }
           setLocalFavorites([]) // Clear local after merge
@@ -124,7 +148,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const toggleFavorite = useCallback(
-    async (productId: string) => {
+    async (productId: number) => {
       const isFav = favorites.includes(productId)
       
       // Update state IMMEDIATELY for instant UI feedback
@@ -142,11 +166,11 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
               .from("favorites")
               .delete()
               .eq("user_id", user.id)
-              .eq("product_id", productId)
+              .eq("product_id", String(productId))
           } else {
             await supabase.from("favorites").insert({
               user_id: user.id,
-              product_id: productId,
+              product_id: String(productId),
             })
           }
         } catch (error) {
@@ -162,7 +186,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   )
 
   const isFavorited = useCallback(
-    (productId: string) => favorites.includes(productId),
+    (productId: number) => favorites.includes(productId),
     [favorites]
   )
 

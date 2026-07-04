@@ -1,6 +1,6 @@
 "use client"
 
-import { memo } from "react"
+import { memo, useRef } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import {
@@ -19,21 +19,58 @@ import { getBrandSlug, type Product } from "@/lib/data"
 import { useCart } from "@/components/cart-context"
 import { useLang, formatEur, productDescriptions } from "@/lib/i18n"
 import { useFavorites } from "@/components/favorites-provider"
+import { cn } from "@/lib/utils"
+import { useQuickView } from "@/components/quick-view-provider"
+import { QuickViewPanel } from "@/components/quick-view-panel"
+
+const GREEN_PILL =
+  "rounded-full border border-green-200 bg-green-50 font-medium text-green-700"
 
 function ProductCardComponent({ product }: { product: Product }) {
   const router = useRouter()
   const { addToCart } = useCart()
   const { t, lang } = useLang()
   const { isFavorited, toggleFavorite } = useFavorites()
+  const {
+    isOpen,
+    activeProductId,
+    isPinned,
+    scheduleOpen,
+    cancelOpen,
+    scheduleClose,
+    cancelClose,
+    openQuickView,
+    closeQuickView,
+  } = useQuickView()
+  const cardRef = useRef<HTMLDivElement>(null)
+  const quickViewAnchorRef = useRef<HTMLButtonElement>(null)
+  const isQuickViewActive = isOpen && activeProductId === product.id
 
   const productHref = `/products/${product.id}`
+
+  const canHoverOpenQuickView = () =>
+    typeof window !== "undefined" &&
+    window.matchMedia("(min-width: 1024px) and (hover: hover)").matches
+
+  const handleQuickViewHoverEnter = () => {
+    if (!canHoverOpenQuickView()) return
+    cancelClose()
+    scheduleOpen(product)
+  }
+
+  const handleQuickViewHoverLeave = () => {
+    if (!canHoverOpenQuickView()) return
+    cancelOpen()
+    scheduleClose()
+  }
   const brandHref = `/brand/${getBrandSlug(product.brand)}`
   const isFav = isFavorited(product.id)
 
   // Localized subtitle — fall back to the product's raw description
   const productDesc =
-    productDescriptions[product.id as keyof typeof productDescriptions]?.[lang as "lv" | "ru"] ||
-    product.description
+    productDescriptions[String(product.id) as keyof typeof productDescriptions]?.[
+      lang as "lv" | "ru"
+    ] || product.description
 
   // Pricing / savings
   const hasDiscount = !!product.originalPrice && product.originalPrice > product.price
@@ -48,25 +85,48 @@ function ProductCardComponent({ product }: { product: Product }) {
   const extraTags = tags.length - visibleTags.length
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-border/60 shadow-[0_2px_12px_rgba(0,0,0,0.05)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(0,0,0,0.13)]">
-      {/* 1. Image area */}
-      <a href={productHref} className="relative block bg-[#f4f5f6]" tabIndex={0} aria-label={product.name}>
-        {/* Discount badge — top left (soft, accurate) */}
+    <div
+      ref={cardRef}
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-border/60 shadow-[0_2px_12px_rgba(0,0,0,0.05)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(0,0,0,0.13)]"
+    >
+      {/* 1. Image */}
+      <div className="relative w-full shrink-0">
+        <Image
+          src={product.image || "/placeholder.svg"}
+          alt={product.name}
+          width={800}
+          height={800}
+          className="block h-auto w-full"
+          loading="lazy"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+        />
+
+        <a
+          href={productHref}
+          className="absolute inset-0 z-[1]"
+          tabIndex={0}
+          aria-label={product.name}
+        />
+
         {hasDiscount && (
-          <span className="absolute left-3 top-3 z-10 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
-            {"−"}
-            {discountPercent}%
+          <span
+            className={cn(
+              "pointer-events-none absolute left-2.5 top-2.5 z-20 px-2.5 py-1 text-xs font-semibold shadow-sm",
+              GREEN_PILL
+            )}
+          >
+            −{discountPercent}%
           </span>
         )}
 
-        {/* Wishlist heart — top right */}
         <button
+          type="button"
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
             toggleFavorite(product.id)
           }}
-          className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm transition-all hover:scale-110 hover:bg-white"
+          className="absolute right-2.5 top-2.5 z-30 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-all hover:scale-110 hover:bg-white"
           aria-label={t("myFavorites")}
           aria-pressed={isFav}
         >
@@ -76,21 +136,11 @@ function ProductCardComponent({ product }: { product: Product }) {
             }`}
           />
         </button>
+      </div>
 
-        <div className="relative w-full" style={{ paddingBottom: "100%" }}>
-          <Image
-            src={product.image || "/placeholder.svg"}
-            alt={product.name}
-            fill
-            className="object-contain p-6 transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          />
-        </div>
-      </a>
-
-      {/* Info */}
-      <div className="flex flex-1 flex-col px-4 pb-4 pt-4">
+      {/* Info — small gap so hover scale doesn't cover brand */}
+      <div className="flex flex-1 flex-col px-4 pb-4 pt-2">
+        <div className="flex flex-1 flex-col">
         {/* 2. Brand — small uppercase, navigates to brand page */}
         <button
           type="button"
@@ -107,7 +157,7 @@ function ProductCardComponent({ product }: { product: Product }) {
         {/* 3. Product name — large bold title */}
         <a
           href={productHref}
-          className="mt-1 line-clamp-2 text-lg font-bold leading-snug text-foreground transition-colors hover:text-primary"
+          className="mt-1 line-clamp-2 text-base font-bold leading-snug text-foreground transition-colors hover:text-primary"
         >
           {product.name}
         </a>
@@ -123,15 +173,12 @@ function ProductCardComponent({ product }: { product: Product }) {
         {visibleTags.length > 0 && (
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {visibleTags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground"
-              >
+              <span key={tag} className={cn("px-2.5 py-1 text-xs", GREEN_PILL)}>
                 {t(tag as never)}
               </span>
             ))}
             {extraTags > 0 && (
-              <span className="rounded-full bg-secondary px-2 py-1 text-xs font-medium text-muted-foreground">
+              <span className={cn("px-2 py-1 text-xs text-green-600", GREEN_PILL)}>
                 +{extraTags}
               </span>
             )}
@@ -155,54 +202,67 @@ function ProductCardComponent({ product }: { product: Product }) {
           )}
         </div>
 
-        {/* 7. Price + original + savings */}
-        <div className="mt-3 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-          <span className="text-2xl font-bold tracking-tight text-foreground">
-            {formatEur(product.price)}
-          </span>
-          {hasDiscount && (
-            <span className="text-sm text-muted-foreground line-through">
-              {formatEur(product.originalPrice as number)}
+        {/* 7. Price + shipping + savings */}
+        <div className="mt-3 flex w-full items-start justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xl font-bold text-foreground">
+              {formatEur(product.price)}
             </span>
-          )}
-        </div>
-        {hasDiscount && (
-          <span className="mt-2 w-fit rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
-            {t("savings")} {formatEur(savings)}
+            <span
+              className={cn(
+                "text-sm line-through text-muted-foreground",
+                !hasDiscount && "invisible"
+              )}
+              aria-hidden={!hasDiscount}
+            >
+              {formatEur(hasDiscount ? (product.originalPrice as number) : product.price)}
+            </span>
+          </div>
+          <span className="flex shrink-0 items-start gap-1 text-xs text-muted-foreground">
+            <Truck className="mt-0.5 h-3 w-3 shrink-0 text-green-600" strokeWidth={1.75} />
+            <span>
+              {t("freeShippingLine1")}
+              <br />
+              {t("freeShippingLine2")}
+            </span>
           </span>
-        )}
-
-        {/* 8. Free shipping trigger */}
-        <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-          <Truck className="h-4 w-4 flex-shrink-0 text-primary" />
-          <span>
-            <span className="font-medium text-foreground">{t("freeShipping")}</span> {t("freeShippingFrom")}
+        </div>
+        <div className="mt-1">
+          <span
+            className={cn(
+              "text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full",
+              !hasDiscount && "invisible"
+            )}
+            aria-hidden={!hasDiscount}
+          >
+            {t("savings")} {formatEur(hasDiscount ? savings : 0)}
           </span>
         </div>
+        </div>
 
-        {/* 9. Active ingredient education block */}
+        {/* 9. Active ingredient — pinned below flex-grow content */}
         {product.activeIngredient && (
           <a
             href={productHref}
-            className="mt-4 flex items-center gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:border-primary/40 hover:bg-secondary/40"
+            className="mt-3 box-border flex h-[88px] w-full max-w-none items-center gap-2.5 rounded-xl bg-[#f5f5f5] p-3 transition-colors hover:bg-[#efefef]"
           >
-            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Leaf className="h-[18px] w-[18px]" />
+            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white text-primary">
+              <Leaf className="h-4 w-4" strokeWidth={1.75} />
             </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-sm font-semibold text-foreground">
+            <span className="min-w-0 flex-1 overflow-hidden">
+              <span className="block truncate text-sm font-bold text-foreground">
                 {t(product.activeIngredient.name as never)}
               </span>
-              <span className="mt-0.5 line-clamp-2 block text-xs leading-relaxed text-muted-foreground">
+              <span className="mt-0.5 line-clamp-2 block overflow-hidden text-xs leading-relaxed text-muted-foreground">
                 {t(product.activeIngredient.shortDescription as never)}
               </span>
             </span>
-            <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+            <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground/60" strokeWidth={1.75} />
           </a>
         )}
 
-        {/* 10. Add to cart + quick view */}
-        <div className="mt-4 flex items-center gap-2">
+        {/* 10. Add to cart + quick view — pinned below growing content */}
+        <div className="mt-4 flex shrink-0 items-center gap-2">
           <button
             type="button"
             onClick={() => addToCart(product)}
@@ -212,8 +272,15 @@ function ProductCardComponent({ product }: { product: Product }) {
             {t("addToCart")}
           </button>
           <button
+            ref={quickViewAnchorRef}
             type="button"
-            onClick={() => router.push(productHref)}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              openQuickView(product, { pinned: true })
+            }}
+            onMouseEnter={handleQuickViewHoverEnter}
+            onMouseLeave={handleQuickViewHoverLeave}
             className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-border text-foreground transition-colors hover:border-primary/40 hover:text-primary"
             aria-label={t("quickView")}
             title={t("quickView")}
@@ -222,22 +289,39 @@ function ProductCardComponent({ product }: { product: Product }) {
           </button>
         </div>
 
-        {/* 11. Trust badges */}
-        <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
-          <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-            <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-            <span className="hidden sm:inline">{t("trustOriginalBrands")}</span>
-          </span>
-          <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-            <Gift className="h-3.5 w-3.5 text-primary" />
-            <span className="hidden sm:inline">{t("trustLoyaltyBonuses")}</span>
-          </span>
-          <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-            <CreditCard className="h-3.5 w-3.5 text-primary" />
-            <span className="hidden sm:inline">{t("trustSecurePayment")}</span>
-          </span>
+        {/* 11. Trust badges — full text, no truncation */}
+        <div className="mt-4 grid shrink-0 grid-cols-3 gap-1 border-t border-border pt-3">
+          {(
+            [
+              { icon: ShieldCheck, label: t("trustOriginalBrands") },
+              { icon: Gift, label: t("trustLoyaltyBonuses") },
+              { icon: CreditCard, label: t("trustSecurePayment") },
+            ] as const
+          ).map(({ icon: Icon, label }) => (
+            <div
+              key={label}
+              className="flex flex-col items-center justify-center gap-1 px-0.5 text-center"
+            >
+              <Icon className="h-3.5 w-3.5 text-primary" strokeWidth={1.75} />
+              <span className="text-xs leading-tight text-muted-foreground">
+                {label}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
+
+      {isQuickViewActive && (
+        <QuickViewPanel
+          product={product}
+          anchorRef={quickViewAnchorRef}
+          cardRef={cardRef}
+          isPinned={isPinned}
+          onClose={closeQuickView}
+          onMouseEnterPanel={cancelClose}
+          onMouseLeavePanel={scheduleClose}
+        />
+      )}
     </div>
   )
 }

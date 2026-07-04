@@ -79,7 +79,7 @@ export function SiteHeader() {
     <>
     {/* Utility bar — NOT sticky, scrolls away naturally */}
     <div className="hidden border-b border-border bg-card md:block">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
+      <div className="mx-auto flex max-w-[1600px] items-center justify-between px-4 py-2">
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="font-medium text-foreground">{t("deliverTo")}</span>
             <span className="text-border">|</span>
@@ -126,7 +126,7 @@ export function SiteHeader() {
     <header className="bg-card shadow-sm">
 
       {/* Main header */}
-      <div className="mx-auto max-w-7xl px-4 py-2.5 lg:py-3">
+      <div className="mx-auto max-w-[1600px] px-4 py-2.5 lg:py-3">
         <div className="flex items-center gap-3 lg:gap-6">
           {/* Burger menu button - visible on all screens */}
           <button
@@ -239,7 +239,7 @@ export function SiteHeader() {
       {/* Category Navigation — always visible */}
       <nav className="hidden border-t border-border lg:block">
         <div>
-          <div className="mx-auto max-w-7xl px-4">
+          <div className="mx-auto max-w-[1600px] px-4">
             <ul className="flex items-center justify-center gap-0">
             {categories.map((category) => (
               <li

@@ -1,7 +1,14 @@
 "use client"
 
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react"
-import type { Product } from "@/lib/data"
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  type ReactNode,
+} from "react"
+import { products, type Product } from "@/lib/data"
 import { createClient } from "@/lib/supabase/client"
 
 interface CartItem {
@@ -9,11 +16,23 @@ interface CartItem {
   quantity: number
 }
 
+/** Minimal payload from category/search listings (Supabase-shaped). */
+export interface QuickAddItem {
+  id: number
+  name: string
+  price: number
+  image?: string
+  brand?: string
+  quantity?: number
+}
+
 interface CartContextType {
   items: CartItem[]
   addToCart: (product: Product) => void
+  addItem: (item: QuickAddItem) => void
   removeFromCart: (productId: number) => void
   updateQuantity: (productId: number, quantity: number) => void
+  clearCart: () => void
   totalItems: number
   totalPrice: number
   isCartOpen: boolean
@@ -43,33 +62,60 @@ function saveCartToStorage(items: CartItem[]) {
   }
 }
 
+function resolveProduct(input: QuickAddItem): Product {
+  const catalog = products.find((p) => p.id === input.id)
+  if (catalog) return catalog
+
+  return {
+    id: input.id,
+    sku: String(input.id),
+    name: input.name,
+    brand: input.brand ?? "",
+    volume: "",
+    description: "",
+    price: input.price,
+    rating: 0,
+    reviewCount: 0,
+    image: input.image ?? "/placeholder.svg",
+    category: "skincare",
+    inStock: true,
+  }
+}
+
+function mergeCartItem(
+  prev: CartItem[],
+  product: Product,
+  quantity: number
+): CartItem[] {
+  const existing = prev.find((item) => item.product.id === product.id)
+  if (existing) {
+    return prev.map((item) =>
+      item.product.id === product.id
+        ? { ...item, quantity: item.quantity + quantity }
+        : item
+    )
+  }
+  return [...prev, { product, quantity }]
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
-  const [isHydrated, setIsHydrated] = useState(false)
   const supabase = createClient()
 
-  // Hydrate from localStorage on mount
   useEffect(() => {
     const saved = loadCartFromStorage()
     setItems(saved)
-    setIsHydrated(true)
 
-    // Listen for auth changes to merge guest cart into user account
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
-        // When user logs in, merge guest cart with their account cart
         const guestCart = loadCartFromStorage()
         if (guestCart.length > 0) {
-          // Merge: convert cart items to simple format for merging
-          const mergedItems = guestCart
-          setItems(mergedItems)
-          saveCartToStorage(mergedItems)
-          console.log("[v0] Merged guest cart into account:", mergedItems.length, "items")
+          setItems(guestCart)
+          saveCartToStorage(guestCart)
         }
-      } else if (event === "SIGNED_OUT") {
-        // Keep cart items for guest use after logout - don't clear
-        // User can continue shopping as guest
       }
     })
 
@@ -78,14 +124,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addToCart = useCallback((product: Product) => {
     setItems((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id)
-      const updated = existing
-        ? prev.map((item) =>
-            item.product.id === product.id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          )
-        : [...prev, { product, quantity: 1 }]
+      const updated = mergeCartItem(prev, product, 1)
+      saveCartToStorage(updated)
+      return updated
+    })
+    setIsCartOpen(true)
+  }, [])
+
+  const addItem = useCallback((input: QuickAddItem) => {
+    const product = resolveProduct(input)
+    const quantity = Math.max(1, input.quantity ?? 1)
+    setItems((prev) => {
+      const updated = mergeCartItem(prev, product, quantity)
       saveCartToStorage(updated)
       return updated
     })
@@ -118,6 +168,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  const clearCart = useCallback(() => {
+    setItems([])
+    saveCartToStorage([])
+  }, [])
+
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
   const totalPrice = items.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
@@ -129,8 +184,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       value={{
         items,
         addToCart,
+        addItem,
         removeFromCart,
         updateQuantity,
+        clearCart,
         totalItems,
         totalPrice,
         isCartOpen,

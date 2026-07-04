@@ -1,19 +1,21 @@
 "use client"
 
-import { lazy, Suspense } from "react"
+import { lazy, Suspense, useState } from "react"
 import { SiteHeader } from "@/components/site-header"
 import { HeroBanner } from "@/components/hero-banner"
 import { CategoryCards } from "@/components/category-cards"
 import { BrandStrip } from "@/components/brand-strip"
 import { ProductCard } from "@/components/product-card"
+import { products } from "@/lib/data"
+import { SITE_CONTAINER } from "@/lib/layout"
 import { ProductFilters } from "@/components/product-filters"
 import { CartDrawer } from "@/components/cart-drawer"
 import { useCart } from "@/components/cart-context"
 import { SiteFooter } from "@/components/site-footer"
 import { Skeleton } from "@/components/loading-skeleton"
-import { useLang, formatEur } from "@/lib/i18n"
-import { products } from "@/lib/data"
-import { Truck, Shield, RotateCcw, Flame, Leaf } from "lucide-react"
+import { useLang } from "@/lib/i18n"
+import { Truck, Shield, RotateCcw, Flame, Leaf, ChevronLeft, ChevronRight } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 // Lazy load components below the fold
 const PromoCards = lazy(() => import("@/components/promo-cards").then(m => ({ default: m.PromoCards })))
@@ -47,8 +49,16 @@ function WhyBuyUsSkeleton() {
   )
 }
 
+const PRODUCTS_PER_PAGE = 8
+
 function HomeContent() {
   const { t } = useLang()
+  const [productPage, setProductPage] = useState(0)
+  const totalProductPages = Math.ceil(products.length / PRODUCTS_PER_PAGE)
+  const visibleProducts = products.slice(
+    productPage * PRODUCTS_PER_PAGE,
+    productPage * PRODUCTS_PER_PAGE + PRODUCTS_PER_PAGE
+  )
 
   const trustBadges = [
     { icon: Truck, label: t("freeShipping"), desc: t("freeShippingDesc") },
@@ -63,7 +73,7 @@ function HomeContent() {
       <CartDrawer />
 
       <main className="flex-1">
-        <div className="mx-auto max-w-7xl px-4 py-6">
+        <div className={cn(SITE_CONTAINER, "py-6")}>
           {/* Hero Banner */}
           <HeroBanner />
 
@@ -74,7 +84,7 @@ function HomeContent() {
 
           {/* Trust badges — 2×2 grid on mobile, single row on desktop */}
           <section className="mt-4 border-y border-border bg-card sm:mt-0">
-            <div className="mx-auto grid max-w-7xl grid-cols-2 gap-0 sm:flex sm:items-center sm:justify-center sm:gap-10 sm:px-4 sm:py-3">
+            <div className="mx-auto grid max-w-[1600px] grid-cols-2 gap-0 sm:flex sm:items-center sm:justify-center sm:gap-10 sm:px-4 sm:py-3">
               {trustBadges.map((badge, i) => {
                 const Icon = badge.icon
                 return (
@@ -130,11 +140,32 @@ function HomeContent() {
                 </div>
               </div>
 
-              {/* Product Grid — 4 per row desktop, 3 tablet, 2 mobile */}
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 lg:gap-4">
-                {products.slice(0, 8).map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
+              <div className="relative px-10 sm:px-12">
+                <button
+                  type="button"
+                  onClick={() => setProductPage((p) => p - 1)}
+                  disabled={productPage === 0}
+                  className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white shadow-md transition-colors hover:border-primary/30 hover:text-primary disabled:pointer-events-none disabled:opacity-30"
+                  aria-label={t("carouselPrev")}
+                >
+                  <ChevronLeft className="h-5 w-5" strokeWidth={1.75} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setProductPage((p) => p + 1)}
+                  disabled={productPage >= totalProductPages - 1}
+                  className="absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white shadow-md transition-colors hover:border-primary/30 hover:text-primary disabled:pointer-events-none disabled:opacity-30"
+                  aria-label={t("carouselNext")}
+                >
+                  <ChevronRight className="h-5 w-5" strokeWidth={1.75} />
+                </button>
+
+                <div className="grid grid-cols-2 items-stretch gap-4 sm:gap-5 lg:grid-cols-4">
+                  {visibleProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
               </div>
 
               {/* View all popular */}

@@ -413,10 +413,8 @@ function CheckoutContent() {
                   </button>
                 </div>
                 <StripeCheckout 
-                  items={items.map(item => ({
+                  items={items.map((item) => ({
                     id: item.product.id,
-                    name: item.product.name,
-                    price: item.product.price,
                     quantity: item.quantity,
                   }))}
                   shippingCost={shippingCost}

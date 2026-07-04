@@ -106,9 +106,11 @@ export default function AccountPage() {
   // Load profile - show cache instantly, refresh from Supabase in background
   useEffect(() => {
     if (!user) return
-    
+
+    const authenticatedUser = user
+
     // 1. Show cached data instantly (if exists)
-    const localData = localStorage.getItem(`profile_${user.id}`)
+    const localData = localStorage.getItem(`profile_${authenticatedUser.id}`)
     if (localData) {
       try {
         const parsed = JSON.parse(localData)
@@ -120,7 +122,7 @@ export default function AccountPage() {
       }
     } else {
       // No cache - show empty profile
-      const emptyProfile = { id: user.id, email: user.email }
+      const emptyProfile = { id: authenticatedUser.id, email: authenticatedUser.email }
       setProfile(emptyProfile)
       setSavedData(emptyProfile)
       setProfileLoading(false)
@@ -133,7 +135,7 @@ export default function AccountPage() {
         const { data, error } = await supabase
           .from("profiles")
           .select("id, first_name, last_name, phone, email, country, city, address, postal_code")
-          .eq("id", user.id)
+          .eq("id", authenticatedUser.id)
           .maybeSingle()
         
         if (error) throw error
@@ -141,7 +143,7 @@ export default function AccountPage() {
         if (data) {
           setProfile(data)
           setSavedData(data)
-          localStorage.setItem(`profile_${user.id}`, JSON.stringify(data))
+          localStorage.setItem(`profile_${authenticatedUser.id}`, JSON.stringify(data))
         }
       } catch (err) {
         console.error("[v0] Supabase refresh error:", err)

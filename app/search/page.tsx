@@ -7,6 +7,7 @@ import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { LangProvider, useLang, formatEur } from "@/lib/i18n"
 import { CartProvider, useCart } from "@/components/cart-context"
+import { normalizeProductId } from "@/lib/data"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
@@ -212,7 +213,7 @@ function SearchContent() {
                           size="sm"
                           className="bg-primary text-primary-foreground hover:bg-primary/90"
                           onClick={() => addItem({
-                            id: product.id,
+                            id: normalizeProductId(product.id),
                             name: product.name,
                             price: product.price,
                             image: product.image_url,

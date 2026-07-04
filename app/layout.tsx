@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ToastProvider } from '@/components/toast-provider'
+import { QuickViewProvider } from '@/components/quick-view-provider'
 import { AuthProvider } from '@/components/auth-provider'
 import { CartProvider } from '@/components/cart-context'
 import { FavoritesProvider } from '@/components/favorites-provider'
@@ -95,9 +96,11 @@ export default function RootLayout({
           <AuthProvider>
             <FavoritesProvider>
               <CartProvider>
-                <ToastProvider>
-                  {children}
-                </ToastProvider>
+                <QuickViewProvider>
+                  <ToastProvider>
+                    {children}
+                  </ToastProvider>
+                </QuickViewProvider>
               </CartProvider>
             </FavoritesProvider>
           </AuthProvider>
