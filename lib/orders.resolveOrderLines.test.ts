@@ -44,17 +44,13 @@ const productsMock: MockModuleOptions = {
 
 const marketPricingMock: MockModuleOptions = {
   namedExports: {
-    getMarketPriceForProduct: async (
-      _productId: string,
-      _marketCode: string,
-      catalog: { priceCents: number; originalPriceCents: number | null }
-    ) =>
-      commerceOk({
-        price: eur(catalog.priceCents),
-        originalPrice:
-          catalog.originalPriceCents != null ? eur(catalog.originalPriceCents) : null,
-        source: 'catalog_default' as const,
-      }),
+    applyMarketPricingToCommerceProduct: async (
+      product: CommerceProduct,
+      _marketCode: string
+    ) => ({
+      product,
+      source: 'catalog_default' as const,
+    }),
   },
 }
 
@@ -62,7 +58,7 @@ describe('resolveOrderLines', () => {
   before(() => {
     mockServerOnlyModule()
     mock.module('@/lib/commerce/products', productsMock)
-    mock.module('@/lib/commerce/market-pricing', marketPricingMock)
+    mock.module('@/lib/commerce/apply-market-pricing', marketPricingMock)
   })
 
   after(() => {

@@ -3,7 +3,9 @@ import 'server-only'
 import type { Locale } from '@/lib/i18n/config'
 import { mergeLegacyExtras } from '@/lib/commerce/catalog-source'
 import { legacyProductIdToUuid, uuidToLegacyProductId } from '@/lib/commerce/ids'
+import { applyMarketPricingToCommerceProduct } from '@/lib/commerce/apply-market-pricing'
 import { getProductByLegacyId } from '@/lib/commerce/products'
+import { resolveMarketFromCookies } from '@/lib/commerce/resolve-market-server'
 import type { Product } from '@/lib/data'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
@@ -112,10 +114,13 @@ export async function syncLocalCartToServer(
   const cart = await getOrCreateUserCart(userId, locale)
   const supabase = createAdminClient()
 
+  const { code: marketCode } = await resolveMarketFromCookies()
+
   for (const item of items) {
     const product = await getProductByLegacyId(item.legacyId, locale)
     if (!product.ok) continue
 
+    const { product: priced } = await applyMarketPricingToCommerceProduct(product.data, marketCode)
     const productId = legacyProductIdToUuid(item.legacyId)
     const quantity = Math.max(1, Math.min(MAX_QUANTITY, item.quantity))
     await supabase.from('cart_items').upsert(
@@ -123,8 +128,8 @@ export async function syncLocalCartToServer(
         cart_id: cart.id,
         product_id: productId,
         quantity,
-        unit_price_cents: product.data.price.amount,
-        currency: product.data.price.currency,
+        unit_price_cents: priced.price.amount,
+        currency: priced.price.currency,
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'cart_id,product_id' }
@@ -147,6 +152,9 @@ export async function upsertServerCartLine(
     throw new Error(`Product not found: ${legacyId}`)
   }
 
+  const { code: marketCode } = await resolveMarketFromCookies()
+  const { product: priced } = await applyMarketPricingToCommerceProduct(product.data, marketCode)
+
   const clampedQty = Math.max(1, Math.min(MAX_QUANTITY, Math.floor(quantity)))
   const supabase = createAdminClient()
   const productId = legacyProductIdToUuid(legacyId)
@@ -156,8 +164,8 @@ export async function upsertServerCartLine(
       cart_id: cart.id,
       product_id: productId,
       quantity: clampedQty,
-      unit_price_cents: product.data.price.amount,
-      currency: product.data.price.currency,
+      unit_price_cents: priced.price.amount,
+      currency: priced.price.currency,
       updated_at: new Date().toISOString(),
     },
     { onConflict: 'cart_id,product_id' }

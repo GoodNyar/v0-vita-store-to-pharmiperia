@@ -34,6 +34,12 @@
 | — | [Phase 5 Final Summary](phase-5-final-summary.md) | Catalog foundation, tag `v5.0-phase5-complete` |
 | 19 | [Self Audit Phase 5](19-self-audit-phase-5.md) | Foundation PASS; Meilisearch/feed publish отложены |
 | 20 | [Независимый аудит Phase 5](20-nezavisimyj-audit-phase-5.md) | Личный прогон tsc/lint/test/build (31/31, build ✓); прошлые блокеры закрыты; 1 High (резервации без гарантии), типы устарели; вердикт **CONDITIONAL PASS (B−)** |
+| — | [Phase 6 Final Summary](phase-6-final-summary.md) | International foundation (markets LV/LT/EE, Storefront API v1), tag `v6.0-phase6-complete` |
+| 21 | [Self Audit Phase 6](21-self-audit-phase-6.md) | Самоаудит: shipping seed, hreflang URL, order-line mocks исправлены |
+| 22 | [Независимый аудит Phase 6](22-nezavisimyj-audit-phase-6.md) | Личный прогон tsc/lint/test/build (44/44, build ✓); Phase 5 замечания закрыты; 1 High (веб-checkout не привязан к рынку → всё `lv`/21%); вердикт **CONDITIONAL PASS для LV, NOT READY для мульти-рынка (B)** |
+| 23 | [Финальный аудит Release Candidate](23-final-release-candidate-audit.md) | Системный аудит всего проекта (без фаз): дерево зелёное (45/45, build ✓), но тег ≠ дерево (фиксы денежного пути не закоммичены) + market-цена vs ISR; вердикт **WARNING — условный GO после фиксации релиза и staging** |
+
+**Release Candidate:** tag **`v1.0.0-rc.1`** · [Release Notes](../releases/v1.0.0-rc.1.md) · [MASTER_STATUS](../MASTER_STATUS.md) · B-1 ✅ · B-2 📋 [KNOWN_LIMITATIONS](../KNOWN_LIMITATIONS.md#kl-1--per-market-display-pricing-vs-isr-b-2)
 
 Действующая техническая конституция проекта: [`docs/ENGINEERING_PLAYBOOK.md`](../ENGINEERING_PLAYBOOK.md).
 Архитектурные решения: [`docs/adr/`](../adr/README.md) (шаблон — `0000-adr-template.md`).

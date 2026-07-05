@@ -4,29 +4,26 @@ Next.js 16 витрина + Supabase commerce-ядро + Stripe Embedded Checkou
 
 ## Текущий статус
 
+| Стадия | Git tag | Статус | Документ |
+|--------|---------|--------|----------|
+| **Release Candidate** | **`v1.0.0-rc.1`** | 🟢 RC зафиксирован | [Release Notes](docs/releases/v1.0.0-rc.1.md) · [MASTER_STATUS](docs/MASTER_STATUS.md) |
+
 | Phase | Git tag | Статус | Документ |
 |-------|---------|--------|----------|
 | **1** — Launch readiness | `v1.0-phase1-complete` | ✅ Закрыта | [phase-1-final-summary](docs/reports/phase-1-final-summary.md) |
 | **2** — Data layer & admin v0 | `v2.0-phase2-complete` | ✅ Закрыта | [phase-2-final-summary](docs/reports/phase-2-final-summary.md) |
-| **3** — Retention & events | `v3.0-phase3-complete` | ✅ **Baseline** | [phase-3-final-summary](docs/reports/phase-3-final-summary.md) |
+| **3** — Retention & events | `v3.0-phase3-complete` | ✅ Закрыта | [phase-3-final-summary](docs/reports/phase-3-final-summary.md) |
 | **4** — Feature gaps | `v4.0-phase4-complete` | ✅ Закрыта | [phase-4-final-summary](docs/reports/phase-4-final-summary.md) |
-| **5** — Catalog foundation | `v5.0-phase5-complete` | ✅ **Закрыта (foundation)** | [phase-5-final-summary](docs/reports/phase-5-final-summary.md) |
+| **5** — Catalog foundation | `v5.0-phase5-complete` | ✅ Закрыта | [phase-5-final-summary](docs/reports/phase-5-final-summary.md) |
+| **6** — International foundation | `v6.0-phase6-complete` | ✅ Закрыта (checkout fixes → RC) | [phase-6-final-summary](docs/reports/phase-6-final-summary.md) |
 
-**Активная ветка:** `phase-2/pr-02-commerce-scaffold` (Phase 3 смержена в неё, commit `2195a70`).
+**Целевой рынок v1.0:** Латвия (LV-only) · [Known Limitations](docs/KNOWN_LIMITATIONS.md) · [Launch Checklist](docs/LAUNCH_CHECKLIST.md)
 
-**Baseline Phase 4:** сброситься на тег и читать prerequisites перед первым PR:
-
-```bash
-git checkout phase-2/pr-02-commerce-scaffold
-git pull   # когда origin настроен
-git tag -l 'v3.0-phase3-complete'   # локальный annotated tag
-git checkout -b phase-4/pr-01-foundation v3.0-phase3-complete
-```
-
-Создать тег локально (если ещё нет):
+Checkout RC:
 
 ```bash
-bash scripts/tag-phase-3.sh
+git checkout v1.0.0-rc.1
+pnpm install && pnpm typecheck && pnpm test && pnpm build
 ```
 
 ## Стек
@@ -58,7 +55,7 @@ pnpm dev
 | `pnpm build` | Production build |
 | `pnpm typecheck` | `tsc --noEmit` |
 | `pnpm lint` | ESLint |
-| `pnpm test` | Unit-тесты commerce (30) |
+| `pnpm test` | Unit-тесты commerce (45) |
 | `pnpm validate:production` | Pre-deploy checklist |
 | `pnpm db:reset` | Миграции + seed |
 | `pnpm db:types` | Сгенерировать `lib/database.types.ts` |

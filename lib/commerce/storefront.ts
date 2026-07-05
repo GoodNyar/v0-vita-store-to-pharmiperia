@@ -5,7 +5,8 @@ import { DEFAULT_LOCALE, isLocale } from '@/lib/i18n/config'
 import { getProductBySlug, listActiveProducts } from './products'
 import { listActiveMarkets, type MarketCode } from './markets'
 import type { MarketDefinition } from './markets-config'
-import { getMarketPriceForProduct } from './market-pricing'
+import { applyMarketPricingToCommerceProduct } from './apply-market-pricing'
+
 import { listShippingMethodsForMarket } from './market-shipping'
 import { listParcelStations, type ParcelCarrier } from './carriers'
 import { commerceOk, type CommerceResult } from './errors'
@@ -75,25 +76,11 @@ export async function listStorefrontProducts(
   const storefrontProducts: StorefrontProduct[] = []
 
   for (const product of slice) {
-    const priceResult = await getMarketPriceForProduct(product.id, options.market, {
-      priceCents: product.price.amount,
-      originalPriceCents: product.originalPrice?.amount ?? null,
-      currency: product.price.currency,
-    })
-
-    if (!priceResult.ok) {
-      return priceResult
-    }
-
-    const priced: CommerceProduct = {
-      ...product,
-      price: priceResult.data.price,
-      originalPrice: priceResult.data.originalPrice,
-    }
-
-    storefrontProducts.push(
-      toStorefrontProduct(priced, options.market, priceResult.data.source)
+    const { product: priced, source } = await applyMarketPricingToCommerceProduct(
+      product,
+      options.market
     )
+    storefrontProducts.push(toStorefrontProduct(priced, options.market, source))
   }
 
   return commerceOk(storefrontProducts)
@@ -111,23 +98,9 @@ export async function getStorefrontProductBySlug(
   }
 
   const product = productResult.data
-  const priceResult = await getMarketPriceForProduct(product.id, market, {
-    priceCents: product.price.amount,
-    originalPriceCents: product.originalPrice?.amount ?? null,
-    currency: product.price.currency,
-  })
+  const { product: priced, source } = await applyMarketPricingToCommerceProduct(product, market)
 
-  if (!priceResult.ok) {
-    return priceResult
-  }
-
-  const priced: CommerceProduct = {
-    ...product,
-    price: priceResult.data.price,
-    originalPrice: priceResult.data.originalPrice,
-  }
-
-  return commerceOk(toStorefrontProduct(priced, market, priceResult.data.source))
+  return commerceOk(toStorefrontProduct(priced, market, source))
 }
 
 export async function listStorefrontMarkets(): Promise<CommerceResult<MarketDefinition[]>> {

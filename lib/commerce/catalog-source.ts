@@ -12,7 +12,9 @@ import {
   cachedListProductsByBrandSlug,
   cachedListProductsByCategorySlug,
 } from '@/lib/cache/catalog'
+import { applyMarketPricingToCommerceProducts } from './apply-market-pricing'
 import { mapCommerceToLegacyProduct } from './products'
+import { resolveMarketFromCookies } from './resolve-market-server'
 import type { CommerceProduct } from './types'
 
 export type CatalogSource = 'db' | 'legacy'
@@ -28,6 +30,11 @@ function badgeFromCommerce(product: CommerceProduct): string | undefined {
   if (product.isBestseller) return 'bestSeller'
   if (product.isFeatured) return 'popular'
   return undefined
+}
+
+async function withMarketPricing(products: CommerceProduct[]): Promise<CommerceProduct[]> {
+  const { code } = await resolveMarketFromCookies()
+  return applyMarketPricingToCommerceProducts(products, code)
 }
 
 /** Merge DB prices with legacy-only UI fields (badges, tags, education blocks). */
@@ -67,8 +74,9 @@ export async function getCatalogProducts(
     return { products: [], source: 'db' }
   }
 
+  const priced = await withMarketPricing(result.data)
   return {
-    products: result.data.map(mergeLegacyExtras),
+    products: priced.map(mergeLegacyExtras),
     source: 'db',
   }
 }
@@ -83,7 +91,8 @@ export async function getCatalogProductBySlug(
 
   const result = await cachedGetProductBySlug(slug, locale)
   if (result.ok) {
-    return mergeLegacyExtras(result.data)
+    const [priced] = await withMarketPricing([result.data])
+    return mergeLegacyExtras(priced)
   }
 
   return getLegacyProductBySlug(slug) ?? null
@@ -102,7 +111,8 @@ export async function getCatalogProductsByCategorySlug(
     return []
   }
 
-  return result.data.map(mergeLegacyExtras)
+  const priced = await withMarketPricing(result.data)
+  return priced.map(mergeLegacyExtras)
 }
 
 export async function getCatalogProductsByBrandSlug(
@@ -120,5 +130,6 @@ export async function getCatalogProductsByBrandSlug(
     return []
   }
 
-  return result.data.map(mergeLegacyExtras)
+  const priced = await withMarketPricing(result.data)
+  return priced.map(mergeLegacyExtras)
 }

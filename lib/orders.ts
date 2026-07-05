@@ -10,13 +10,12 @@ import {
   sumMoney,
   type Money,
 } from '@/lib/money'
+import { applyMarketPricingToCommerceProduct } from '@/lib/commerce/apply-market-pricing'
 import {
   DEFAULT_MARKET_CODE,
-  getMarketDefinition,
-  isMarketCode,
   type MarketCode,
 } from '@/lib/commerce/markets-config'
-import { getMarketPriceForProduct } from '@/lib/commerce/market-pricing'
+import { resolveMarketFromCookies } from '@/lib/commerce/resolve-market-server'
 import { validateShippingForMarket } from '@/lib/commerce/market-shipping'
 import { legacyProductIdToUuid } from '@/lib/commerce/ids'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -60,7 +59,6 @@ export interface CheckoutCustomerInput {
   utmMedium?: string | null
   utmCampaign?: string | null
   promoCode?: string | null
-  marketCode?: MarketCode | null
 }
 
 export async function resolveOrderLines(
@@ -94,16 +92,8 @@ export async function resolveOrderLines(
       throw new Error(`Product out of stock: ${product.name}`)
     }
 
-    const priceResult = await getMarketPriceForProduct(product.id, marketCode, {
-      priceCents: product.price.amount,
-      originalPriceCents: product.originalPrice?.amount ?? null,
-      currency: product.price.currency,
-    })
-    if (!priceResult.ok) {
-      throw new Error(priceResult.error.message)
-    }
-
-    const unitPrice = priceResult.data.price
+    const { product: priced } = await applyMarketPricingToCommerceProduct(product, marketCode)
+    const unitPrice = priced.price
 
     lines.push({
       catalogProductId: product.legacyId,
@@ -139,8 +129,8 @@ export async function createDraftOrder(
   customer: CheckoutCustomerInput
 ): Promise<DraftOrderResult> {
   const locale = isLocale(customer.locale) ? customer.locale : DEFAULT_LOCALE
-  const marketCode = isMarketCode(customer.marketCode) ? customer.marketCode : DEFAULT_MARKET_CODE
-  const market = getMarketDefinition(marketCode)
+  const resolvedMarket = await resolveMarketFromCookies()
+  const marketCode = resolvedMarket.code
   const lines = await resolveOrderLines(items, locale, marketCode)
 
   const shippingResult = await validateShippingForMarket(customer.shippingCost, marketCode)
@@ -164,7 +154,7 @@ export async function createDraftOrder(
 
   const discountedSubtotal = eur(Math.max(0, subtotal.amount - discount.amount))
   const total = addMoney(discountedSubtotal, shippingCost)
-  const taxCents = extractInclusiveVatCents(total.amount, market.vatRateBps)
+  const taxCents = extractInclusiveVatCents(total.amount, resolvedMarket.vatRateBps)
 
   const supabase = createAdminClient()
   const orderNumber = generateOrderNumber()

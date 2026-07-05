@@ -17,6 +17,7 @@ import {
 import { captureCheckoutError } from "@/lib/sentry/capture-checkout"
 import { getCheckoutPaymentMethodTypes } from "@/lib/stripe/payment-methods"
 import { distributeDiscountAcrossLines } from "@/lib/stripe/discount-line-items"
+import { resolveMarketFromCookies } from "@/lib/commerce/resolve-market-server"
 
 export type { CheckoutCustomerInput, CheckoutLineInput }
 
@@ -38,6 +39,8 @@ export async function createCheckoutSession(
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  const resolvedMarket = await resolveMarketFromCookies()
 
   const draft = await createDraftOrder(items, {
     ...customer,
@@ -105,6 +108,7 @@ export async function createCheckoutSession(
       order_id: draft.orderId,
       order_number: draft.orderNumber,
       order_locale: customer.locale ?? "lv",
+      market_code: resolvedMarket.code,
     },
     ...(isStripeTaxEnabled() ? { automatic_tax: { enabled: true } } : {}),
   }
