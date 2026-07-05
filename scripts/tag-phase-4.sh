@@ -16,7 +16,7 @@ git tag -a "$TAG" -m "Phase 4 complete — feature gaps closed
 Promo checkout, server cart cutover, search_vector, retention cron.
 Commit: $COMMIT
 
-See docs/reports/phase-4-final-summary.md"
+See docs/roadmap/phase-4.md"
 
 echo "Created tag $TAG at $COMMIT"
 git show "$TAG" --no-patch

@@ -1,23 +1,23 @@
 # Pharmiperia — интернет-аптека (Латвия)
 
-Next.js 16 витрина + Supabase commerce-ядро + Stripe Embedded Checkout. Проект развивается по [12-месячному CTO Roadmap](docs/reports/05-cto-roadmap-12-mesyacev.md) в пять фаз.
+Next.js 16 витрина + Supabase commerce-ядро + Stripe Embedded Checkout. Проект развивается по [12-месячному CTO Roadmap](docs/roadmap/CTO-roadmap.md) в пять фаз.
 
 ## Текущий статус
 
 | Стадия | Git tag | Статус | Документ |
 |--------|---------|--------|----------|
-| **Release Candidate** | **`v1.0.0-rc.1`** | 🟢 RC зафиксирован | [Release Notes](docs/releases/v1.0.0-rc.1.md) · [MASTER_STATUS](docs/MASTER_STATUS.md) |
+| **Release Candidate** | **`v1.0.0-rc.1`** | 🟢 RC зафиксирован | [Release Notes](docs/release/v1.0.0-rc.1.md) · [MASTER_STATUS](docs/release/MASTER_STATUS.md) |
 
 | Phase | Git tag | Статус | Документ |
 |-------|---------|--------|----------|
-| **1** — Launch readiness | `v1.0-phase1-complete` | ✅ Закрыта | [phase-1-final-summary](docs/reports/phase-1-final-summary.md) |
-| **2** — Data layer & admin v0 | `v2.0-phase2-complete` | ✅ Закрыта | [phase-2-final-summary](docs/reports/phase-2-final-summary.md) |
-| **3** — Retention & events | `v3.0-phase3-complete` | ✅ Закрыта | [phase-3-final-summary](docs/reports/phase-3-final-summary.md) |
-| **4** — Feature gaps | `v4.0-phase4-complete` | ✅ Закрыта | [phase-4-final-summary](docs/reports/phase-4-final-summary.md) |
-| **5** — Catalog foundation | `v5.0-phase5-complete` | ✅ Закрыта | [phase-5-final-summary](docs/reports/phase-5-final-summary.md) |
-| **6** — International foundation | `v6.0-phase6-complete` | ✅ Закрыта (checkout fixes → RC) | [phase-6-final-summary](docs/reports/phase-6-final-summary.md) |
+| **1** — Launch readiness | `v1.0-phase1-complete` | ✅ Закрыта | [phase-1-final-summary](docs/roadmap/phase-1.md) |
+| **2** — Data layer & admin v0 | `v2.0-phase2-complete` | ✅ Закрыта | [phase-2-final-summary](docs/roadmap/phase-2.md) |
+| **3** — Retention & events | `v3.0-phase3-complete` | ✅ Закрыта | [phase-3-final-summary](docs/roadmap/phase-3.md) |
+| **4** — Feature gaps | `v4.0-phase4-complete` | ✅ Закрыта | [phase-4-final-summary](docs/roadmap/phase-4.md) |
+| **5** — Catalog foundation | `v5.0-phase5-complete` | ✅ Закрыта | [phase-5-final-summary](docs/roadmap/phase-5.md) |
+| **6** — International foundation | `v6.0-phase6-complete` | ✅ Закрыта (checkout fixes → RC) | [phase-6-final-summary](docs/roadmap/phase-6.md) |
 
-**Целевой рынок v1.0:** Латвия (LV-only) · [Known Limitations](docs/KNOWN_LIMITATIONS.md) · [Launch Checklist](docs/LAUNCH_CHECKLIST.md)
+**Целевой рынок v1.0:** Латвия (LV-only) · [Known Limitations](docs/release/KNOWN_LIMITATIONS.md) · [Launch Checklist](docs/release/LAUNCH_CHECKLIST.md)
 
 Checkout RC:
 
@@ -73,7 +73,7 @@ lib/cache/        → unstable_cache + revalidateTag
 supabase/         → миграции (не scripts/)
 ```
 
-Правила разработки: [ENGINEERING_PLAYBOOK](docs/ENGINEERING_PLAYBOOK.md) · ADR: [docs/adr/](docs/adr/README.md).
+Правила разработки: [ENGINEERING_PLAYBOOK](docs/architecture/ENGINEERING_PLAYBOOK.md) · ADR: [docs/adr/](docs/adr/README.md).
 
 ## Phase 3 — что в baseline
 
@@ -104,17 +104,23 @@ Tag: `bash scripts/tag-phase-4.sh`
 - Meilisearch adapter stub (env-gated)
 - Promo consume observability
 
-**Полный PIM publish + Meilisearch prod** — по триггеру поставщика. См. [phase-5-final-summary](docs/reports/phase-5-final-summary.md).
+**Полный PIM publish + Meilisearch prod** — по триггеру поставщика. См. [phase-5-final-summary](docs/roadmap/phase-5.md).
 
 Tag: `bash scripts/tag-phase-5.sh`
 
 ## Документация
 
+**Точка входа:** [docs/README.md](docs/README.md) · [PROJECT_MAP](docs/PROJECT_MAP.md) · [architecture overview](docs/architecture/architecture-overview.md)
+
 | Раздел | Путь |
 |--------|------|
-| Все отчёты и фазы | [docs/reports/](docs/reports/README.md) |
-| CTO Roadmap | [05-cto-roadmap-12-mesyacev.md](docs/reports/05-cto-roadmap-12-mesyacev.md) |
-| Phase 3 план | [phase-3-master-plan.md](docs/reports/phase-3-master-plan.md) |
+| Архитектура & Playbook | [docs/architecture/](docs/architecture/README.md) |
+| ADR | [docs/adr/](docs/adr/README.md) |
+| Roadmap & фазы | [docs/roadmap/](docs/roadmap/README.md) |
+| Аудиты & отчёты | [docs/reports/](docs/reports/README.md) |
+| Release & launch | [docs/release/](docs/release/README.md) |
+| Business | [docs/business/](docs/business/README.md) |
+| Operations | [docs/operations/](docs/operations/README.md) |
 
 ## Происхождение
 

@@ -31,4 +31,4 @@
 
 ## Ссылки
 
-`docs/ENGINEERING_PLAYBOOK.md` §8, `docs/reports/phase-2-master-plan.md` PR-28, `next.config.mjs`, `components/product-card.tsx`, `components/product-page-content.tsx`.
+`docs/architecture/ENGINEERING_PLAYBOOK.md` §8, `docs/roadmap/phase-2-master-plan.md` PR-28, `next.config.mjs`, `components/product-card.tsx`, `components/product-page-content.tsx`.

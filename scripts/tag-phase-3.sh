@@ -18,7 +18,7 @@ Baseline for Phase 4 — catalog scale, PIM feeds, dedicated search.
 Commit: $COMMIT
 Branch: $(git branch --show-current)
 
-See docs/reports/phase-3-final-summary.md and phase-4-prerequisites.md"
+See docs/roadmap/phase-3.md and docs/roadmap/phase-4-prerequisites.md"
 
 echo "Created tag $TAG at $COMMIT"
 git show "$TAG" --no-patch

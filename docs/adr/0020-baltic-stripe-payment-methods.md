@@ -31,4 +31,4 @@
 
 ## Ссылки
 
-`docs/reports/phase-2-master-plan.md` (Wave E, PR-24), отчёт 04 §13, `app/actions/stripe.ts`, `app/[locale]/payment-methods/page.tsx`.
+`docs/roadmap/phase-2-master-plan.md` (Wave E, PR-24), отчёт 04 §13, `app/actions/stripe.ts`, `app/[locale]/payment-methods/page.tsx`.

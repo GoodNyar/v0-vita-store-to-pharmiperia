@@ -31,5 +31,6 @@
 | [0025](0025-search-pgtrgm.md) | Search pg_trgm + search_vector | принят | Phase 3–4 |
 | [0026](0026-phase4-feature-gaps.md) | Phase 4 feature-gap closure | принят | Phase 4 |
 | [0027](0027-phase5-catalog-foundation.md) | Phase 5 catalog foundation | принят | Phase 5 |
+| [0028](0028-phase6-international-foundation.md) | Phase 6 international foundation | принят | Phase 6 |
 
-Blueprint: [`docs/reports/06-refactoring-blueprint.md`](../reports/06-refactoring-blueprint.md).
+Blueprint (исторический): [06-refactoring-blueprint.md](../reports/history/06-refactoring-blueprint.md) · Playbook: [ENGINEERING_PLAYBOOK.md](../architecture/ENGINEERING_PLAYBOOK.md)

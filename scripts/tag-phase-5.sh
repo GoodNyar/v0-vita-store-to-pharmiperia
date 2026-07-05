@@ -11,7 +11,7 @@ git tag -fa "$TAG" -m "Phase 5 complete — catalog foundation
 Variants, PIM staging, inventory reservations, SQL search facets, keyset pagination, sitemap shards.
 Commit: $COMMIT
 
-See docs/reports/phase-5-final-summary.md"
+See docs/roadmap/phase-5.md"
 
 echo "Updated tag $TAG at $COMMIT"
 git show "$TAG" --no-patch

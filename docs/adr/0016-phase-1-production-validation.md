@@ -14,7 +14,7 @@ Phase 1 закрывает 22 инженерные задачи (Git → Playwri
    - статические гейты: CI, ADR, ключевые модули Phase 1, отсутствие `ignoreBuildErrors`, нет `pharmiperia.lv` в source, `lib/site.ts` через env;
    - динамика: `tsc --noEmit`, `next build` (отключается `VALIDATE_RUN_BUILD=false`);
    - **warnings** для ops (DNS, Sentry DSN, uptime, e2e на staging) и известного техдолга (`images.unoptimized`, ESLint).
-2. **Отчёт** `docs/reports/11-phase-1-production-validation.md` — вердикт **CONDITIONAL GO** для кода при зелёном скрипте; полный **GO** только после ops-чеклиста.
+2. **Отчёт** `docs/reports/audits/11-phase-1-production-validation.md` — вердикт **CONDITIONAL GO** для кода при зелёном скрипте; полный **GO** только после ops-чеклиста.
 3. Скрипт в CI после build (те же placeholder env, что и build step).
 
 ## Последствия
