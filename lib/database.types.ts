@@ -229,6 +229,334 @@ export type Database = {
           },
         ]
       }
+      feed_import_batches: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          row_count: number
+          source: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          row_count?: number
+          source: string
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          row_count?: number
+          source?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      feed_import_rows: {
+        Row: {
+          batch_id: string
+          created_at: string
+          external_id: string
+          id: string
+          product_id: string | null
+          raw_payload: Json
+          validation_errors: Json | null
+          validation_status: string
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          external_id: string
+          id?: string
+          product_id?: string | null
+          raw_payload: Json
+          validation_errors?: Json | null
+          validation_status?: string
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          external_id?: string
+          id?: string
+          product_id?: string | null
+          raw_payload?: Json
+          validation_errors?: Json | null
+          validation_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_import_rows_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "feed_import_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feed_import_rows_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_reservations: {
+        Row: {
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          order_id: string
+          product_id: string
+          quantity: number
+          released_at: string | null
+        }
+        Insert: {
+          consumed_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          order_id: string
+          product_id: string
+          quantity: number
+          released_at?: string | null
+        }
+        Update: {
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          order_id?: string
+          product_id?: string
+          quantity?: number
+          released_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_reservations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_reservations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_product_prices: {
+        Row: {
+          created_at: string
+          currency: string
+          id: string
+          market_id: string
+          original_price_cents: number | null
+          price_cents: number
+          product_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          id?: string
+          market_id: string
+          original_price_cents?: number | null
+          price_cents: number
+          product_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          id?: string
+          market_id?: string
+          original_price_cents?: number | null
+          price_cents?: number
+          product_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_product_prices_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "market_product_prices_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_shipping_methods: {
+        Row: {
+          carrier: string
+          code: string
+          cost_cents: number
+          created_at: string
+          currency: string
+          id: string
+          is_active: boolean
+          market_id: string
+          name: string
+          sort_order: number
+          supports_parcel_locker: boolean
+        }
+        Insert: {
+          carrier: string
+          code: string
+          cost_cents: number
+          created_at?: string
+          currency?: string
+          id?: string
+          is_active?: boolean
+          market_id: string
+          name: string
+          sort_order?: number
+          supports_parcel_locker?: boolean
+        }
+        Update: {
+          carrier?: string
+          code?: string
+          cost_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          is_active?: boolean
+          market_id?: string
+          name?: string
+          sort_order?: number
+          supports_parcel_locker?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_shipping_methods_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      markets: {
+        Row: {
+          code: string
+          country_iso: string
+          created_at: string
+          currency: string
+          default_locale: string
+          id: string
+          is_active: boolean
+          legal_entity_name: string | null
+          locales: string[]
+          name: string
+          oss_enabled: boolean
+          stripe_tax_behavior: string
+          updated_at: string
+          vat_rate_bps: number
+        }
+        Insert: {
+          code: string
+          country_iso: string
+          created_at?: string
+          currency?: string
+          default_locale: string
+          id?: string
+          is_active?: boolean
+          legal_entity_name?: string | null
+          locales: string[]
+          name: string
+          oss_enabled?: boolean
+          stripe_tax_behavior?: string
+          updated_at?: string
+          vat_rate_bps: number
+        }
+        Update: {
+          code?: string
+          country_iso?: string
+          created_at?: string
+          currency?: string
+          default_locale?: string
+          id?: string
+          is_active?: boolean
+          legal_entity_name?: string | null
+          locales?: string[]
+          name?: string
+          oss_enabled?: boolean
+          stripe_tax_behavior?: string
+          updated_at?: string
+          vat_rate_bps?: number
+        }
+        Relationships: []
+      }
+      parcel_stations: {
+        Row: {
+          address: string
+          carrier: string
+          city: string
+          created_at: string
+          external_id: string
+          id: string
+          is_active: boolean
+          latitude: number | null
+          longitude: number | null
+          market_id: string
+          name: string
+          postal_code: string | null
+        }
+        Insert: {
+          address: string
+          carrier: string
+          city: string
+          created_at?: string
+          external_id: string
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          market_id: string
+          name: string
+          postal_code?: string | null
+        }
+        Update: {
+          address?: string
+          carrier?: string
+          city?: string
+          created_at?: string
+          external_id?: string
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          market_id?: string
+          name?: string
+          postal_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parcel_stations_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string | null
@@ -296,6 +624,7 @@ export type Database = {
           inventory_adjusted_at: string | null
           last_name: string
           locale: string
+          market_code: string
           notes: string | null
           order_number: string
           parcel_station: string | null
@@ -333,6 +662,7 @@ export type Database = {
           inventory_adjusted_at?: string | null
           last_name: string
           locale?: string
+          market_code?: string
           notes?: string | null
           order_number: string
           parcel_station?: string | null
@@ -370,6 +700,7 @@ export type Database = {
           inventory_adjusted_at?: string | null
           last_name?: string
           locale?: string
+          market_code?: string
           notes?: string | null
           order_number?: string
           parcel_station?: string | null
@@ -443,6 +774,71 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "product_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_variants: {
+        Row: {
+          attributes: Json
+          created_at: string
+          currency: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          name_lv: string | null
+          name_ru: string | null
+          original_price_cents: number | null
+          price_cents: number | null
+          product_id: string
+          sku: string
+          slug_suffix: string | null
+          sort_order: number
+          stock_quantity: number
+          updated_at: string
+        }
+        Insert: {
+          attributes?: Json
+          created_at?: string
+          currency?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name_lv?: string | null
+          name_ru?: string | null
+          original_price_cents?: number | null
+          price_cents?: number | null
+          product_id: string
+          sku: string
+          slug_suffix?: string | null
+          sort_order?: number
+          stock_quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          attributes?: Json
+          created_at?: string
+          currency?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name_lv?: string | null
+          name_ru?: string | null
+          original_price_cents?: number | null
+          price_cents?: number | null
+          product_id?: string
+          sku?: string
+          slug_suffix?: string | null
+          sort_order?: number
+          stock_quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
@@ -1042,6 +1438,18 @@ export type Database = {
       search_products_vector: {
         Args: { p_query: string; p_limit?: number }
         Returns: { product_id: string; rank: number }[]
+      }
+      search_product_facets_vector: {
+        Args: { p_query: string }
+        Returns: Json
+      }
+      reserve_inventory_for_order: {
+        Args: { p_order_id: string; p_ttl_minutes?: number }
+        Returns: boolean
+      }
+      release_inventory_reservation: {
+        Args: { p_order_id: string }
+        Returns: boolean
       }
     }
     Enums: {

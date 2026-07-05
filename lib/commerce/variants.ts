@@ -1,6 +1,7 @@
 import 'server-only'
 
 import type { Locale } from '@/lib/i18n/config'
+import type { Tables } from '@/lib/database.types'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { eur, type Money } from '@/lib/money'
 import { commerceDatabase, commerceFail, commerceOk, type CommerceResult } from './errors'
@@ -18,23 +19,28 @@ export interface ProductVariant {
   isDefault: boolean
 }
 
-type VariantRow = {
-  id: string
-  product_id: string
-  sku: string
-  slug_suffix: string | null
-  name_ru: string | null
-  name_lv: string | null
-  price_cents: number | null
-  original_price_cents: number | null
-  currency: string
-  stock_quantity: number
-  attributes: Record<string, unknown> | null
-  is_default: boolean
-}
+type VariantListRow = Pick<
+  Tables<'product_variants'>,
+  | 'id'
+  | 'product_id'
+  | 'sku'
+  | 'slug_suffix'
+  | 'name_ru'
+  | 'name_lv'
+  | 'price_cents'
+  | 'original_price_cents'
+  | 'currency'
+  | 'stock_quantity'
+  | 'attributes'
+  | 'is_default'
+>
 
-function mapVariant(row: VariantRow, locale: Locale): ProductVariant {
+function mapVariant(row: VariantListRow, locale: Locale): ProductVariant {
   const name = locale === 'lv' ? row.name_lv ?? '' : row.name_ru ?? ''
+  const attributes =
+    row.attributes && typeof row.attributes === 'object' && !Array.isArray(row.attributes)
+      ? (row.attributes as Record<string, unknown>)
+      : {}
   return {
     id: row.id,
     productId: row.product_id,
@@ -45,7 +51,7 @@ function mapVariant(row: VariantRow, locale: Locale): ProductVariant {
     originalPrice:
       row.original_price_cents != null ? eur(row.original_price_cents) : null,
     stockQuantity: row.stock_quantity,
-    attributes: row.attributes ?? {},
+    attributes,
     isDefault: row.is_default,
   }
 }
@@ -68,5 +74,5 @@ export async function listVariantsForProduct(
     return commerceFail(commerceDatabase('Failed to list product variants', error))
   }
 
-  return commerceOk(((data as VariantRow[] | null) ?? []).map((row) => mapVariant(row, locale)))
+  return commerceOk((data ?? []).map((row) => mapVariant(row, locale)))
 }

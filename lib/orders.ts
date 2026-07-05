@@ -8,9 +8,16 @@ import {
   extractInclusiveVatCents,
   multiplyMoney,
   sumMoney,
-  validateShippingMoney,
   type Money,
 } from '@/lib/money'
+import {
+  DEFAULT_MARKET_CODE,
+  getMarketDefinition,
+  isMarketCode,
+  type MarketCode,
+} from '@/lib/commerce/markets-config'
+import { getMarketPriceForProduct } from '@/lib/commerce/market-pricing'
+import { validateShippingForMarket } from '@/lib/commerce/market-shipping'
 import { legacyProductIdToUuid } from '@/lib/commerce/ids'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/i18n/config'
@@ -53,11 +60,13 @@ export interface CheckoutCustomerInput {
   utmMedium?: string | null
   utmCampaign?: string | null
   promoCode?: string | null
+  marketCode?: MarketCode | null
 }
 
 export async function resolveOrderLines(
   items: CheckoutLineInput[],
-  locale: Locale = DEFAULT_LOCALE
+  locale: Locale = DEFAULT_LOCALE,
+  marketCode: MarketCode = DEFAULT_MARKET_CODE
 ): Promise<ResolvedOrderLine[]> {
   if (!items?.length) {
     throw new Error('Cart is empty')
@@ -85,13 +94,24 @@ export async function resolveOrderLines(
       throw new Error(`Product out of stock: ${product.name}`)
     }
 
+    const priceResult = await getMarketPriceForProduct(product.id, marketCode, {
+      priceCents: product.price.amount,
+      originalPriceCents: product.originalPrice?.amount ?? null,
+      currency: product.price.currency,
+    })
+    if (!priceResult.ok) {
+      throw new Error(priceResult.error.message)
+    }
+
+    const unitPrice = priceResult.data.price
+
     lines.push({
       catalogProductId: product.legacyId,
       name: product.name,
       sku: product.sku,
-      unitPrice: product.price,
+      unitPrice,
       quantity,
-      lineTotal: multiplyMoney(product.price, quantity),
+      lineTotal: multiplyMoney(unitPrice, quantity),
     })
   }
 
@@ -119,8 +139,15 @@ export async function createDraftOrder(
   customer: CheckoutCustomerInput
 ): Promise<DraftOrderResult> {
   const locale = isLocale(customer.locale) ? customer.locale : DEFAULT_LOCALE
-  const lines = await resolveOrderLines(items, locale)
-  const shippingCost = validateShippingMoney(customer.shippingCost)
+  const marketCode = isMarketCode(customer.marketCode) ? customer.marketCode : DEFAULT_MARKET_CODE
+  const market = getMarketDefinition(marketCode)
+  const lines = await resolveOrderLines(items, locale, marketCode)
+
+  const shippingResult = await validateShippingForMarket(customer.shippingCost, marketCode)
+  if (!shippingResult.ok) {
+    throw new Error(shippingResult.error.message)
+  }
+  const shippingCost = shippingResult.data.cost
   const subtotal = sumMoney(lines.map((line) => line.lineTotal))
 
   let discount = eur(0)
@@ -137,7 +164,7 @@ export async function createDraftOrder(
 
   const discountedSubtotal = eur(Math.max(0, subtotal.amount - discount.amount))
   const total = addMoney(discountedSubtotal, shippingCost)
-  const taxCents = extractInclusiveVatCents(total.amount)
+  const taxCents = extractInclusiveVatCents(total.amount, market.vatRateBps)
 
   const supabase = createAdminClient()
   const orderNumber = generateOrderNumber()
@@ -173,6 +200,7 @@ export async function createDraftOrder(
       total_cents: total.amount,
       currency: total.currency,
       locale,
+      market_code: marketCode,
       utm_source: customer.utmSource ?? null,
       utm_medium: customer.utmMedium ?? null,
       utm_campaign: customer.utmCampaign ?? null,
@@ -199,16 +227,6 @@ export async function createDraftOrder(
 
   if (itemsError) {
     throw new Error(`Failed to create order items: ${itemsError.message}`)
-  }
-
-  try {
-    const { reserveInventoryForOrder } = await import('@/lib/inventory/reserve')
-    await reserveInventoryForOrder(order.id)
-  } catch (reserveErr) {
-    console.warn('[orders] inventory reservation skipped', {
-      orderId: order.id,
-      error: reserveErr instanceof Error ? reserveErr.message : reserveErr,
-    })
   }
 
   return {

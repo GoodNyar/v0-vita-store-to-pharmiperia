@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
-import { LOCALES, type Locale } from '@/lib/i18n/config'
+import type { Locale } from '@/lib/i18n/config'
 import { localizedPath, stripLocalePrefix } from '@/lib/i18n/routes'
+import { buildMarketHreflangLanguages } from '@/lib/i18n/hreflang-matrix'
 import { getSiteUrl } from '@/lib/site'
 
 const SITE_NAME = 'Pharmiperia'
@@ -31,11 +32,7 @@ export function buildHreflangAlternates(
   const { path: withoutLocale } = stripLocalePrefix(normalized)
   const basePath = withoutLocale === '/' ? '/' : withoutLocale
 
-  const languages: Record<string, string> = {}
-  for (const loc of LOCALES) {
-    languages[loc] = absoluteUrl(localizedPath(loc, basePath))
-  }
-  languages['x-default'] = absoluteUrl(localizedPath('lv', basePath))
+  const languages = buildMarketHreflangLanguages(basePath, absoluteUrl)
 
   return {
     canonical: absoluteUrl(localizedPath(locale, basePath)),

@@ -110,4 +110,5 @@ export async function enforceRateLimit(
 export const API_RATE_LIMITS = {
   chat: { namespace: 'api:chat', limit: 20, windowSec: 60 },
   recommendations: { namespace: 'api:recommendations', limit: 10, windowSec: 60 },
+  storefront: { namespace: 'api:storefront', limit: 60, windowSec: 60 },
 } as const satisfies Record<string, RateLimitConfig>

@@ -33,6 +33,7 @@
 | 18 | [Zero-Trust Production Audit (Phase 4)](18-zero-trust-production-audit-phase-4.md) | Личный прогон tsc/build/eslint/тестов; C-1/H-1/H-2/M-2 закрыты в addendum |
 | — | [Phase 5 Final Summary](phase-5-final-summary.md) | Catalog foundation, tag `v5.0-phase5-complete` |
 | 19 | [Self Audit Phase 5](19-self-audit-phase-5.md) | Foundation PASS; Meilisearch/feed publish отложены |
+| 20 | [Независимый аудит Phase 5](20-nezavisimyj-audit-phase-5.md) | Личный прогон tsc/lint/test/build (31/31, build ✓); прошлые блокеры закрыты; 1 High (резервации без гарантии), типы устарели; вердикт **CONDITIONAL PASS (B−)** |
 
 Действующая техническая конституция проекта: [`docs/ENGINEERING_PLAYBOOK.md`](../ENGINEERING_PLAYBOOK.md).
 Архитектурные решения: [`docs/adr/`](../adr/README.md) (шаблон — `0000-adr-template.md`).

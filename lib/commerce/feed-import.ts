@@ -1,5 +1,6 @@
 import 'server-only'
 
+import type { Json } from '@/lib/database.types'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { validateFeedRow } from './feed-import-validation'
 
@@ -49,9 +50,9 @@ export async function createFeedImportBatch(
     const { error: rowError } = await supabase.from('feed_import_rows').insert({
       batch_id: batch.id,
       external_id: row.externalId,
-      raw_payload: row.payload,
+      raw_payload: row.payload as Json,
       validation_status: status,
-      validation_errors: errors.length > 0 ? errors : null,
+      validation_errors: errors.length > 0 ? (errors as Json) : null,
     })
 
     if (rowError) {

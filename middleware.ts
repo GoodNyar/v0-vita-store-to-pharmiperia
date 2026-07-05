@@ -1,6 +1,13 @@
 import { updateSession } from "@/lib/supabase/proxy"
 import { LEGACY_PRODUCT_ID_REDIRECTS } from "@/lib/commerce/redirects"
 import {
+  MARKET_COOKIE_NAME,
+  MARKET_HEADER_NAME,
+  geoCountryFromHeaders,
+  resolveMarket,
+} from "@/lib/commerce/resolve-market"
+import { isMarketCode } from "@/lib/commerce/markets-config"
+import {
   DEFAULT_LOCALE,
   type Locale,
   isLocale,
@@ -56,6 +63,25 @@ const SESSION_REFRESH_PREFIXES = [
   "/protected",
 ]
 
+function applyMarketCookie(request: NextRequest, response: NextResponse): NextResponse {
+  const resolved = resolveMarket({
+    cookieMarket: request.cookies.get(MARKET_COOKIE_NAME)?.value,
+    headerMarket: request.headers.get(MARKET_HEADER_NAME),
+    geoCountryIso: geoCountryFromHeaders(request.headers),
+  })
+
+  const existing = request.cookies.get(MARKET_COOKIE_NAME)?.value
+  if (!isMarketCode(existing) || (resolved.source === "geo" && resolved.code !== existing)) {
+    response.cookies.set(MARKET_COOKIE_NAME, resolved.code, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    })
+  }
+
+  return response
+}
+
 function pathnameNeedsSessionRefresh(pathname: string): boolean {
   if (shouldSkipLocale(pathname)) {
     return true
@@ -91,7 +117,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (shouldSkipLocale(pathname)) {
-    return await updateSession(request)
+    return applyMarketCookie(request, await updateSession(request))
   }
 
   const legacyRedirect = legacyProductRedirect(request, pathname)
@@ -101,7 +127,7 @@ export async function middleware(request: NextRequest) {
     const locale = detectLocale(request)
     const url = request.nextUrl.clone()
     url.pathname = `/${locale}`
-    return redirectWithLocaleCookie(url, locale, 307)
+    return applyMarketCookie(request, redirectWithLocaleCookie(url, locale, 307))
   }
 
   const firstSegment = pathname.split("/")[1]
@@ -109,7 +135,7 @@ export async function middleware(request: NextRequest) {
     const locale = detectLocale(request)
     const url = request.nextUrl.clone()
     url.pathname = localizedPath(locale, pathname)
-    return redirectWithLocaleCookie(url, locale, 307)
+    return applyMarketCookie(request, redirectWithLocaleCookie(url, locale, 307))
   }
 
   const response = pathnameNeedsSessionRefresh(pathname)
@@ -119,7 +145,7 @@ export async function middleware(request: NextRequest) {
     path: "/",
     maxAge: 60 * 60 * 24 * 365,
   })
-  return response
+  return applyMarketCookie(request, response)
 }
 
 export const config = {

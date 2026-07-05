@@ -14,7 +14,6 @@ import {
   mapDbProductToCommerce,
   pricesMatchLegacy,
 } from './product-mapper'
-import type { KeysetCursor, KeysetPage } from './pagination'
 import type { CommerceProduct, DbProduct } from './types'
 
 export { mapCommerceToLegacyProduct, mapDbProductToCommerce, pricesMatchLegacy }
@@ -153,46 +152,6 @@ export async function listProductsByBrandSlug(
   }
 
   return commerceOk(mapProductRows(data as ProductRow[] | null, locale))
-}
-
-export async function listActiveProductsKeyset(
-  locale: Locale,
-  options: { limit: number; cursor?: KeysetCursor | null }
-): Promise<CommerceResult<KeysetPage<CommerceProduct>>> {
-  const limit = Math.max(1, Math.min(options.limit, 100))
-  const supabase = createAdminClient()
-
-  let query = supabase
-    .from('products')
-    .select(`${PRODUCT_LIST_SELECT}, created_at`)
-    .eq('is_active', true)
-    .order('created_at', { ascending: false })
-    .order('id', { ascending: false })
-    .limit(limit + 1)
-
-  if (options.cursor) {
-    query = query.or(
-      `created_at.lt.${options.cursor.createdAt},and(created_at.eq.${options.cursor.createdAt},id.lt.${options.cursor.id})`
-    )
-  }
-
-  const { data, error } = await query
-  if (error) {
-    return commerceFail(commerceDatabase('Failed to list products (keyset)', error))
-  }
-
-  const rows = (data as ProductRow[] | null) ?? []
-  const hasMore = rows.length > limit
-  const pageRows = hasMore ? rows.slice(0, limit) : rows
-  const last = pageRows[pageRows.length - 1]
-
-  return commerceOk({
-    items: mapProductRows(pageRows, locale),
-    nextCursor:
-      hasMore && last
-        ? { createdAt: last.created_at ?? new Date().toISOString(), id: last.id }
-        : null,
-  })
 }
 
 export async function listProductSlugs(): Promise<CommerceResult<string[]>> {
