@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Image from "next/image"
+import { CatalogImage } from "@/components/catalog-image"
 import Link from "next/link"
 import { Star, Minus, Plus, Truck, Shield, RotateCcw, ChevronLeft, Check, Heart } from "lucide-react"
 import { SiteHeader } from "@/components/site-header"
@@ -88,7 +88,7 @@ export function ProductPageContent({
               {/* Main image */}
               <div className="overflow-hidden rounded-2xl bg-[#f2f3f5]">
                 <div className="relative aspect-square">
-                  <Image
+                  <CatalogImage
                     src={product.image}
                     alt={product.name}
                     fill
@@ -108,7 +108,7 @@ export function ProductPageContent({
                       i === 1 ? "border-primary" : "border-transparent"
                     }`}
                   >
-                    <Image
+                    <CatalogImage
                       src={product.image}
                       alt={`${product.name} view ${i}`}
                       fill

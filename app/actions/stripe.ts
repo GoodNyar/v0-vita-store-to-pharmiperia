@@ -10,7 +10,7 @@ import {
   stripeInclusivePriceTaxFields,
 } from "@/lib/stripe/tax"
 import {
-  createDraftOrder,
+  prepareDraftOrder,
   type CheckoutCustomerInput,
   type CheckoutLineInput,
 } from "@/lib/orders"
@@ -29,7 +29,8 @@ export interface CheckoutSessionResult {
 
 export async function createCheckoutSession(
   items: CheckoutLineInput[],
-  customer: CheckoutCustomerInput
+  customer: CheckoutCustomerInput,
+  options?: { existingOrderId?: string | null }
 ): Promise<CheckoutSessionResult> {
   let draftOrderId: string | undefined
   let draftOrderNumber: string | undefined
@@ -42,10 +43,14 @@ export async function createCheckoutSession(
 
   const resolvedMarket = await resolveMarketFromCookies()
 
-  const draft = await createDraftOrder(items, {
-    ...customer,
-    userId: user?.id ?? null,
-  })
+  const draft = await prepareDraftOrder(
+    items,
+    {
+      ...customer,
+      userId: user?.id ?? null,
+    },
+    { existingOrderId: options?.existingOrderId }
+  )
   draftOrderId = draft.orderId
   draftOrderNumber = draft.orderNumber
 

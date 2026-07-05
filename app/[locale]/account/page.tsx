@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
+import { CatalogImage } from "@/components/catalog-image"
 import { useAuth } from "@/components/auth-provider"
 import { useLang, formatMoney } from "@/lib/i18n"
 import { useCart } from "@/components/cart-context"
@@ -575,13 +576,7 @@ export default function AccountPage() {
                       <div className="flex items-center gap-2">
                         {lastOrder.products.slice(0, 4).map((p, i) => (
                           <div key={i} className="relative h-12 w-12 rounded-lg bg-white/20 overflow-hidden flex-shrink-0 border border-white/20">
-                            {p.image ? (
-                              <Image src={p.image} alt={p.name} fill className="object-cover" />
-                            ) : (
-                              <div className="flex items-center justify-center h-full">
-                                <Package className="h-5 w-5 text-white/60" />
-                              </div>
-                            )}
+                            <CatalogImage src={p.image} alt={p.name} fill className="object-cover" />
                           </div>
                         ))}
                         {lastOrder.products.length > 4 && (
@@ -656,9 +651,7 @@ export default function AccountPage() {
                       <div className="flex items-center gap-2">
                         {order.products.slice(0, 3).map((p, i) => (
                           <div key={i} className="relative h-10 w-10 rounded-lg bg-muted overflow-hidden">
-                            {p.image && (
-                              <Image src={p.image} alt={p.name} fill className="object-cover" />
-                            )}
+                            <CatalogImage src={p.image} alt={p.name} fill className="object-cover" />
                           </div>
                         ))}
                         {order.products.length > 3 && (
@@ -707,7 +700,7 @@ export default function AccountPage() {
                       className="group flex flex-col rounded-xl border border-border bg-card overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-primary/50"
                     >
                       <div className="relative h-32 sm:h-40 bg-muted overflow-hidden">
-                        <Image
+                        <CatalogImage
                           src={product.image}
                           alt={product.name}
                           fill
@@ -954,7 +947,7 @@ export default function AccountPage() {
                     className="group flex flex-col rounded-xl border border-border bg-card overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-primary/50"
                   >
                     <div className="relative h-32 sm:h-36 bg-muted overflow-hidden">
-                      <Image
+                      <CatalogImage
                         src={product.image}
                         alt={product.name}
                         fill

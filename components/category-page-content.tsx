@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
+import { CatalogImage } from "@/components/catalog-image"
 import {
   categories,
   normalizeProductId,
@@ -342,7 +342,7 @@ export function CategoryPageContent({
                         <div className={`relative overflow-hidden rounded-lg bg-secondary ${
                           viewMode === "list" ? "aspect-square" : "aspect-square"
                         }`}>
-                          <Image
+                          <CatalogImage
                             src={product.image_url}
                             alt={product.name}
                             fill

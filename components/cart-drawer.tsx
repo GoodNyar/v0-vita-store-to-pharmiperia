@@ -8,7 +8,7 @@ import { multiplyMoney } from "@/lib/money"
 import { useFocusTrap } from "@/hooks/use-focus-trap"
 import { Button } from "@/components/ui/button"
 import { X, Plus, Minus, ShoppingBag, LogIn, UserPlus } from "lucide-react"
-import Image from "next/image"
+import { CatalogImage } from "@/components/catalog-image"
 import Link from "next/link"
 
 export function CartDrawer() {
@@ -69,7 +69,7 @@ export function CartDrawer() {
                     className="flex gap-4 rounded-lg border border-border bg-background p-3"
                   >
                     <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md bg-muted">
-                      <Image
+                      <CatalogImage
                         src={item.product.image}
                         alt={item.product.name}
                         fill

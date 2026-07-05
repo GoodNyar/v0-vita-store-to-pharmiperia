@@ -3,7 +3,7 @@
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { LangProvider, useLang } from "@/lib/i18n"
+import { useLang } from "@/lib/i18n"
 
 function TermsContent() {
   const { t } = useLang()
@@ -43,9 +43,5 @@ function TermsContent() {
 }
 
 export default function TermsPage() {
-  return (
-    <LangProvider>
-        <TermsContent />
-    </LangProvider>
-  )
+  return <TermsContent />
 }

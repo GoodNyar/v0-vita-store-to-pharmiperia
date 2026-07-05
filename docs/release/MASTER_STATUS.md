@@ -1,6 +1,6 @@
 # Pharmiperia — Master Status
 
-> Обновлено: 2026-07-06 · Release Candidate: **`v1.0.0-rc.1`**
+> Обновлено: 2026-07-06 · Release Candidate: **`v1.0.0-rc.2`**
 
 ---
 
@@ -9,7 +9,7 @@
 | Поле | Значение |
 |------|----------|
 | **Стадия** | Release Candidate |
-| **Git tag** | `v1.0.0-rc.1` |
+| **Git tag** | `v1.0.0-rc.2` (prev: `v1.0.0-rc.1`) |
 | **Предыдущий phase tag** | `v6.0-phase6-complete` (superseded для денежного пути) |
 | **Целевой рынок v1.0** | **Латвия (LV-only)** |
 | **Аудит RC** | [Отчёт 23](../reports/audits/23-final-release-candidate-audit.md) — WARNING → **RC зафиксирован** |
@@ -22,7 +22,7 @@
 |---------|-----------|
 | `pnpm typecheck` | ✅ 0 ошибок |
 | `pnpm lint` | ✅ 0 errors (44 warnings, pre-existing) |
-| `pnpm test` | ✅ **45/45** pass |
+| `pnpm test` | ✅ **47/47** pass |
 | `pnpm build` | ✅ exit 0 |
 | `pnpm validate:production` | 🟠 CONDITIONAL GO (6 ops warnings) |
 
@@ -42,7 +42,7 @@
 
 ## Архитектура (сводка)
 
-- **23 миграции** Supabase — когерентная схема (статическая проверка)
+- **24 миграции** Supabase — incl. `merge_cart_item_atomic` (BUGFIX-01B)
 - **Денежный путь** — идемпотентный (webhook claim/release, promo guards, loyalty UNIQUE)
 - **Checkout** — `ƒ` dynamic (server-rendered, market-aware)
 - **Каталог** — ISR `revalidate=3600` (● в build-таблице)
@@ -52,7 +52,7 @@
 
 ## Следующие шаги
 
-1. **Bug Bash на staging** — сквозной сценарий с реальной БД (`supabase db:reset` + test Stripe)
+1. **Staging Bug Bash** — `supabase db:reset` (24 migrations) + сквозной checkout
 2. **Ops-гейт боевого запуска** — [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)
 3. **v1.0.0 GA** — после Bug Bash + ops checklist
 

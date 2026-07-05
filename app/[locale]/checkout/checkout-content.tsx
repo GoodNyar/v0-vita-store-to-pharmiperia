@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
+import { CatalogImage } from "@/components/catalog-image"
 import { useParams } from "next/navigation"
 import { useCart } from "@/components/cart-context"
 import { useLang, formatMoney, type TranslationKey } from "@/lib/i18n"
@@ -486,6 +486,7 @@ export function CheckoutContent({
                     quantity: item.quantity,
                   }))}
                   checkoutDetails={checkoutDetails}
+                  existingOrderId={preparedOrder?.orderId}
                   onCheckoutPrepared={setPreparedOrder}
                   onComplete={handlePaymentComplete}
                 />
@@ -500,7 +501,7 @@ export function CheckoutContent({
               {items.map((item) => (
                 <div key={item.product.id} className="flex items-start gap-3 pb-3 border-b border-border last:border-0">
                   <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-md bg-muted">
-                    <Image
+                    <CatalogImage
                       src={item.product.image}
                       alt={item.product.name}
                       fill

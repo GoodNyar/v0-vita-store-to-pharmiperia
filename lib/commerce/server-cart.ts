@@ -122,18 +122,19 @@ export async function syncLocalCartToServer(
 
     const { product: priced } = await applyMarketPricingToCommerceProduct(product.data, marketCode)
     const productId = legacyProductIdToUuid(item.legacyId)
-    const quantity = Math.max(1, Math.min(MAX_QUANTITY, item.quantity))
-    await supabase.from('cart_items').upsert(
-      {
-        cart_id: cart.id,
-        product_id: productId,
-        quantity,
-        unit_price_cents: priced.price.amount,
-        currency: priced.price.currency,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'cart_id,product_id' }
-    )
+
+    const addQuantity = Math.max(1, Math.min(MAX_QUANTITY, Math.floor(item.quantity) || 1))
+    const { error: mergeError } = await supabase.rpc('merge_cart_item_atomic', {
+      p_cart_id: cart.id,
+      p_product_id: productId,
+      p_add_quantity: addQuantity,
+      p_unit_price_cents: priced.price.amount,
+      p_currency: priced.price.currency,
+    })
+
+    if (mergeError) {
+      throw new Error(`Failed to merge cart line: ${mergeError.message}`)
+    }
   }
 
   await touchCart(cart.id)

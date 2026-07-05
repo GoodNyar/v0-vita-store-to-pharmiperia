@@ -22,6 +22,7 @@ interface CartItem {
 interface StripeCheckoutProps {
   items: CartItem[]
   checkoutDetails: CheckoutCustomerInput
+  existingOrderId?: string | null
   onCheckoutPrepared?: (meta: { orderId: string; orderNumber: string }) => void
   onComplete?: () => void
 }
@@ -29,6 +30,7 @@ interface StripeCheckoutProps {
 export function StripeCheckout({
   items,
   checkoutDetails,
+  existingOrderId,
   onCheckoutPrepared,
   onComplete,
 }: StripeCheckoutProps) {
@@ -36,7 +38,9 @@ export function StripeCheckout({
 
   const fetchClientSecret = useCallback(async () => {
     try {
-      const result = await createCheckoutSession(items, checkoutDetails)
+      const result = await createCheckoutSession(items, checkoutDetails, {
+        existingOrderId,
+      })
       onCheckoutPrepared?.({
         orderId: result.orderId,
         orderNumber: result.orderNumber,
@@ -47,7 +51,7 @@ export function StripeCheckout({
       setError(err instanceof Error ? err.message : 'Payment error')
       throw err
     }
-  }, [items, checkoutDetails, onCheckoutPrepared])
+  }, [items, checkoutDetails, existingOrderId, onCheckoutPrepared])
 
   if (error) {
     return (

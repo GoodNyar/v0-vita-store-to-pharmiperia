@@ -1427,6 +1427,16 @@ export type Database = {
       has_staff_role: { Args: { allowed_roles: string[] }; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      merge_cart_item_atomic: {
+        Args: {
+          p_cart_id: string
+          p_product_id: string
+          p_add_quantity: number
+          p_unit_price_cents: number
+          p_currency?: string
+        }
+        Returns: number
+      }
       validate_promo_code: {
         Args: { p_code: string; p_subtotal_cents: number }
         Returns: Json

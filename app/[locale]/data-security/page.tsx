@@ -3,7 +3,7 @@
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { LangProvider, useLang } from "@/lib/i18n"
+import { useLang } from "@/lib/i18n"
 import { Lock, Database, Eye, Shield } from "lucide-react"
 
 function DataSecurityContent() {
@@ -47,9 +47,5 @@ function DataSecurityContent() {
 }
 
 export default function DataSecurityPage() {
-  return (
-    <LangProvider>
-        <DataSecurityContent />
-    </LangProvider>
-  )
+  return <DataSecurityContent />
 }

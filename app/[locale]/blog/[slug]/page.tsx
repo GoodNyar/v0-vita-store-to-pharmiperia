@@ -5,7 +5,7 @@ import { useParams } from "next/navigation"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { LangProvider, useLang } from "@/lib/i18n"
+import { useLang } from "@/lib/i18n"
 import { Calendar, Clock, ArrowLeft, Tag } from "lucide-react"
 
 type Lang = "ru" | "lv"
@@ -268,11 +268,11 @@ function ArticleContent() {
 
 export default function BlogArticlePage() {
   return (
-    <LangProvider>
-        <SiteHeader />
-        <CartDrawer />
-        <ArticleContent />
-        <SiteFooter />
-    </LangProvider>
+    <>
+      <SiteHeader />
+      <CartDrawer />
+      <ArticleContent />
+      <SiteFooter />
+    </>
   )
 }

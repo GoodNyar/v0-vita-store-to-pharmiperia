@@ -2,7 +2,7 @@
 
 import { useMemo } from "react"
 import Link from "next/link"
-import Image from "next/image"
+import { CatalogImage } from "@/components/catalog-image"
 import { useLang, formatMoney } from "@/lib/i18n"
 import { useCart } from "@/components/cart-context"
 import { useAuth } from "@/components/auth-provider"
@@ -100,14 +100,12 @@ export default function FavoritesPage() {
               {/* Image */}
               <Link href={localizedPath(`/products/${getProductSlug(product)}`)} className="relative block overflow-hidden bg-[#f2f3f5]">
                 <div className="relative w-full" style={{ paddingBottom: "100%" }}>
-                  {product.image && (
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-contain object-center p-4"
-                    />
-                  )}
+                  <CatalogImage
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    className="object-contain object-center p-4"
+                  />
                 </div>
               </Link>
 

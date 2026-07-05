@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
-import Image from "next/image"
+import { CatalogImage } from "@/components/catalog-image"
 import { searchCatalogProducts } from "@/app/actions/catalog"
 import { useLang, formatMoney } from "@/lib/i18n"
 import { discountPercent } from "@/lib/money"
@@ -184,7 +184,7 @@ export function SearchPageContent() {
                       >
                     <Link href={localizedPath(`/products/${getProductSlug(product)}`)}>
                       <div className="relative aspect-square overflow-hidden rounded-lg bg-secondary">
-                        <Image
+                        <CatalogImage
                           src={product.image}
                           alt={product.name}
                           fill

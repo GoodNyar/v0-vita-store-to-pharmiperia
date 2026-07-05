@@ -10,8 +10,9 @@ export const BALTIC_CHECKOUT_PAYMENT_METHODS = [
   'klarna',
 ] as const satisfies readonly Stripe.Checkout.SessionCreateParams.PaymentMethodType[]
 
+/** Baltic PMs (Klarna/PayPal/Link) require async webhook handlers — opt-in only. */
 export function isBalticPaymentMethodsEnabled(): boolean {
-  return process.env.STRIPE_BALTIC_METHODS_ENABLED !== 'false'
+  return process.env.STRIPE_BALTIC_METHODS_ENABLED === 'true'
 }
 
 export function getCheckoutPaymentMethodTypes(): Stripe.Checkout.SessionCreateParams.PaymentMethodType[] {

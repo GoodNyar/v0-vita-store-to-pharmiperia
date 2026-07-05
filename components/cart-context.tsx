@@ -55,6 +55,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 const CART_STORAGE_KEY = "pharmiperia:v3:cart"
+const CART_GUEST_MERGED_KEY_PREFIX = "pharmiperia:v3:guest-merged:"
 
 function localeFromPathname(): Locale {
   if (typeof window === "undefined") return "lv"
@@ -102,6 +103,54 @@ function saveCartToStorage(items: CartItem[]) {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
   } catch {
     // Silent fail if localStorage full
+  }
+}
+
+function guestMergedStorageKey(userId: string): string {
+  return `${CART_GUEST_MERGED_KEY_PREFIX}${userId}`
+}
+
+function hasGuestCartMerged(userId: string): boolean {
+  if (typeof window === "undefined") return false
+  return localStorage.getItem(guestMergedStorageKey(userId)) === "1"
+}
+
+function markGuestCartMerged(userId: string): void {
+  if (typeof window === "undefined") return
+  localStorage.setItem(guestMergedStorageKey(userId), "1")
+}
+
+function clearGuestCartMerged(userId: string): void {
+  if (typeof window === "undefined") return
+  localStorage.removeItem(guestMergedStorageKey(userId))
+}
+
+async function mergeGuestCartOnce(
+  userId: string,
+  locale: Locale,
+  guestCart: CartItem[]
+): Promise<void> {
+  if (guestCart.length === 0 || hasGuestCartMerged(userId)) {
+    return
+  }
+
+  const runMerge = async () => {
+    if (hasGuestCartMerged(userId)) return
+
+    await mergeGuestCartToServer(
+      locale,
+      guestCart.map((line) => ({
+        legacyId: line.product.id,
+        quantity: line.quantity,
+      }))
+    )
+    markGuestCartMerged(userId)
+  }
+
+  if (typeof navigator !== "undefined" && navigator.locks) {
+    await navigator.locks.request(`pharm-cart-merge:${userId}`, runMerge)
+  } else {
+    await runMerge()
   }
 }
 
@@ -191,20 +240,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (!isLocale(currentLocale)) return
 
       if (event === "SIGNED_IN" && session?.user) {
-        const guestCart = loadCartFromStorage()
-        if (guestCart.length > 0) {
-          await mergeGuestCartToServer(
-            currentLocale,
-            guestCart.map((line) => ({
-              legacyId: line.product.id,
-              quantity: line.quantity,
-            }))
-          )
-        }
+        const guestCartSnapshot = loadCartFromStorage()
+        saveCartToStorage([])
+        await mergeGuestCartOnce(session.user.id, currentLocale, guestCartSnapshot)
         await hydrateFromServer(currentLocale)
       }
 
       if (event === "SIGNED_OUT") {
+        const signedOutUserId = userIdRef.current
+        if (signedOutUserId) {
+          clearGuestCartMerged(signedOutUserId)
+        }
         setIsServerBacked(false)
         const localOnly = loadCartFromStorage()
         setItems(localOnly)

@@ -4,7 +4,7 @@ import Link from "next/link"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { LangProvider, useLang } from "@/lib/i18n"
+import { useLang } from "@/lib/i18n"
 import { Calendar, Clock, ArrowRight, Tag } from "lucide-react"
 
 type Lang = "ru" | "lv"
@@ -230,11 +230,11 @@ function BlogContent() {
 
 export default function BlogPage() {
   return (
-    <LangProvider>
-        <SiteHeader />
-        <CartDrawer />
-        <BlogContent />
-        <SiteFooter />
-    </LangProvider>
+    <>
+      <SiteHeader />
+      <CartDrawer />
+      <BlogContent />
+      <SiteFooter />
+    </>
   )
 }

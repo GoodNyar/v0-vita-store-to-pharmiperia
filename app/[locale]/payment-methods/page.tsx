@@ -3,7 +3,7 @@
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { LangProvider, useLang } from "@/lib/i18n"
+import { useLang } from "@/lib/i18n"
 import { Shield, Lock, CheckCircle, CreditCard, Smartphone, Building2 } from "lucide-react"
 import Image from "next/image"
 
@@ -196,9 +196,5 @@ function PaymentMethodsContent() {
 }
 
 export default function PaymentMethodsPage() {
-  return (
-    <LangProvider>
-        <PaymentMethodsContent />
-    </LangProvider>
-  )
+  return <PaymentMethodsContent />
 }

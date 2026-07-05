@@ -5,7 +5,7 @@ import Link from "next/link"
 import { SiteHeader } from "@/components/site-header"
 import { CartDrawer } from "@/components/cart-drawer"
 import { SiteFooter } from "@/components/site-footer"
-import { LangProvider, useLang } from "@/lib/i18n"
+import { useLang } from "@/lib/i18n"
 import { createClient } from "@/lib/supabase/client"
 import { 
   Award, 
@@ -340,15 +340,13 @@ function LoyaltyContent() {
 
 export default function LoyaltyPage() {
   return (
-    <LangProvider>
-        <div className="min-h-screen bg-background">
-          <SiteHeader />
-          <CartDrawer />
-          <main>
-            <LoyaltyContent />
-          </main>
-          <SiteFooter />
-        </div>
-    </LangProvider>
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <CartDrawer />
+      <main>
+        <LoyaltyContent />
+      </main>
+      <SiteFooter />
+    </div>
   )
 }

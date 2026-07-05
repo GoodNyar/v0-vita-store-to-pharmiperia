@@ -22,7 +22,7 @@ function mapAuthError(
 export default function LoginPage() {
   const router = useRouter()
   const { refreshAuth } = useAuth()
-  const { t } = useLang()
+  const { t, localizedPath } = useLang()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -198,7 +198,7 @@ export default function LoginPage() {
               </div>
 
               <div className="flex justify-end">
-                <Link href="/auth/reset-password" className="text-sm text-primary hover:underline">
+                <Link href={localizedPath("/auth/reset-password")} className="text-sm text-primary hover:underline">
                   {t("loginForgotPassword")}
                 </Link>
               </div>

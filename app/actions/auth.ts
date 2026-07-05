@@ -3,6 +3,7 @@
 import { z } from 'zod'
 
 import { verifyTurnstileToken } from '@/lib/captcha/turnstile'
+import { isLocale, type Locale } from '@/lib/i18n/config'
 import { getSiteUrl } from '@/lib/site'
 import { createClient } from '@/lib/supabase/server'
 
@@ -111,4 +112,62 @@ export async function beginGoogleOAuth(
   }
 
   return { success: true, url: data.url }
+}
+
+export async function requestPasswordResetWithCaptcha(
+  email: string,
+  captchaToken: string | null,
+  locale: string
+): Promise<AuthActionResult> {
+  const parsedEmail = emailSchema.safeParse(email)
+  if (!parsedEmail.success) {
+    return { success: false, error: 'validation_failed', code: 'validation' }
+  }
+
+  const captcha = await verifyTurnstileToken(captchaToken)
+  if (!captcha.success) {
+    return { success: false, error: 'captcha_failed', code: 'captcha' }
+  }
+
+  const resolvedLocale: Locale = isLocale(locale) ? locale : 'lv'
+  const supabase = await createClient()
+  const { error } = await supabase.auth.resetPasswordForEmail(parsedEmail.data, {
+    redirectTo: `${getSiteUrl()}/auth/callback?next=/${resolvedLocale}/auth/update-password`,
+  })
+
+  if (error) {
+    return { success: false, error: error.message, code: 'auth' }
+  }
+
+  return { success: true }
+}
+
+export async function updatePasswordWithCaptcha(
+  password: string,
+  captchaToken: string | null
+): Promise<AuthActionResult> {
+  if (password.length < 6) {
+    return { success: false, error: 'password_too_short', code: 'validation' }
+  }
+
+  const captcha = await verifyTurnstileToken(captchaToken)
+  if (!captcha.success) {
+    return { success: false, error: 'captcha_failed', code: 'captcha' }
+  }
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'auth_required', code: 'auth' }
+  }
+
+  const { error } = await supabase.auth.updateUser({ password })
+  if (error) {
+    return { success: false, error: error.message, code: 'auth' }
+  }
+
+  return { success: true }
 }

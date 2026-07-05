@@ -7,7 +7,7 @@ import type { Money } from "@/lib/money"
 import { useCart } from "@/components/cart-context"
 import { normalizeProductId } from "@/lib/data"
 import { isAiRecommendationsPublicEnabled } from "@/lib/features/ai"
-import Image from "next/image"
+import { CatalogImage } from "@/components/catalog-image"
 
 interface Recommendation {
   productId: string
@@ -100,7 +100,7 @@ function AIRecommendationsPanel() {
       id: normalizeProductId(product.id),
       name: product.name,
       price: product.price,
-      image: product.image_url || "/placeholder.jpg",
+      image: product.image_url || "/placeholder.svg",
       quantity: 1,
     })
   }
@@ -215,14 +215,12 @@ function AIRecommendationsPanel() {
                 <div key={rec.productId} className="rounded-xl border border-border p-4">
                   <div className="flex gap-3">
                     <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-secondary">
-                      {rec.product.image_url && (
-                        <Image
-                          src={rec.product.image_url}
-                          alt={rec.product.name}
-                          fill
-                          className="object-cover"
-                        />
-                      )}
+                      <CatalogImage
+                        src={rec.product.image_url}
+                        alt={rec.product.name}
+                        fill
+                        className="object-cover"
+                      />
                       <div className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
                         {idx + 1}
                       </div>

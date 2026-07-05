@@ -232,6 +232,161 @@ export async function createDraftOrder(
   }
 }
 
+async function tryReusePendingDraftOrder(
+  existingOrderId: string,
+  items: CheckoutLineInput[],
+  customer: CheckoutCustomerInput
+): Promise<DraftOrderResult | null> {
+  const supabase = createAdminClient()
+  const { data: existing, error: fetchError } = await supabase
+    .from('orders')
+    .select('id, order_number, status, payment_status, user_id, email')
+    .eq('id', existingOrderId)
+    .maybeSingle()
+
+  if (fetchError || !existing) {
+    return null
+  }
+
+  if (existing.status !== 'pending' || existing.payment_status !== 'pending') {
+    return null
+  }
+
+  const requestUserId = customer.userId ?? null
+  if (requestUserId != null) {
+    if (existing.user_id !== requestUserId) {
+      return null
+    }
+  } else if (existing.user_id != null) {
+    return null
+  } else {
+    const existingEmail = existing.email?.trim().toLowerCase() ?? ''
+    const requestEmail = customer.email.trim().toLowerCase()
+    if (!existingEmail || existingEmail !== requestEmail) {
+      return null
+    }
+  }
+
+  const locale = isLocale(customer.locale) ? customer.locale : DEFAULT_LOCALE
+  const resolvedMarket = await resolveMarketFromCookies()
+  const marketCode = resolvedMarket.code
+  const lines = await resolveOrderLines(items, locale, marketCode)
+
+  const shippingResult = await validateShippingForMarket(customer.shippingCost, marketCode)
+  if (!shippingResult.ok) {
+    return null
+  }
+  const shippingCost = shippingResult.data.cost
+  const subtotal = sumMoney(lines.map((line) => line.lineTotal))
+
+  let discount = eur(0)
+  let promoCodeId: string | null = null
+  const promoInput = customer.promoCode?.trim()
+  if (promoInput) {
+    const promo = await validatePromoCode(promoInput, subtotal.amount)
+    if (!promo.valid) {
+      return null
+    }
+    discount = eur(promo.discountCents ?? 0)
+    promoCodeId = promo.promoId ?? null
+  }
+
+  const discountedSubtotal = eur(Math.max(0, subtotal.amount - discount.amount))
+  const total = addMoney(discountedSubtotal, shippingCost)
+  const taxCents = extractInclusiveVatCents(total.amount, resolvedMarket.vatRateBps)
+
+  const shippingAddress =
+    customer.shippingAddress != null
+      ? {
+          street: customer.shippingAddress.street,
+          city: customer.shippingAddress.city,
+          postal_code: customer.shippingAddress.postalCode,
+        }
+      : null
+
+  const { error: updateError } = await supabase
+    .from('orders')
+    .update({
+      email: customer.email.trim(),
+      phone: customer.phone.trim(),
+      first_name: customer.firstName.trim(),
+      last_name: customer.lastName.trim(),
+      shipping_method: customer.shippingMethod,
+      shipping_cost_cents: shippingCost.amount,
+      shipping_address: shippingAddress,
+      parcel_station: customer.parcelStation ?? null,
+      subtotal_cents: subtotal.amount,
+      discount_cents: discount.amount,
+      promo_code_id: promoCodeId,
+      tax_cents: taxCents,
+      total_cents: total.amount,
+      currency: total.currency,
+      locale,
+      market_code: marketCode,
+      utm_source: customer.utmSource ?? null,
+      utm_medium: customer.utmMedium ?? null,
+      utm_campaign: customer.utmCampaign ?? null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', existingOrderId)
+
+  if (updateError) {
+    return null
+  }
+
+  const { error: deleteItemsError } = await supabase
+    .from('order_items')
+    .delete()
+    .eq('order_id', existingOrderId)
+
+  if (deleteItemsError) {
+    return null
+  }
+
+  const orderItems = lines.map((line) => ({
+    order_id: existingOrderId,
+    product_id: legacyProductIdToUuid(line.catalogProductId),
+    product_name: line.name,
+    product_sku: line.sku,
+    quantity: line.quantity,
+    unit_price_cents: line.unitPrice.amount,
+    total_price_cents: line.lineTotal.amount,
+    currency: line.unitPrice.currency,
+  }))
+
+  const { error: itemsError } = await supabase.from('order_items').insert(orderItems)
+  if (itemsError) {
+    return null
+  }
+
+  return {
+    orderId: existing.id,
+    orderNumber: existing.order_number,
+    subtotal,
+    discount,
+    shippingCost,
+    tax: eur(taxCents),
+    total,
+    lines,
+    promoCodeId,
+  }
+}
+
+export async function prepareDraftOrder(
+  items: CheckoutLineInput[],
+  customer: CheckoutCustomerInput,
+  options?: { existingOrderId?: string | null }
+): Promise<DraftOrderResult> {
+  const existingOrderId = options?.existingOrderId?.trim()
+  if (existingOrderId) {
+    const reused = await tryReusePendingDraftOrder(existingOrderId, items, customer)
+    if (reused) {
+      return reused
+    }
+  }
+  return createDraftOrder(items, customer)
+}
+
 export async function markOrderNeedsInventoryAttention(orderId: string): Promise<void> {
   const supabase = createAdminClient()
   const { error } = await supabase

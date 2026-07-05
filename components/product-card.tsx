@@ -1,7 +1,7 @@
 "use client"
 
 import { memo } from "react"
-import Image from "next/image"
+import { CatalogImage } from "@/components/catalog-image"
 import { useRouter } from "next/navigation"
 import { Star, Heart, ShoppingCart } from "lucide-react"
 import { getBrandSlug, getProductSlug, type Product } from "@/lib/data"
@@ -62,7 +62,7 @@ function ProductCardComponent({ product }: { product: Product }) {
           )}
 
           <div className="relative w-full" style={{ paddingBottom: "90%" }}>
-            <Image
+            <CatalogImage
               src={product.image}
               alt={product.name}
               fill

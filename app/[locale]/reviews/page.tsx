@@ -4,7 +4,7 @@ import { useState } from "react"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { LangProvider, useLang } from "@/lib/i18n"
+import { useLang } from "@/lib/i18n"
 import { Star, CheckCircle } from "lucide-react"
 
 const reviews = [
@@ -251,11 +251,11 @@ function ReviewsContent() {
 
 export default function ReviewsPage() {
   return (
-    <LangProvider>
-        <SiteHeader />
-        <CartDrawer />
-        <ReviewsContent />
-        <SiteFooter />
-    </LangProvider>
+    <>
+      <SiteHeader />
+      <CartDrawer />
+      <ReviewsContent />
+      <SiteFooter />
+    </>
   )
 }

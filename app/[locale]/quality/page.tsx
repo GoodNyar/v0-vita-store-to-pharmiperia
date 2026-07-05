@@ -4,7 +4,7 @@ import Link from "next/link"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { LangProvider, useLang } from "@/lib/i18n"
+import { useLang } from "@/lib/i18n"
 import { Shield, Award, Truck, CheckCircle } from "lucide-react"
 
 function QualityContent() {
@@ -81,9 +81,5 @@ function QualityContent() {
 }
 
 export default function QualityPage() {
-  return (
-    <LangProvider>
-        <QualityContent />
-    </LangProvider>
-  )
+  return <QualityContent />
 }

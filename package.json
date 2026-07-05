@@ -21,7 +21,7 @@
     "test:e2e:install": "playwright install chromium",
     "validate:production": "node scripts/validate-production.mjs",
     "test": "pnpm test:commerce",
-    "test:commerce": "node --experimental-test-module-mocks --test-isolation=process --import tsx --test lib/commerce/products.test.ts lib/commerce/search-facets.test.ts lib/commerce/feed-import.test.ts lib/commerce/resolve-market.test.ts lib/commerce/market-pricing-core.test.ts lib/commerce/market-shipping-core.test.ts lib/commerce/markets-config.test.ts lib/commerce/storefront-serializer.test.ts lib/commerce/apply-market-pricing.test.ts lib/i18n/hreflang-matrix.test.ts lib/seo/sitemap-shards.test.ts lib/money.test.ts lib/orders.resolveOrderLines.test.ts lib/orders.resolveOrderLines.stock.test.ts lib/events/order-paid.test.ts lib/stripe/discount-line-items.test.ts"
+    "test:commerce": "node --experimental-test-module-mocks --test-isolation=process --import tsx --test lib/commerce/products.test.ts lib/commerce/search-facets.test.ts lib/commerce/feed-import.test.ts lib/commerce/resolve-market.test.ts lib/commerce/market-pricing-core.test.ts lib/commerce/market-shipping-core.test.ts lib/commerce/markets-config.test.ts lib/commerce/storefront-serializer.test.ts lib/commerce/apply-market-pricing.test.ts lib/i18n/hreflang-matrix.test.ts lib/seo/sitemap-shards.test.ts lib/money.test.ts lib/orders.resolveOrderLines.test.ts lib/orders.resolveOrderLines.stock.test.ts lib/events/order-paid.test.ts lib/stripe/discount-line-items.test.ts lib/stripe/payment-methods.test.ts"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.143",
