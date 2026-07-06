@@ -1,9 +1,11 @@
 # Launch Infrastructure Pack — Pharmiperia v1.0
 
-> **Статус:** подготовлено к ручной настройке владельцем проекта  
+> **Статус:** Email Infrastructure paused — NIC.lv Ticket #921631
 > **Release Candidate:** `v1.0.0-rc.2`  
 > **Рынок:** LV-only v1.0  
 > **Домен:** [pharm.lv](https://pharm.lv) · регистратор: [NIC.lv](https://www.nic.lv)
+>
+> Resume point: [WAITING_FOR_NICLV.md](../status/WAITING_FOR_NICLV.md). До ответа NIC.lv email-инфраструктуру не изменять.
 
 ---
 

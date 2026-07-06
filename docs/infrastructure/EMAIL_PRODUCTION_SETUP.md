@@ -1,8 +1,10 @@
 # Email Production Setup — Owner Checklist
 
-> Application code: **ready** · Google Workspace: **complete** · Owner actions below: **pending**
+> Application code: **ready** · Google Workspace: **complete** · Status: **PAUSED pending NIC.lv #921631**
 >
 > Never paste API keys, SMTP passwords or private DKIM material into Git, screenshots, issues or this document.
+>
+> Do not continue these steps until NIC.lv answers the MX question documented in [WAITING_FOR_NICLV.md](../status/WAITING_FOR_NICLV.md).
 
 ## Ready in the repository
 

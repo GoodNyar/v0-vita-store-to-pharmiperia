@@ -8,7 +8,7 @@
 
 | Поле | Значение |
 |------|----------|
-| **Стадия** | **Launch Infrastructure v1.0** (следующий этап после RC) |
+| **Стадия** | **Launch Infrastructure v1.0 — Email paused** |
 | **Git tag** | `v1.0.0-rc.2` (prev: `v1.0.0-rc.1`) |
 | **Предыдущий phase tag** | `v6.0-phase6-complete` (superseded для денежного пути) |
 | **Целевой рынок v1.0** | **Латвия (LV-only)** |
@@ -60,13 +60,13 @@
 | Главный чеклист | [docs/launch/MANUAL_ACTIONS_CHECKLIST.md](../launch/MANUAL_ACTIONS_CHECKLIST.md) |
 | Ops-гейт | [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md) section C → детали в `docs/launch/` |
 
-**Статус:** 🟠 в работе — Google Workspace, Gmail, MX и 11 aliases завершены; следующий email-гейт: Resend + SPF/DKIM/DMARC. Остальные ops-сервисы ещё требуют настройки.
+**Статус:** ⏸️ Email Infrastructure поставлен на паузу. Google Workspace, корпоративная почта и 11 aliases завершены. Resend Domain создан; SPF, DKIM и DMARC опубликованы. Supabase Email templates подготовлены. Единственный внешний email-блокер — **NIC.lv Ticket #921631**, ожидается ответ по MX для `send.pharm.lv`.
 
 ---
 
 ## Следующие шаги
 
-1. **Owner email activation** — [EMAIL_PRODUCTION_SETUP.md](../infrastructure/EMAIL_PRODUCTION_SETUP.md)
+1. **Wait for NIC.lv #921631** — [WAITING_FOR_NICLV.md](../status/WAITING_FOR_NICLV.md); до ответа email-инфраструктуру не изменять
 2. **Staging Bug Bash** — `supabase db:reset` (25 migrations) + сквозной checkout
 3. **Go-live** — после ops checklist + Bug Bash
 4. **v1.0.0 GA** — stable tag

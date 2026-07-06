@@ -49,8 +49,8 @@
 | Область | Документ | Ключевые пункты |
 |---------|----------|-----------------|
 | DNS | [DNS_RECORDS.md](../launch/DNS_RECORDS.md) | NIC.lv A/CNAME → Vercel, SSL |
-| Email | [EMAIL_SETUP.md](../launch/EMAIL_SETUP.md) | ✅ Google Workspace + MX + aliases; SPF/DKIM/DMARC pending |
-| Resend | [EMAIL_PRODUCTION_SETUP.md](../infrastructure/EMAIL_PRODUCTION_SETUP.md) | Code ✅; owner activation, DNS and SMTP pending |
+| Email | [EMAIL_INFRASTRUCTURE.md](../infrastructure/EMAIL_INFRASTRUCTURE.md) | ✅ Workspace, mailbox, aliases, SPF/DKIM/DMARC |
+| Resend | [WAITING_FOR_NICLV.md](../status/WAITING_FOR_NICLV.md) | ⏸️ Domain created; blocked only by NIC.lv #921631 for `send` MX |
 | Supabase | [SUPABASE_PRODUCTION_SETUP.md](../launch/SUPABASE_PRODUCTION_SETUP.md) | EU, 25 migrations, RLS, auth URLs |
 | Vercel | [VERCEL_PRODUCTION_SETUP.md](../launch/VERCEL_PRODUCTION_SETUP.md) | Domain, env, deploy `v1.0.0-rc.2` |
 | Stripe Live | [STRIPE_LIVE_SETUP.md](../launch/STRIPE_LIVE_SETUP.md) | Live keys, webhook, card-only (no Baltic/Klarna) |
@@ -64,8 +64,10 @@
 
 - [ ] DNS + SSL — [DNS_RECORDS.md](../launch/DNS_RECORDS.md)
 - [x] Google Workspace + MX + aliases — [EMAIL_INFRASTRUCTURE.md](../infrastructure/EMAIL_INFRASTRUCTURE.md)
-- [ ] Resend + SPF/DKIM/DMARC — [EMAIL_SETUP.md](../launch/EMAIL_SETUP.md), [RESEND_SETUP.md](../launch/RESEND_SETUP.md)
-- [ ] Supabase custom SMTP + auth template smoke tests — [EMAIL_PRODUCTION_SETUP.md](../infrastructure/EMAIL_PRODUCTION_SETUP.md)
+- [x] Resend Domain + SPF/DKIM/DMARC published
+- [x] Supabase Email templates prepared
+- [ ] Resend MX `send.pharm.lv` — **paused, NIC.lv Ticket #921631**
+- [ ] Production key, Supabase SMTP activation and smoke tests — resume only after NIC.lv reply
 - [ ] Supabase production EU — [SUPABASE_PRODUCTION_SETUP.md](../launch/SUPABASE_PRODUCTION_SETUP.md)
 - [ ] Vercel production + `v1.0.0-rc.2` — [VERCEL_PRODUCTION_SETUP.md](../launch/VERCEL_PRODUCTION_SETUP.md)
 - [ ] Stripe Live + webhook — [STRIPE_LIVE_SETUP.md](../launch/STRIPE_LIVE_SETUP.md)

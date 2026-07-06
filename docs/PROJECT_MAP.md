@@ -1,6 +1,8 @@
 # Pharmiperia — Project Map
 
 > Как связаны архитектура, ADR, Roadmap, Reports, Release и Business.
+>
+> **Current infrastructure hold:** Email Infrastructure is paused pending [NIC.lv Ticket #921631](status/WAITING_FOR_NICLV.md). Google Workspace is complete; Resend SPF/DKIM/DMARC are published.
 
 ---
 
@@ -93,6 +95,7 @@ flowchart LR
 | **Production** | [release/LAUNCH_CHECKLIST.md](release/LAUNCH_CHECKLIST.md) | Live traffic |
 | **Infrastructure state** | [infrastructure/EMAIL_INFRASTRUCTURE.md](infrastructure/EMAIL_INFRASTRUCTURE.md) | Operational handoff |
 | **Email activation** | [infrastructure/EMAIL_PRODUCTION_SETUP.md](infrastructure/EMAIL_PRODUCTION_SETUP.md) | Owner-only DNS/secrets checklist |
+| **Current blocker** | [status/WAITING_FOR_NICLV.md](status/WAITING_FOR_NICLV.md) | Resume point after NIC.lv response |
 
 ---
 

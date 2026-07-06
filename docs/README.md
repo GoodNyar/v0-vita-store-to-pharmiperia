@@ -2,7 +2,7 @@
 
 > **Точка входа.** Новый разработчик: начните с [5-минутного онбординга](#рекомендуемый-порядок-чтения-5-минут) ниже.
 
-**Текущий статус:** Launch Infrastructure v1.0 · RC `v1.0.0-rc.2` · [MASTER_STATUS](release/MASTER_STATUS.md)
+**Текущий статус:** Email Infrastructure paused · ожидается NIC.lv Ticket #921631 · [WAITING_FOR_NICLV](status/WAITING_FOR_NICLV.md) · [MASTER_STATUS](release/MASTER_STATUS.md)
 
 ---
 
@@ -23,6 +23,7 @@ docs/
 ├── release/                  ← RC/GA: notes, checklists, limitations, changelog
 ├── launch/                   ← Launch Infrastructure Pack (DNS, email, Stripe, Vercel, …)
 ├── infrastructure/           ← текущее состояние production-сервисов
+├── status/                   ← активные паузы, handoff и resume points
 ├── business/                 ← бизнес-план, финмодель, VC due diligence
 ├── operations/             ← деплой, мониторинг, runbooks
 └── archive/                  ← устаревшие документы (не удалять)
@@ -41,6 +42,7 @@ docs/
 | [release/](release/README.md) | RC, launch, limitations | Деплой, Bug Bash, GA |
 | [launch/](launch/README.md) | DNS, email, Stripe Live, Vercel, Supabase ops | **Текущий этап** — production setup владельцем |
 | [infrastructure/](infrastructure/EMAIL_INFRASTRUCTURE.md) | Фактическая email-инфраструктура и [production setup](infrastructure/EMAIL_PRODUCTION_SETUP.md) | Ops handoff, DNS/secrets и аудит |
+| [status/](status/WAITING_FOR_NICLV.md) | Текущий внешний блокер и точка продолжения | Открывать перед возобновлением infrastructure work |
 | [business/](business/README.md) | Стратегия и финансы | Контекст продукта (не блокер для кода) |
 | [operations/](operations/README.md) | Ops и runbooks | Staging/prod, инциденты |
 | [archive/](archive/README.md) | Superseded docs | Только для истории |

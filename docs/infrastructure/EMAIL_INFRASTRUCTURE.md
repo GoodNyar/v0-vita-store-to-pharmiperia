@@ -1,6 +1,6 @@
 # Email Infrastructure — pharm.lv
 
-> Status: **application layer ready; owner activation pending** · Updated: 2026-07-06
+> Status: **PAUSED — waiting for NIC.lv Ticket #921631** · Updated: 2026-07-06
 
 ## Architecture
 
@@ -8,8 +8,8 @@
 |---|---|---|
 | Corporate inbox | Google Workspace Business Starter | Human inbound/outbound mail |
 | Primary account | `admin@pharm.lv` | Admin Console, mailbox and alias destination |
-| Transactional mail | Resend | Code ready; domain verification and secret pending |
-| Authentication mail | Supabase Auth through Resend SMTP | Templates ready; hosted SMTP activation pending |
+| Transactional mail | Resend | Domain created; SPF/DKIM/DMARC published; `send` MX blocked |
+| Authentication mail | Supabase Auth through Resend SMTP | Hosted templates installed; production credentials pending |
 
 Google Workspace and Resend must remain separate delivery paths. All aliases currently route incoming mail to `admin@pharm.lv`; application secrets belong in Vercel/Supabase, never in this repository.
 
@@ -38,15 +38,12 @@ Google Workspace and Resend must remain separate delivery paths. All aliases cur
 - All aliases above are configured and route to the primary mailbox.
 - Incoming mail was successfully tested on `support@pharm.lv` and `orders@pharm.lv`.
 - No Google Workspace reconfiguration is required.
+- Resend Domain `pharm.lv` exists in `eu-west-1`.
+- Resend SPF, DKIM and DMARC are published and visible in public DNS.
+- Supabase signup-confirmation and password-reset templates are installed.
 
-## Remaining owner work
+## Paused external blocker
 
-1. Publish one combined SPF policy covering Google Workspace and the exact sender specified by Resend.
-2. Enable Google DKIM and publish the separate DKIM records supplied by Resend.
-3. Start DMARC with reporting (`p=none`), review reports, then progress to `quarantine` and `reject`.
-4. Verify `pharm.lv` in Resend and create a restricted production API key.
-5. Set `RESEND_API_KEY`, `EMAIL_FROM=Pharm.lv <orders@pharm.lv>` and `EMAIL_ENABLED=true` in Vercel.
-6. Configure Supabase custom SMTP with Resend and sender `noreply@pharm.lv`.
-7. Smoke-test signup confirmation, password reset, order confirmation, shipping and refund messages.
+The only current email-infrastructure blocker is **NIC.lv Ticket #921631**. NIC.lv support must confirm how to publish the Resend MX record for `send.pharm.lv` without changing the working Google MX at the root domain.
 
-DNS values must be copied from the current Google/Resend dashboards; DKIM keys must never be invented. Execute [EMAIL_PRODUCTION_SETUP.md](EMAIL_PRODUCTION_SETUP.md). Google Workspace itself is complete and must not be reconfigured.
+Until NIC.lv replies, no email-infrastructure changes are required. Resume from [WAITING_FOR_NICLV.md](../status/WAITING_FOR_NICLV.md), then finish the remaining activation steps in [EMAIL_PRODUCTION_SETUP.md](EMAIL_PRODUCTION_SETUP.md).
