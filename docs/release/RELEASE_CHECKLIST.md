@@ -18,7 +18,7 @@
 git checkout v1.0.0-rc.2
 pnpm install
 pnpm typecheck && pnpm lint && pnpm test && pnpm build
-supabase db reset   # применяет 24 миграции incl. merge_cart_item_atomic
+supabase db reset   # применяет 25 миграций incl. welcome email idempotency
 ```
 
 ## Sign-off

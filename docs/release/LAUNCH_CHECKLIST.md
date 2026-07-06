@@ -1,22 +1,27 @@
 # Launch Checklist — Pharmiperia v1.0
 
-> RC: `v1.0.0-rc.1` · Целевой рынок: **Латвия (LV-only)**
+> RC: `v1.0.0-rc.2` · Целевой рынок: **Латвия (LV-only)** · Домен: **pharm.lv**
+
+**Launch Infrastructure Pack:** [docs/launch/](../launch/README.md)
+**Ручные действия владельца:** [MANUAL_ACTIONS_CHECKLIST.md](../launch/MANUAL_ACTIONS_CHECKLIST.md)
 
 ---
 
 ## A. Release Candidate (инженерный гейт)
 
-Выполнено для `v1.0.0-rc.1`:
+Выполнено для `v1.0.0-rc.2`:
 
 - [x] Аудит 22 P0 закрыт (market-aware checkout, unified pricing, DB shipping)
-- [x] Аудит 23 B-1 закрыт (commit + tag `v1.0.0-rc.1`)
+- [x] Аудит 23 B-1 закрыт (commit + tag)
+- [x] BUGFIX-01 + BUGFIX-01B закрыты
 - [x] Аудит 23 B-2 задокументирован ([KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md) KL-1)
 - [x] `pnpm typecheck` — 0 ошибок
 - [x] `pnpm lint` — 0 errors
-- [x] `pnpm test` — 45/45 pass
+- [x] `pnpm test` — 47/47 pass
 - [x] `pnpm build` — exit 0
+- [x] Финальный аудит: **CONDITIONAL PASS**
 - [ ] **Staging Bug Bash** — каталог → корзина → checkout → test card → webhook → order `paid`
-- [ ] **`supabase db:reset`** на staging — 23 миграции применяются чисто
+- [ ] **`supabase db:reset`** на staging — **24** миграции применяются чисто
 
 ---
 
@@ -35,49 +40,38 @@
 
 ---
 
-## C. Production ops (гейт приёма реальных денег)
+## C. Launch Infrastructure v1.0 (текущий этап)
 
-Не блокирует RC / Bug Bash. Обязательно перед GA:
+> Пошаговые инструкции: [docs/launch/](../launch/README.md). Ничего не считается выполненным без подтверждения владельца.
 
-### Домен и DNS
+Не блокирует RC. Обязательно перед GA. Детали — в отдельных файлах pack:
 
-- [ ] `pharm.lv` — A/AAAA → Vercel
-- [ ] www-редирект
-- [ ] SSL активен
+| Область | Документ | Ключевые пункты |
+|---------|----------|-----------------|
+| DNS | [DNS_RECORDS.md](../launch/DNS_RECORDS.md) | NIC.lv A/CNAME → Vercel, SSL |
+| Email | [EMAIL_SETUP.md](../launch/EMAIL_SETUP.md) | ✅ Google Workspace + MX + aliases; SPF/DKIM/DMARC pending |
+| Resend | [EMAIL_PRODUCTION_SETUP.md](../infrastructure/EMAIL_PRODUCTION_SETUP.md) | Code ✅; owner activation, DNS and SMTP pending |
+| Supabase | [SUPABASE_PRODUCTION_SETUP.md](../launch/SUPABASE_PRODUCTION_SETUP.md) | EU, 25 migrations, RLS, auth URLs |
+| Vercel | [VERCEL_PRODUCTION_SETUP.md](../launch/VERCEL_PRODUCTION_SETUP.md) | Domain, env, deploy `v1.0.0-rc.2` |
+| Stripe Live | [STRIPE_LIVE_SETUP.md](../launch/STRIPE_LIVE_SETUP.md) | Live keys, webhook, card-only (no Baltic/Klarna) |
+| Sentry | [SENTRY_SETUP.md](../launch/SENTRY_SETUP.md) | DSN, checkout alerts, release tag |
+| Analytics/GSC | [ANALYTICS_SEARCH_CONSOLE_SETUP.md](../launch/ANALYTICS_SEARCH_CONSOLE_SETUP.md) | GSC, sitemap, GA4 после consent |
+| Monitoring | [MONITORING_SETUP.md](../launch/MONITORING_SETUP.md) | `/api/health`, uptime 1–5 min |
 
-### Почта
+**Чеклист:** [MANUAL_ACTIONS_CHECKLIST.md](../launch/MANUAL_ACTIONS_CHECKLIST.md) (79 пунктов)
 
-- [ ] Resend: verify domain
-- [ ] SPF / DKIM / DMARC
-- [ ] `EMAIL_FROM`, `AUTH_EMAIL_*` в production env
+### Краткий summary (section C legacy)
 
-### Supabase
-
-- [ ] EU project, production instance
-- [ ] Миграции применены (`pnpm db:push` или CI)
-- [ ] `SUPABASE_SERVICE_ROLE_KEY` в Vercel (server-only)
-- [ ] RLS smoke на staging
-
-### Stripe
-
-- [ ] Live keys (`sk_live_`, `pk_live_`)
-- [ ] Webhook `https://pharm.lv/api/webhooks/stripe` (live endpoint)
-- [ ] Stripe Tax LV 21% (или manual inclusive VAT)
-- [ ] Test payment на live mode (минимальная сумма + refund)
-
-### Observability
-
-- [ ] `SENTRY_DSN` в production
-- [ ] Alert на `commerce.checkout` errors
-- [ ] Uptime monitor на `/api/health` (1–5 min interval)
-- [ ] `MONITORING_HEALTH_TOKEN` для deep health check
-
-### Security & limits
-
-- [ ] Turnstile keys (auth)
-- [ ] Rate limits (Upstash Redis)
-- [ ] `AI_DAILY_REQUEST_CAP` установлен
-- [ ] Budget caps (Vercel, Supabase)
+- [ ] DNS + SSL — [DNS_RECORDS.md](../launch/DNS_RECORDS.md)
+- [x] Google Workspace + MX + aliases — [EMAIL_INFRASTRUCTURE.md](../infrastructure/EMAIL_INFRASTRUCTURE.md)
+- [ ] Resend + SPF/DKIM/DMARC — [EMAIL_SETUP.md](../launch/EMAIL_SETUP.md), [RESEND_SETUP.md](../launch/RESEND_SETUP.md)
+- [ ] Supabase custom SMTP + auth template smoke tests — [EMAIL_PRODUCTION_SETUP.md](../infrastructure/EMAIL_PRODUCTION_SETUP.md)
+- [ ] Supabase production EU — [SUPABASE_PRODUCTION_SETUP.md](../launch/SUPABASE_PRODUCTION_SETUP.md)
+- [ ] Vercel production + `v1.0.0-rc.2` — [VERCEL_PRODUCTION_SETUP.md](../launch/VERCEL_PRODUCTION_SETUP.md)
+- [ ] Stripe Live + webhook — [STRIPE_LIVE_SETUP.md](../launch/STRIPE_LIVE_SETUP.md)
+- [ ] Sentry + monitoring — [SENTRY_SETUP.md](../launch/SENTRY_SETUP.md), [MONITORING_SETUP.md](../launch/MONITORING_SETUP.md)
+- [ ] Turnstile, Upstash, budget caps — [VERCEL_PRODUCTION_SETUP.md](../launch/VERCEL_PRODUCTION_SETUP.md)
+- [ ] `pnpm validate:production` — full GO
 
 ### E2E (optional pre-GA)
 
@@ -116,6 +110,7 @@
 ## Ссылки
 
 - [MASTER_STATUS.md](MASTER_STATUS.md)
+- [docs/launch/](../launch/README.md) — Launch Infrastructure Pack
 - [Release Notes v1.0.0-rc.1](v1.0.0-rc.1.md)
 - [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md)
 - `pnpm validate:production`

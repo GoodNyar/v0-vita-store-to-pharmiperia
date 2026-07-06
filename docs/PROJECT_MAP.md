@@ -34,6 +34,8 @@ flowchart TB
     Supabase[(Supabase Postgres RLS)]
     Stripe[Stripe Checkout + Webhook]
     Resend[Resend Email]
+    Workspace[Google Workspace\nadmin mailbox + aliases]
+    AuthMail[Supabase Auth SMTP]
     Sentry[Sentry]
   end
 
@@ -46,6 +48,8 @@ flowchart TB
   Events --> Supabase
   Commerce --> Supabase
   ISR --> Commerce
+  Resend --> Workspace
+  AuthMail --> Resend
 ```
 
 **Источник истины по решениям:** [adr/](adr/README.md) · **Правила кода:** [architecture/ENGINEERING_PLAYBOOK.md](architecture/ENGINEERING_PLAYBOOK.md)
@@ -87,6 +91,8 @@ flowchart LR
 | **Закрытие фазы** | [roadmap/phase-N.md](roadmap/README.md) | Git tag `vN.0-phaseN-complete` |
 | **Release Candidate** | [release/RELEASE_PROCESS.md](release/RELEASE_PROCESS.md) | Tag `v1.0.0-rc.N` |
 | **Production** | [release/LAUNCH_CHECKLIST.md](release/LAUNCH_CHECKLIST.md) | Live traffic |
+| **Infrastructure state** | [infrastructure/EMAIL_INFRASTRUCTURE.md](infrastructure/EMAIL_INFRASTRUCTURE.md) | Operational handoff |
+| **Email activation** | [infrastructure/EMAIL_PRODUCTION_SETUP.md](infrastructure/EMAIL_PRODUCTION_SETUP.md) | Owner-only DNS/secrets checklist |
 
 ---
 

@@ -37,22 +37,37 @@
 ## 4. Bug Bash (staging)
 
 - [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md) section B
-- Реальная БД: `supabase db:reset`
+- Реальная БД: `supabase db:reset` (25 migrations)
 - Test Stripe keys
 - Сквозной: каталог → checkout → webhook → order `paid`
 
 ---
 
-## 5. General Availability
+## 5. Launch Infrastructure v1.0 ← **ТЕКУЩИЙ ЭТАП**
 
-1. [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md) section C (ops)
+Подготовка production-инфраструктуры для **ручной настройки владельцем** (без изменения кода).
+
+| Документ | Назначение |
+|----------|------------|
+| [docs/launch/README.md](../launch/README.md) | Точка входа |
+| [docs/launch/MANUAL_ACTIONS_CHECKLIST.md](../launch/MANUAL_ACTIONS_CHECKLIST.md) | 79 ручных действий |
+
+**Критерии завершения:** все пункты MANUAL_ACTIONS_CHECKLIST = Done; [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md) section C закрыт.
+
+**Кто выполняет:** владелец (DNS, email, Stripe, Vercel, Supabase accounts). Engineering — support и smoke tests.
+
+---
+
+## 6. General Availability
+
+1. [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md) sections B + C complete
 2. `pnpm validate:production` — CONDITIONAL GO → full GO
 3. Tag `v1.0.0`
 4. Post-launch monitoring — section E
 
 ---
 
-## 6. Документация при релизе
+## 7. Документация при релизе
 
 Обновить:
 
@@ -63,7 +78,7 @@
 
 ---
 
-## 7. Rollback
+## 8. Rollback
 
 ```bash
 git checkout v1.0.0-rc.1   # last known good RC
