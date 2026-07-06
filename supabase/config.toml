@@ -63,6 +63,14 @@ pass = "env(RESEND_API_KEY)"
 admin_email = "env(AUTH_EMAIL_ADDRESS)"
 sender_name = "Pharmiperia"
 
+[auth.email.template.confirmation]
+subject = "Apstipriniet savu Pharm.lv e-pasta adresi"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "Pharm.lv paroles atjaunošana"
+content_path = "./supabase/templates/recovery.html"
+
 [edge_runtime]
 enabled = true
 policy = "oneshot"

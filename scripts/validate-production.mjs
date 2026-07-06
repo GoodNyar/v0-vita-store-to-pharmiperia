@@ -133,6 +133,12 @@ const requiredPaths = [
   ['locale-error-boundary', 'app/[locale]/error.tsx'],
   ['checkout-error-boundary', 'app/[locale]/checkout/error.tsx'],
   ['retention-cron', 'app/api/cron/retention/route.ts'],
+  ['email-resend-client', 'lib/email/resend.ts'],
+  ['email-status-policy', 'lib/email/order-status-policy.ts'],
+  ['email-confirmation-template', 'supabase/templates/confirmation.html'],
+  ['email-recovery-template', 'supabase/templates/recovery.html'],
+  ['email-preflight', 'scripts/validate-email-production.mjs'],
+  ['email-welcome-idempotency', 'supabase/migrations/20260706140000_welcome_email_idempotency.sql'],
   ['storefront-api-markets', 'app/api/storefront/v1/markets/route.ts'],
   ['storefront-api-products', 'app/api/storefront/v1/products/route.ts'],
   ['phase6-migration', 'supabase/migrations/20260706120000_phase6_international_foundation.sql'],
@@ -193,6 +199,10 @@ const requiredEnvDocs = [
   'SENTRY_DSN',
   'E2E_ENABLED',
   'MONITORING_HEALTH_TOKEN',
+  'RESEND_API_KEY',
+  'EMAIL_FROM',
+  'EMAIL_ENABLED',
+  'AUTH_EMAIL_ADDRESS',
 ]
 for (const key of requiredEnvDocs) {
   if (envExample.includes(key)) pass(`env-doc-${key}`, `.env.example documents ${key}`)
@@ -209,7 +219,7 @@ if (!exists('app/global-error.tsx')) {
 }
 
 warn('eslint-debt', 'ESLint may still report errors — run pnpm lint; not a Phase 1 script blocker')
-warn('ops-domain-dns', 'Verify pharm.lv DNS, MX, SPF/DKIM/DMARC before accepting payments')
+warn('ops-email-auth', 'Google Workspace and MX are active; verify SPF, Google/Resend DKIM and DMARC before accepting payments')
 warn('ops-stripe-live', 'Switch Stripe to live mode + register webhook URL on production deploy')
 warn('ops-uptime-monitor', 'Configure external poll of GET /api/health (ADR-0014)')
 warn('ops-e2e-staging', 'Run E2E_ENABLED=true smoke on staging with real Supabase/Stripe test keys')
