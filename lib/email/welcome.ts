@@ -14,6 +14,7 @@ interface ProfileRow {
   first_name: string | null
   last_name: string | null
   preferred_language: string | null
+  welcome_email_sent_at: string | null
 }
 
 export type SendWelcomeEmailResult =
@@ -59,7 +60,7 @@ export async function sendWelcomeEmail(userId: string): Promise<SendWelcomeEmail
   const supabase = createAdminClient()
   const { data: profile, error } = await supabase
     .from('profiles')
-    .select('id, email, first_name, last_name, preferred_language')
+    .select('id, email, first_name, last_name, preferred_language, welcome_email_sent_at')
     .eq('id', userId)
     .maybeSingle()
 
@@ -68,10 +69,31 @@ export async function sendWelcomeEmail(userId: string): Promise<SendWelcomeEmail
   }
 
   const typed = profile as ProfileRow
+  if (typed.welcome_email_sent_at) {
+    return { sent: false, reason: 'already_sent' }
+  }
+
   const recipient = typed.email?.trim()
   if (!recipient) {
     console.warn('[email] welcome skipped — missing recipient', { userId })
     return { sent: false, reason: 'no_recipient' }
+  }
+
+  const claimedAt = new Date().toISOString()
+  const { data: claimed, error: claimError } = await supabase
+    .from('profiles')
+    .update({ welcome_email_sent_at: claimedAt })
+    .eq('id', userId)
+    .is('welcome_email_sent_at', null)
+    .select('id')
+    .maybeSingle()
+
+  if (claimError) {
+    throw new Error(`Failed to claim welcome email for ${userId}: ${claimError.message}`)
+  }
+
+  if (!claimed) {
+    return { sent: false, reason: 'already_sent' }
   }
 
   const locale: Locale = isLocale(typed.preferred_language ?? '')
@@ -90,6 +112,11 @@ export async function sendWelcomeEmail(userId: string): Promise<SendWelcomeEmail
   })
 
   if (sendError) {
+    await supabase
+      .from('profiles')
+      .update({ welcome_email_sent_at: null })
+      .eq('id', userId)
+      .eq('welcome_email_sent_at', claimedAt)
     throw new Error(`Resend failed for welcome email ${userId}: ${sendError.message}`)
   }
 

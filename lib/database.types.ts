@@ -1167,6 +1167,7 @@ export type Database = {
           preferred_language: string | null
           role: string
           updated_at: string | null
+          welcome_email_sent_at: string | null
         }
         Insert: {
           address?: string | null
@@ -1184,6 +1185,7 @@ export type Database = {
           preferred_language?: string | null
           role?: string
           updated_at?: string | null
+          welcome_email_sent_at?: string | null
         }
         Update: {
           address?: string | null
@@ -1201,6 +1203,7 @@ export type Database = {
           preferred_language?: string | null
           role?: string
           updated_at?: string | null
+          welcome_email_sent_at?: string | null
         }
         Relationships: []
       }
@@ -1593,4 +1596,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-

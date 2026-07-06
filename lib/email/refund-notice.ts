@@ -94,6 +94,23 @@ export async function sendRefundNoticeEmail(
     return { sent: false, reason: 'no_recipient' }
   }
 
+  const claimedAt = new Date().toISOString()
+  const { data: claimed, error: claimError } = await supabase
+    .from('orders')
+    .update({ refund_notice_sent_at: claimedAt })
+    .eq('id', orderId)
+    .is('refund_notice_sent_at', null)
+    .select('id')
+    .maybeSingle()
+
+  if (claimError) {
+    throw new Error(`Failed to claim refund notice for ${orderId}: ${claimError.message}`)
+  }
+
+  if (!claimed) {
+    return { sent: false, reason: 'already_sent' }
+  }
+
   const locale: Locale = isLocale(typedOrder.locale) ? typedOrder.locale : DEFAULT_LOCALE
   const copy = getRefundNoticeCopy(locale)
   const refundAmountCents = options?.refundAmountCents ?? typedOrder.total_cents
@@ -107,22 +124,12 @@ export async function sendRefundNoticeEmail(
   })
 
   if (sendError) {
+    await supabase
+      .from('orders')
+      .update({ refund_notice_sent_at: null })
+      .eq('id', orderId)
+      .eq('refund_notice_sent_at', claimedAt)
     throw new Error(`Resend failed for refund notice ${orderId}: ${sendError.message}`)
-  }
-
-  const sentAt = new Date().toISOString()
-  const { error: updateError } = await supabase
-    .from('orders')
-    .update({ refund_notice_sent_at: sentAt })
-    .eq('id', orderId)
-    .is('refund_notice_sent_at', null)
-
-  if (updateError) {
-    console.error('[email] failed to mark refund_notice_sent_at', {
-      orderId,
-      messageId: data?.id,
-      error: updateError.message,
-    })
   }
 
   console.info('[email] refund notice sent', {

@@ -100,6 +100,26 @@ export async function sendOrderShippedEmail(
     return { sent: false, reason: 'no_recipient' }
   }
 
+  const claimedAt = new Date().toISOString()
+  const { data: claimed, error: claimError } = await supabase
+    .from('orders')
+    .update({
+      shipped_email_sent_at: claimedAt,
+      ...(options?.trackingNumber ? { tracking_number: options.trackingNumber } : {}),
+    })
+    .eq('id', orderId)
+    .is('shipped_email_sent_at', null)
+    .select('id')
+    .maybeSingle()
+
+  if (claimError) {
+    throw new Error(`Failed to claim shipped email for ${orderId}: ${claimError.message}`)
+  }
+
+  if (!claimed) {
+    return { sent: false, reason: 'already_sent' }
+  }
+
   const locale: Locale = isLocale(typedOrder.locale) ? typedOrder.locale : DEFAULT_LOCALE
   const copy = getOrderShippedCopy(locale)
   const trackingNumber = options?.trackingNumber ?? typedOrder.tracking_number
@@ -113,25 +133,12 @@ export async function sendOrderShippedEmail(
   })
 
   if (sendError) {
+    await supabase
+      .from('orders')
+      .update({ shipped_email_sent_at: null })
+      .eq('id', orderId)
+      .eq('shipped_email_sent_at', claimedAt)
     throw new Error(`Resend failed for shipped email ${orderId}: ${sendError.message}`)
-  }
-
-  const sentAt = new Date().toISOString()
-  const { error: updateError } = await supabase
-    .from('orders')
-    .update({
-      shipped_email_sent_at: sentAt,
-      ...(trackingNumber ? { tracking_number: trackingNumber } : {}),
-    })
-    .eq('id', orderId)
-    .is('shipped_email_sent_at', null)
-
-  if (updateError) {
-    console.error('[email] failed to mark shipped_email_sent_at', {
-      orderId,
-      messageId: data?.id,
-      error: updateError.message,
-    })
   }
 
   console.info('[email] order shipped notice sent', {
