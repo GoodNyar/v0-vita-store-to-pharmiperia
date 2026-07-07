@@ -2,7 +2,7 @@
 
 > Как связаны архитектура, ADR, Roadmap, Reports, Release и Business.
 >
-> **Current infrastructure hold:** Email Infrastructure is paused pending [NIC.lv Ticket #921631](status/WAITING_FOR_NICLV.md). Google Workspace is complete; Resend SPF/DKIM/DMARC are published.
+> **Текущий infrastructure hold:** NIC.lv Ticket #921631 выполнен — MX для `send.pharm.lv` опубликован. Google Workspace завершён; Resend SPF/MX/DMARC опубликованы; DKIM исправлен в NIC.lv и ожидает DNS-публикацию. См. [WAITING_FOR_NICLV.md](status/WAITING_FOR_NICLV.md).
 
 ---
 

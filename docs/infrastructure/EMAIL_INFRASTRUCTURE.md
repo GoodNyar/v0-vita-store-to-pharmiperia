@@ -1,49 +1,52 @@
 # Email Infrastructure — pharm.lv
 
-> Status: **PAUSED — waiting for NIC.lv Ticket #921631** · Updated: 2026-07-06
+> Статус: **NIC.lv MX выполнен; ждём DNS-публикацию исправленного DKIM** · Обновлено: 2026-07-07
 
-## Architecture
+## Архитектура
 
-| Layer | Provider | Responsibility |
+| Слой | Провайдер | Назначение |
 |---|---|---|
-| Corporate inbox | Google Workspace Business Starter | Human inbound/outbound mail |
-| Primary account | `admin@pharm.lv` | Admin Console, mailbox and alias destination |
-| Transactional mail | Resend | Domain created; SPF/DKIM/DMARC published; `send` MX blocked |
-| Authentication mail | Supabase Auth through Resend SMTP | Hosted templates installed; production credentials pending |
+| Корпоративная почта | Google Workspace Business Starter | Входящая/исходящая почта команды |
+| Основной аккаунт | `admin@pharm.lv` | Admin Console, mailbox и точка назначения alias-адресов |
+| Transactional email | Resend | Домен создан; SPF/MX/DMARC опубликованы; DKIM исправлен в NIC и ожидает DNS-публикацию |
+| Auth email | Supabase Auth через Resend SMTP | Hosted templates установлены; production credentials ещё не включены |
 
-Google Workspace and Resend must remain separate delivery paths. All aliases currently route incoming mail to `admin@pharm.lv`; application secrets belong in Vercel/Supabase, never in this repository.
+Google Workspace и Resend остаются разными delivery path. Все alias-адреса сейчас ведут во входящую почту `admin@pharm.lv`; application secrets хранятся только в Vercel/Supabase и не попадают в репозиторий.
 
-## Addresses
+## Адреса
 
-| Address | Purpose |
+| Адрес | Назначение |
 |---|---|
-| `admin@pharm.lv` | Primary mailbox and infrastructure administration |
-| `support@pharm.lv` | Customer support |
-| `orders@pharm.lv` | Order correspondence and transactional sender |
-| `noreply@pharm.lv` | Authentication/system sender; replies are not expected |
-| `info@pharm.lv` | General enquiries |
-| `sales@pharm.lv` | Commercial enquiries |
-| `returns@pharm.lv` | Returns and refund correspondence |
-| `privacy@pharm.lv` | GDPR and data-subject requests |
-| `legal@pharm.lv` | Legal notices |
-| `jobs@pharm.lv` | Recruitment |
-| `marketing@pharm.lv` | Marketing enquiries |
-| `finance@pharm.lv` | Billing and finance |
+| `admin@pharm.lv` | Основной mailbox и инфраструктурное администрирование |
+| `support@pharm.lv` | Поддержка клиентов |
+| `orders@pharm.lv` | Переписка по заказам и transactional sender |
+| `noreply@pharm.lv` | Auth/system sender; ответы не ожидаются |
+| `info@pharm.lv` | Общие вопросы |
+| `sales@pharm.lv` | Коммерческие запросы |
+| `returns@pharm.lv` | Возвраты и refund-переписка |
+| `privacy@pharm.lv` | GDPR и data-subject requests |
+| `legal@pharm.lv` | Юридические уведомления |
+| `jobs@pharm.lv` | Найм |
+| `marketing@pharm.lv` | Маркетинговые запросы |
+| `finance@pharm.lv` | Биллинг и финансы |
 
-## Current status
+## Текущий статус
 
-- Domain ownership verified in Google Workspace.
-- Gmail activated; Google MX records are working.
-- `admin@pharm.lv` is operational.
-- All aliases above are configured and route to the primary mailbox.
-- Incoming mail was successfully tested on `support@pharm.lv` and `orders@pharm.lv`.
-- No Google Workspace reconfiguration is required.
-- Resend Domain `pharm.lv` exists in `eu-west-1`.
-- Resend SPF, DKIM and DMARC are published and visible in public DNS.
-- Supabase signup-confirmation and password-reset templates are installed.
+- Google Workspace: полностью завершён.
+- Gmail: активирован; Google MX для основной почты работает.
+- `admin@pharm.lv`: operational.
+- Все alias-адреса выше настроены и ведут в основной mailbox.
+- Входящая почта успешно проверена на `support@pharm.lv` и `orders@pharm.lv`.
+- Google Workspace больше не перенастраивать.
+- Resend Domain `pharm.lv` существует в регионе `eu-west-1`.
+- Resend MX для `send.pharm.lv` опубликован NIC.lv и виден публично.
+- Resend SPF для `send.pharm.lv` виден публично.
+- DMARC для `_dmarc.pharm.lv` виден публично.
+- DKIM TXT для `resend._domainkey.pharm.lv` исправлен в панели NIC.lv; ожидается публикация исправления в авторитативном DNS.
+- Supabase signup-confirmation и password-reset templates установлены.
 
-## Paused external blocker
+## Состояние NIC.lv #921631
 
-The only current email-infrastructure blocker is **NIC.lv Ticket #921631**. NIC.lv support must confirm how to publish the Resend MX record for `send.pharm.lv` without changing the working Google MX at the root domain.
+Тикет **NIC.lv #921631** снял исходный блокер: NIC.lv добавил MX для `send.pharm.lv` без изменения root Google MX.
 
-Until NIC.lv replies, no email-infrastructure changes are required. Resume from [WAITING_FOR_NICLV.md](../status/WAITING_FOR_NICLV.md), then finish the remaining activation steps in [EMAIL_PRODUCTION_SETUP.md](EMAIL_PRODUCTION_SETUP.md).
+Текущий pause-point описан в [WAITING_FOR_NICLV.md](../status/WAITING_FOR_NICLV.md): дождаться DNS-публикации исправленного DKIM, затем завершить Resend verification и production activation по [EMAIL_PRODUCTION_SETUP.md](EMAIL_PRODUCTION_SETUP.md).

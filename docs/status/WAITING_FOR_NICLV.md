@@ -1,49 +1,65 @@
-# Waiting for NIC.lv
+# Ответ NIC.lv по MX для Resend
 
-> Status: **PAUSED** · Updated: 2026-07-06 · External blocker: **NIC.lv Ticket #921631**
+> Статус: **ответ получен, MX опубликован** · Обновлено: 2026-07-07 · Тикет: **NIC.lv #921631**
 
-## Completed
+## Что уже выполнено
 
-- Google Workspace is fully complete and must not be reconfigured.
-- Corporate mailbox `admin@pharm.lv` is operational.
-- All corporate aliases are configured; inbound mail was tested.
-- Resend domain `pharm.lv` was created in EU region `eu-west-1`.
-- Resend SPF, DKIM and DMARC records were published and confirmed in public DNS.
-- Supabase Email is prepared:
-  - custom SMTP screen identified;
-  - signup-confirmation template installed;
-  - password-reset template installed;
-  - application configuration and email code are ready.
+- Google Workspace полностью завершён и больше не требует перенастройки.
+- Корпоративный ящик `admin@pharm.lv` работает.
+- Все корпоративные alias-адреса настроены; входящая почта была проверена.
+- Resend domain `pharm.lv` создан в регионе `eu-west-1`.
+- Resend MX для `send.pharm.lv` опубликован NIC.lv:
+  - owner: `send.pharm.lv`;
+  - target: `feedback-smtp.eu-west-1.amazonses.com`;
+  - priority: `10`.
+- Resend SPF опубликован для `send.pharm.lv`.
+- DMARC опубликован для `_dmarc.pharm.lv`.
+- Supabase Email подготовлен:
+  - экран custom SMTP найден;
+  - шаблон подтверждения регистрации установлен;
+  - шаблон восстановления пароля установлен;
+  - код приложения и конфигурация email-слоя готовы.
 
-## Remaining
+## Текущий технический статус
 
-- Publish the Resend MX record for `send.pharm.lv`.
-- Complete Resend domain verification.
-- Create a send-only production API key restricted to `pharm.lv`.
-- Add the key and email variables to Vercel.
-- Replace the temporary Supabase SMTP sender/key with production Resend credentials.
-- Run end-to-end transactional and authentication email tests.
+NIC.lv ответил по тикету **#921631** и внёс MX-запись для `send.pharm.lv`. Публичная DNS-проверка уже подтверждает:
 
-## Blocker
+```txt
+send.pharm.lv. MX 10 feedback-smtp.eu-west-1.amazonses.com.
+send.pharm.lv. TXT "v=spf1 include:amazonses.com ~all"
+_dmarc.pharm.lv. TXT "v=DMARC1; p=none;"
+```
 
-NIC.lv does not expose an owner/host field when creating an MX record through its current domain UI. The root Google MX must not be changed.
+При повторной проверке Resend обнаружил одну ошибку в DKIM TXT: в DNS было опубликовано `...MDUE/3...`, а Resend ожидает `...MDUe/3...`.
 
-Support request **#921631** asks NIC.lv how to add:
+Исправление DKIM сохранено в панели NIC.lv 2026-07-07. В момент обновления документации панель NIC.lv уже показывает правильное значение, но авторитативный DNS `ns1.dns.lv` ещё отдаёт старую версию. Это ожидаемое окно публикации зоны.
 
-- owner: `send.pharm.lv`;
-- target: `feedback-smtp.eu-west-1.amazonses.com`;
-- priority: `10`.
+## Что осталось
 
-## Resume procedure
+1. Дождаться, пока авторитативный DNS начнёт отдавать исправленный DKIM:
 
-After NIC.lv replies:
+   ```bash
+   dig @ns1.dns.lv +short TXT resend._domainkey.pharm.lv
+   dig +short TXT resend._domainkey.pharm.lv
+   ```
 
-1. Follow the supported NIC.lv procedure and add only the requested subdomain MX.
-2. Confirm `dig +short MX send.pharm.lv`.
-3. Run Resend DNS verification and wait for `pharm.lv` to become Verified.
-4. Create the restricted production API key.
-5. Finish Vercel and Supabase SMTP configuration.
-6. Execute the acceptance tests in [EMAIL_PRODUCTION_SETUP.md](../infrastructure/EMAIL_PRODUCTION_SETUP.md).
-7. Update launch status and remove the pause.
+2. Перезапустить проверку DNS в Resend и дождаться статуса **Verified** для `pharm.lv`.
+3. Создать production API key в Resend с минимальными правами отправки и, если Resend позволит, ограничением на домен `pharm.lv`.
+4. Добавить production email variables/secrets в Vercel.
+5. Заменить временные Supabase SMTP credentials на production Resend credentials.
+6. Запустить smoke-тесты transactional/auth email и production validators.
 
-Until the support response arrives, **no email-infrastructure changes are required**.
+## Блокеры
+
+Внешний блокер **NIC.lv #921631 снят**: MX для `send.pharm.lv` создан.
+
+Текущий временный стоп-фактор — только DNS-публикация исправленного DKIM. Нового обращения в NIC.lv пока не требуется, если исправленное значение появится в авторитативном DNS в обычное окно публикации.
+
+## Продолжить после DNS-публикации DKIM
+
+После появления `MDUe/3` в публичном DNS:
+
+1. Открыть Resend → Domains → `pharm.lv`.
+2. Нажать restart/verify DNS verification.
+3. Убедиться, что DKIM, SPF и MX стали passing.
+4. Перейти к production API key, Vercel secrets и Supabase SMTP по инструкции [EMAIL_PRODUCTION_SETUP.md](../infrastructure/EMAIL_PRODUCTION_SETUP.md).

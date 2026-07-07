@@ -1,6 +1,6 @@
 # Pharmiperia — Master Status
 
-> Обновлено: 2026-07-06 · Release Candidate: **`v1.0.0-rc.2`**
+> Обновлено: 2026-07-07 · Release Candidate: **`v1.0.0-rc.2`**
 
 ---
 
@@ -8,7 +8,7 @@
 
 | Поле | Значение |
 |------|----------|
-| **Стадия** | **Launch Infrastructure v1.0 — Email paused** |
+| **Стадия** | **Launch Infrastructure v1.0 — Email DNS propagation** |
 | **Git tag** | `v1.0.0-rc.2` (prev: `v1.0.0-rc.1`) |
 | **Предыдущий phase tag** | `v6.0-phase6-complete` (superseded для денежного пути) |
 | **Целевой рынок v1.0** | **Латвия (LV-only)** |
@@ -60,13 +60,13 @@
 | Главный чеклист | [docs/launch/MANUAL_ACTIONS_CHECKLIST.md](../launch/MANUAL_ACTIONS_CHECKLIST.md) |
 | Ops-гейт | [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md) section C → детали в `docs/launch/` |
 
-**Статус:** ⏸️ Email Infrastructure поставлен на паузу. Google Workspace, корпоративная почта и 11 aliases завершены. Resend Domain создан; SPF, DKIM и DMARC опубликованы. Supabase Email templates подготовлены. Единственный внешний email-блокер — **NIC.lv Ticket #921631**, ожидается ответ по MX для `send.pharm.lv`.
+**Статус:** 🟡 Email Infrastructure почти закрыт. Google Workspace, корпоративная почта и 11 aliases завершены. Resend Domain создан. NIC.lv добавил MX для `send.pharm.lv` по тикету **#921631**; MX, SPF и DMARC видны публично. DKIM TXT исправлен в панели NIC.lv после найденной опечатки (`MDUE` → `MDUe`), ожидается публикация исправленного значения в авторитативном DNS. Supabase Email templates подготовлены.
 
 ---
 
 ## Следующие шаги
 
-1. **Wait for NIC.lv #921631** — [WAITING_FOR_NICLV.md](../status/WAITING_FOR_NICLV.md); до ответа email-инфраструктуру не изменять
+1. **Email DNS propagation** — [WAITING_FOR_NICLV.md](../status/WAITING_FOR_NICLV.md); дождаться публичного DKIM `MDUe/3`, затем завершить Resend verification, API key, Vercel secrets и Supabase SMTP
 2. **Staging Bug Bash** — `supabase db:reset` (25 migrations) + сквозной checkout
 3. **Go-live** — после ops checklist + Bug Bash
 4. **v1.0.0 GA** — stable tag
