@@ -5,7 +5,6 @@ import { getCatalogProducts } from '@/lib/commerce/catalog-source'
 import { productSlug } from '@/lib/commerce/slugs'
 import { LOCALES } from '@/lib/i18n/config'
 import { localizedPath } from '@/lib/i18n/routes'
-import { SITEMAP_SHARD_SIZE, shardCount, sliceShard } from '@/lib/seo/sitemap-shards'
 import { getSiteUrl } from '@/lib/site'
 
 const SITE_URL = getSiteUrl()
@@ -77,33 +76,12 @@ async function allProductRoutes(now: Date): Promise<MetadataRoute.Sitemap> {
   ).flat()
 }
 
-export async function generateSitemaps() {
-  if (launchRobotsNoIndex()) {
-    return [{ id: 0 }]
-  }
-
-  const products = await allProductRoutes(new Date())
-  const shards = shardCount(products.length)
-  return Array.from({ length: shards }, (_, id) => ({ id }))
-}
-
-export default async function sitemap(props: {
-  id: number
-}): Promise<MetadataRoute.Sitemap> {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (launchRobotsNoIndex()) {
     return []
   }
 
-  const id = props.id
   const now = new Date()
   const products = await allProductRoutes(now)
-  const productShard = sliceShard(products, id)
-
-  if (id === 0) {
-    return [...staticAndTaxonomyRoutes(now), ...productShard]
-  }
-
-  return productShard
+  return [...staticAndTaxonomyRoutes(now), ...products]
 }
-
-export { SITEMAP_SHARD_SIZE }
