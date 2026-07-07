@@ -12,12 +12,17 @@ import {
 } from "@/lib/data"
 import { useLang, formatMoney, type TranslationKey } from "@/lib/i18n"
 import { compareMoney, discountPercent, moneyToMajor, type Money } from "@/lib/money"
+import {
+  computeCatalogMaxPriceMajor,
+  isPriceFilterActive,
+} from "@/lib/commerce/catalog-filters"
 import { useCart } from "@/components/cart-context"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
 import { BrandsShowcase } from "@/components/brands-showcase"
 import { Button } from "@/components/ui/button"
+import { CatalogLoadError } from "@/components/catalog-load-error"
 import { 
   ChevronDown, ChevronRight, Filter, X, Star, 
   Grid3X3, LayoutList, Loader2, SlidersHorizontal
@@ -54,9 +59,11 @@ interface Brand {
 export function CategoryPageContent({
   slug,
   catalogProducts,
+  catalogLoadError = false,
 }: {
   slug: string
   catalogProducts: CatalogProduct[]
+  catalogLoadError?: boolean
 }) {
   const { t, localizedPath } = useLang()
   const { addItem } = useCart()
@@ -99,13 +106,28 @@ export function CategoryPageContent({
 
   const { category, products, brands } = catalogData
 
+  const catalogMaxPrice = useMemo(
+    () => computeCatalogMaxPriceMajor(products.map((product) => product.price)),
+    [products]
+  )
+
   // Filters
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100])
+  const [activeSlug, setActiveSlug] = useState(slug)
+  const [userPriceRange, setUserPriceRange] = useState<[number, number] | null>(null)
   const [minRating, setMinRating] = useState(0)
   const [sortBy, setSortBy] = useState("popular")
   const [showFilters, setShowFilters] = useState(false)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+
+  if (activeSlug !== slug) {
+    setActiveSlug(slug)
+    setUserPriceRange(null)
+    setSelectedBrands([])
+    setMinRating(0)
+  }
+
+  const priceRange = userPriceRange ?? [0, catalogMaxPrice]
 
   // Filter and sort products
   const filteredProducts = products
@@ -135,11 +157,14 @@ export function CategoryPageContent({
 
   const clearFilters = () => {
     setSelectedBrands([])
-    setPriceRange([0, 100])
+    setUserPriceRange(null)
     setMinRating(0)
   }
 
-  const hasActiveFilters = selectedBrands.length > 0 || minRating > 0 || priceRange[0] > 0 || priceRange[1] < 100
+  const hasActiveFilters =
+    selectedBrands.length > 0 ||
+    minRating > 0 ||
+    isPriceFilterActive(priceRange, catalogMaxPrice)
 
   if (!category) {
     return (
@@ -213,7 +238,9 @@ export function CategoryPageContent({
                     <input
                       type="number"
                       value={priceRange[0]}
-                      onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
+                      onChange={(e) =>
+                        setUserPriceRange([Number(e.target.value), priceRange[1]])
+                      }
                       className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm"
                       placeholder={t("fromLabel")}
                     />
@@ -221,7 +248,9 @@ export function CategoryPageContent({
                     <input
                       type="number"
                       value={priceRange[1]}
-                      onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
+                      onChange={(e) =>
+                        setUserPriceRange([priceRange[0], Number(e.target.value)])
+                      }
                       className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm"
                       placeholder={t("toLabel")}
                     />
@@ -312,7 +341,9 @@ export function CategoryPageContent({
               </div>
 
               {/* Products */}
-              {filteredProducts.length === 0 ? (
+              {catalogLoadError ? (
+                <CatalogLoadError />
+              ) : filteredProducts.length === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16">
                   <p className="text-lg font-medium text-foreground">{t("productsNotFound")}</p>
                   <p className="mt-1 text-sm text-muted-foreground">{t("tryChangeFilters")}</p>
@@ -421,7 +452,7 @@ export function CategoryPageContent({
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowFilters(false)} />
           <div className="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto rounded-t-2xl bg-card">
             <div className="sticky top-0 flex items-center justify-between border-b border-border bg-card p-4">
-              <h2 className="text-lg font-semibold">Фильтры</h2>
+              <h2 className="text-lg font-semibold">{t("filtersLabel")}</h2>
               <button onClick={() => setShowFilters(false)}>
                 <X className="h-6 w-6" />
               </button>
@@ -430,7 +461,7 @@ export function CategoryPageContent({
             <div className="space-y-6 p-4">
               {/* Brands */}
               <div>
-                <h3 className="mb-3 font-semibold text-foreground">Бренд</h3>
+                <h3 className="mb-3 font-semibold text-foreground">{t("brandLabel")}</h3>
                 <div className="space-y-2">
                   {brands.map(brand => (
                     <label key={brand.slug} className="flex items-center gap-2 text-sm">
@@ -448,7 +479,7 @@ export function CategoryPageContent({
 
               {/* Rating */}
               <div>
-                <h3 className="mb-3 font-semibold text-foreground">Рейтинг</h3>
+                <h3 className="mb-3 font-semibold text-foreground">{t("ratingLabel")}</h3>
                 <div className="space-y-2">
                   {[4, 3, 2, 1].map(rating => (
                     <label key={rating} className="flex items-center gap-2 text-sm">
@@ -475,10 +506,10 @@ export function CategoryPageContent({
 
             <div className="sticky bottom-0 flex gap-3 border-t border-border bg-card p-4">
               <Button variant="outline" className="flex-1" onClick={clearFilters}>
-                Сбросить
+                {t("clearFilters")}
               </Button>
               <Button className="flex-1" onClick={() => setShowFilters(false)}>
-                Показать ({filteredProducts.length})
+                {t("showResults")} ({filteredProducts.length})
               </Button>
             </div>
           </div>

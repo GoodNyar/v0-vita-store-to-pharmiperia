@@ -15,15 +15,18 @@ import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
 import { ProductCard } from "@/components/product-card"
+import { CatalogLoadError } from "@/components/catalog-load-error"
 
 type SortOption = "popular" | "price-asc" | "price-desc" | "rating"
 
 export function BrandPageContent({
   slug,
   brandProducts,
+  catalogLoadError = false,
 }: {
   slug: string
   brandProducts: Product[]
+  catalogLoadError?: boolean
 }) {
   const { t } = useLang()
   const [sortBy, setSortBy] = useState<SortOption>("popular")
@@ -124,7 +127,9 @@ export function BrandPageContent({
             </div>
           )}
 
-          {productCount === 0 ? (
+          {catalogLoadError ? (
+            <CatalogLoadError />
+          ) : productCount === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16">
               <Package className="mb-3 h-10 w-10 text-muted-foreground" />
               <p className="text-center text-lg font-medium text-foreground">

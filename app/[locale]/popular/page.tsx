@@ -13,6 +13,11 @@ export default async function PopularPage({
   const { locale } = await params
   if (!isLocale(locale)) notFound()
 
-  const { products } = await getCatalogProducts(locale)
-  return <PopularPageContent allProducts={products} />
+  const { products, loadError } = await getCatalogProducts(locale)
+  return (
+    <PopularPageContent
+      allProducts={products}
+      catalogLoadError={loadError != null}
+    />
+  )
 }

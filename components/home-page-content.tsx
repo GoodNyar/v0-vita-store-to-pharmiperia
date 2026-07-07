@@ -10,6 +10,7 @@ import { ProductCard } from "@/components/product-card"
 import { CartDrawer } from "@/components/cart-drawer"
 import { SiteFooter } from "@/components/site-footer"
 import { Skeleton } from "@/components/loading-skeleton"
+import { CatalogLoadError } from "@/components/catalog-load-error"
 import { useLang } from "@/lib/i18n"
 import type { Product } from "@/lib/data"
 import { Truck, Shield, RotateCcw, Flame, Leaf } from "lucide-react"
@@ -45,7 +46,13 @@ function WhyBuyUsSkeleton() {
   )
 }
 
-export function HomePageContent({ products }: { products: Product[] }) {
+export function HomePageContent({
+  products,
+  catalogLoadError = false,
+}: {
+  products: Product[]
+  catalogLoadError?: boolean
+}) {
   const { t } = useLang()
 
   const trustBadges = [
@@ -121,20 +128,26 @@ export function HomePageContent({ products }: { products: Product[] }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 lg:gap-4">
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+              {catalogLoadError ? (
+                <CatalogLoadError compact />
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 lg:gap-4">
+                    {products.map((product) => (
+                      <ProductCard key={product.id} product={product} />
+                    ))}
+                  </div>
 
-              <div className="mt-6 flex justify-center">
-                <Link
-                  href="/popular"
-                  className="rounded-full border border-border bg-card px-8 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-                >
-                  {t("viewAllPopular")}
-                </Link>
-              </div>
+                  <div className="mt-6 flex justify-center">
+                    <Link
+                      href="/popular"
+                      className="rounded-full border border-border bg-card px-8 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                    >
+                      {t("viewAllPopular")}
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
           </section>
 

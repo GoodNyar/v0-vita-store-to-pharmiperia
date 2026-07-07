@@ -50,7 +50,10 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  const { products } = await getCatalogProducts('lv')
+  const { products, loadError } = await getCatalogProducts('lv')
+  if (loadError) {
+    return []
+  }
   return products.map((product) => ({ slug: productSlug(product) }))
 }
 

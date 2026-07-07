@@ -13,6 +13,14 @@ export default async function BrandPage({
   const { locale, slug } = await params
   if (!isLocale(locale)) notFound()
 
-  const brandProducts = await getCatalogProductsByBrandSlug(slug, locale)
-  return <BrandPageContent slug={slug} brandProducts={brandProducts} />
+  const { products: brandProducts, loadError } =
+    await getCatalogProductsByBrandSlug(slug, locale)
+
+  return (
+    <BrandPageContent
+      slug={slug}
+      brandProducts={brandProducts}
+      catalogLoadError={loadError != null}
+    />
+  )
 }

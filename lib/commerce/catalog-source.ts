@@ -16,8 +16,10 @@ import { applyMarketPricingToCommerceProducts } from './apply-market-pricing'
 import { mapCommerceToLegacyProduct } from './products'
 import { resolveMarketFromCookies } from './resolve-market-server'
 import type { CommerceProduct } from './types'
+import { type CatalogListResult } from './catalog-result'
 
-export type CatalogSource = 'db' | 'legacy'
+export type { CatalogListResult, CatalogLoadError, CatalogSource } from './catalog-result'
+export { hasCatalogLoadError } from './catalog-result'
 
 const legacyById = new Map(legacyProducts.map((product) => [product.id, product]))
 
@@ -62,22 +64,26 @@ export function mergeLegacyExtras(product: CommerceProduct): Product {
   }
 }
 
-export async function getCatalogProducts(
-  locale: Locale
-): Promise<{ products: Product[]; source: CatalogSource }> {
+export async function getCatalogProducts(locale: Locale): Promise<CatalogListResult> {
   if (prefersLegacyCatalog()) {
-    return { products: legacyProducts, source: 'legacy' }
+    return { products: legacyProducts, source: 'legacy', loadError: null }
   }
 
   const result = await cachedListActiveProducts(locale)
   if (!result.ok) {
-    return { products: [], source: 'db' }
+    console.error('[catalog-source] listActiveProducts failed', {
+      locale,
+      code: result.error.code,
+      message: result.error.message,
+    })
+    return { products: [], source: 'db', loadError: 'database_unavailable' }
   }
 
   const priced = await withMarketPricing(result.data)
   return {
     products: priced.map(mergeLegacyExtras),
     source: 'db',
+    loadError: null,
   }
 }
 
@@ -101,35 +107,63 @@ export async function getCatalogProductBySlug(
 export async function getCatalogProductsByCategorySlug(
   categorySlug: string,
   locale: Locale
-): Promise<Product[]> {
+): Promise<CatalogListResult> {
   if (prefersLegacyCatalog()) {
-    return legacyProducts.filter((product) => product.category === categorySlug)
+    return {
+      products: legacyProducts.filter((product) => product.category === categorySlug),
+      source: 'legacy',
+      loadError: null,
+    }
   }
 
   const result = await cachedListProductsByCategorySlug(categorySlug, locale)
   if (!result.ok) {
-    return []
+    console.error('[catalog-source] listProductsByCategorySlug failed', {
+      categorySlug,
+      locale,
+      code: result.error.code,
+      message: result.error.message,
+    })
+    return { products: [], source: 'db', loadError: 'database_unavailable' }
   }
 
   const priced = await withMarketPricing(result.data)
-  return priced.map(mergeLegacyExtras)
+  return {
+    products: priced.map(mergeLegacyExtras),
+    source: 'db',
+    loadError: null,
+  }
 }
 
 export async function getCatalogProductsByBrandSlug(
   brandSlug: string,
   locale: Locale
-): Promise<Product[]> {
+): Promise<CatalogListResult> {
   const { getProductsByBrandSlug } = await import('@/lib/data')
 
   if (prefersLegacyCatalog()) {
-    return getProductsByBrandSlug(brandSlug)
+    return {
+      products: getProductsByBrandSlug(brandSlug),
+      source: 'legacy',
+      loadError: null,
+    }
   }
 
   const result = await cachedListProductsByBrandSlug(brandSlug, locale)
   if (!result.ok) {
-    return []
+    console.error('[catalog-source] listProductsByBrandSlug failed', {
+      brandSlug,
+      locale,
+      code: result.error.code,
+      message: result.error.message,
+    })
+    return { products: [], source: 'db', loadError: 'database_unavailable' }
   }
 
   const priced = await withMarketPricing(result.data)
-  return priced.map(mergeLegacyExtras)
+  return {
+    products: priced.map(mergeLegacyExtras),
+    source: 'db',
+    loadError: null,
+  }
 }

@@ -13,10 +13,15 @@ export default async function HomePage({
   const { locale } = await params
   if (!isLocale(locale)) notFound()
 
-  const { products } = await getCatalogProducts(locale)
+  const { products, loadError } = await getCatalogProducts(locale)
   const trending = [...products]
     .sort((a, b) => b.reviewCount - a.reviewCount)
     .slice(0, 8)
 
-  return <HomePageContent products={trending} />
+  return (
+    <HomePageContent
+      products={trending}
+      catalogLoadError={loadError != null}
+    />
+  )
 }

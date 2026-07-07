@@ -9,9 +9,16 @@ import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
 import { ProductCard } from "@/components/product-card"
+import { CatalogLoadError } from "@/components/catalog-load-error"
 import { ChevronRight } from "lucide-react"
 
-export function PopularPageContent({ allProducts }: { allProducts: Product[] }) {
+export function PopularPageContent({
+  allProducts,
+  catalogLoadError = false,
+}: {
+  allProducts: Product[]
+  catalogLoadError?: boolean
+}) {
   const { t } = useLang()
   const [sortBy, setSortBy] = useState("popular")
 
@@ -76,7 +83,9 @@ export function PopularPageContent({ allProducts }: { allProducts: Product[] }) 
             </select>
           </div>
 
-          {popular.length === 0 ? (
+          {catalogLoadError ? (
+            <CatalogLoadError />
+          ) : popular.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16">
               <p className="text-lg font-medium text-foreground">
                 {t("productsNotFound")}

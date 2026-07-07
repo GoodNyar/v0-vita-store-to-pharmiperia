@@ -24,7 +24,14 @@ export default async function CategoryPage({
     return <BrandsShowcase />
   }
 
-  const catalogProducts = await getCatalogProductsByCategorySlug(slug, locale)
+  const { products: catalogProducts, loadError } =
+    await getCatalogProductsByCategorySlug(slug, locale)
 
-  return <CategoryPageContent slug={slug} catalogProducts={catalogProducts} />
+  return (
+    <CategoryPageContent
+      slug={slug}
+      catalogProducts={catalogProducts}
+      catalogLoadError={loadError != null}
+    />
+  )
 }
