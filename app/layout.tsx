@@ -9,6 +9,7 @@ import { CartProvider } from '@/components/cart-context'
 import { FavoritesProvider } from '@/components/favorites-provider'
 
 import { OrgJsonLd } from '@/components/org-json-ld'
+import { launchRobotsNoIndex } from '@/lib/launch/lockdown'
 import { getSiteUrl } from '@/lib/site'
 import './globals.css'
 
@@ -20,60 +21,86 @@ const SITE_NAME = 'Pharmiperia'
 const DEFAULT_DESCRIPTION =
   'Pharmiperia — аутентичная французская дермо-косметика в Латвии. Bioderma, Vichy, La Roche-Posay, Avène и другие бренды с доставкой по всей Латвии.'
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: `${SITE_NAME} — французская дермо-косметика`,
-    template: `%s | ${SITE_NAME}`,
-  },
-  description: DEFAULT_DESCRIPTION,
-  keywords: [
-    'французская косметика', 'дермо-косметика', 'аптечная косметика', 'Латвия',
-    'Bioderma', 'Vichy', 'La Roche-Posay', 'Avène', 'Nuxe', 'Caudalie',
-    'косметика онлайн', 'pharmiperia',
-  ],
-  authors: [{ name: SITE_NAME, url: SITE_URL }],
-  creator: SITE_NAME,
-  publisher: SITE_NAME,
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
-  },
-  openGraph: {
-    type: 'website',
-    locale: 'lv_LV',
-    alternateLocale: ['ru_RU'],
-    url: SITE_URL,
-    siteName: SITE_NAME,
-    title: `${SITE_NAME} — французская дермо-косметика`,
-    description: DEFAULT_DESCRIPTION,
-    images: [
-      {
-        url: '/og-default.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Pharmiperia — французская дермо-косметика в Латвии',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: `${SITE_NAME} — французская дермо-косметика`,
-    description: DEFAULT_DESCRIPTION,
-    images: ['/og-default.jpg'],
-  },
-  icons: {
-    icon: [
-      { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
-      { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
-    ],
-    apple: '/apple-icon.png',
-  },
-  alternates: {
-    canonical: SITE_URL,
-  },
+const LOCKDOWN_ROBOTS: Metadata['robots'] = {
+  index: false,
+  follow: false,
+  googleBot: { index: false, follow: false, noimageindex: true },
+}
+
+const LIVE_ROBOTS: Metadata['robots'] = {
+  index: true,
+  follow: true,
+  googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const lockdown = launchRobotsNoIndex()
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: lockdown
+        ? 'Mēs drīz atvērsimies | Pharmiperia'
+        : `${SITE_NAME} — французская дермо-косметика`,
+      template: `%s | ${SITE_NAME}`,
+    },
+    description: lockdown
+      ? 'Pharmiperia drīz atvērs durvis — autentiska franču dermo-kosmētika Latvijā.'
+      : DEFAULT_DESCRIPTION,
+    keywords: lockdown
+      ? undefined
+      : [
+          'французская косметика', 'дермо-косметика', 'аптечная косметика', 'Латвия',
+          'Bioderma', 'Vichy', 'La Roche-Posay', 'Avène', 'Nuxe', 'Caudalie',
+          'косметика онлайн', 'pharmiperia',
+        ],
+    authors: [{ name: SITE_NAME, url: SITE_URL }],
+    creator: SITE_NAME,
+    publisher: SITE_NAME,
+    robots: lockdown ? LOCKDOWN_ROBOTS : LIVE_ROBOTS,
+    openGraph: {
+      type: 'website',
+      locale: 'lv_LV',
+      alternateLocale: ['ru_RU'],
+      url: SITE_URL,
+      siteName: SITE_NAME,
+      title: lockdown
+        ? 'Mēs drīz atvērsimies | Pharmiperia'
+        : `${SITE_NAME} — французская дермо-косметика`,
+      description: lockdown
+        ? 'Pharmiperia drīz atvērs durvis — autentiska franču dermo-kosmētika Latvijā.'
+        : DEFAULT_DESCRIPTION,
+      images: [
+        {
+          url: '/og-default.jpg',
+          width: 1200,
+          height: 630,
+          alt: lockdown
+            ? 'Pharmiperia — drīz atvērsimies'
+            : 'Pharmiperia — французская дермо-косметика в Латвии',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: lockdown
+        ? 'Mēs drīz atvērsimies | Pharmiperia'
+        : `${SITE_NAME} — французская дермо-косметика`,
+      description: lockdown
+        ? 'Pharmiperia drīz atvērs durvis — autentiska franču dermo-kosmētika Latvijā.'
+        : DEFAULT_DESCRIPTION,
+      images: ['/og-default.jpg'],
+    },
+    icons: {
+      icon: [
+        { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
+        { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' },
+        { url: '/icon.svg', type: 'image/svg+xml' },
+      ],
+      apple: '/apple-icon.png',
+    },
+    alternates: lockdown ? undefined : { canonical: SITE_URL },
+  }
 }
 
 export const viewport: Viewport = {

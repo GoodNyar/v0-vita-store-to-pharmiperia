@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+import { launchRobotsNoIndex } from '@/lib/launch/lockdown'
 import { categories, BRANDS_ORDERED, getBrandSlug } from '@/lib/data'
 import { getCatalogProducts } from '@/lib/commerce/catalog-source'
 import { productSlug } from '@/lib/commerce/slugs'
@@ -60,7 +61,11 @@ async function allProductRoutes(now: Date): Promise<MetadataRoute.Sitemap> {
   return (
     await Promise.all(
       LOCALES.map(async (locale) => {
-        const { products } = await getCatalogProducts(locale)
+        const { products, loadError } = await getCatalogProducts(locale)
+        if (loadError) {
+          console.error('[sitemap] skipping product routes — catalog unavailable', { locale })
+          return []
+        }
         return products.map((product) => ({
           url: `${SITE_URL}${localizedPath(locale, `/products/${productSlug(product)}`)}`,
           lastModified: now,
@@ -73,6 +78,10 @@ async function allProductRoutes(now: Date): Promise<MetadataRoute.Sitemap> {
 }
 
 export async function generateSitemaps() {
+  if (launchRobotsNoIndex()) {
+    return [{ id: 0 }]
+  }
+
   const products = await allProductRoutes(new Date())
   const shards = shardCount(products.length)
   return Array.from({ length: shards }, (_, id) => ({ id }))
@@ -81,6 +90,10 @@ export async function generateSitemaps() {
 export default async function sitemap(props: {
   id: number
 }): Promise<MetadataRoute.Sitemap> {
+  if (launchRobotsNoIndex()) {
+    return []
+  }
+
   const id = props.id
   const now = new Date()
   const products = await allProductRoutes(now)

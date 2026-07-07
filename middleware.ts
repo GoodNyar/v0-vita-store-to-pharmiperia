@@ -13,6 +13,7 @@ import {
   isLocale,
 } from "@/lib/i18n/config"
 import { localizedPath, stripLocalePrefix } from "@/lib/i18n/routes"
+import { applyLaunchRobotsHeaders, maybeLaunchLockdown } from "@/lib/launch/middleware"
 import { type NextRequest, NextResponse } from "next/server"
 
 const SKIP_LOCALE_PREFIXES = [
@@ -116,18 +117,29 @@ function legacyProductRedirect(
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  const lockdownResponse = await maybeLaunchLockdown(request)
+  if (lockdownResponse) {
+    return applyMarketCookie(request, applyLaunchRobotsHeaders(lockdownResponse))
+  }
+
   if (shouldSkipLocale(pathname)) {
-    return applyMarketCookie(request, await updateSession(request))
+    return applyLaunchRobotsHeaders(
+      applyMarketCookie(request, await updateSession(request))
+    )
   }
 
   const legacyRedirect = legacyProductRedirect(request, pathname)
-  if (legacyRedirect) return legacyRedirect
+  if (legacyRedirect) {
+    return applyLaunchRobotsHeaders(legacyRedirect)
+  }
 
   if (pathname === "/") {
     const locale = detectLocale(request)
     const url = request.nextUrl.clone()
     url.pathname = `/${locale}`
-    return applyMarketCookie(request, redirectWithLocaleCookie(url, locale, 307))
+    return applyLaunchRobotsHeaders(
+      applyMarketCookie(request, redirectWithLocaleCookie(url, locale, 307))
+    )
   }
 
   const firstSegment = pathname.split("/")[1]
@@ -135,7 +147,9 @@ export async function middleware(request: NextRequest) {
     const locale = detectLocale(request)
     const url = request.nextUrl.clone()
     url.pathname = localizedPath(locale, pathname)
-    return applyMarketCookie(request, redirectWithLocaleCookie(url, locale, 307))
+    return applyLaunchRobotsHeaders(
+      applyMarketCookie(request, redirectWithLocaleCookie(url, locale, 307))
+    )
   }
 
   const response = pathnameNeedsSessionRefresh(pathname)
@@ -145,7 +159,7 @@ export async function middleware(request: NextRequest) {
     path: "/",
     maxAge: 60 * 60 * 24 * 365,
   })
-  return applyMarketCookie(request, response)
+  return applyLaunchRobotsHeaders(applyMarketCookie(request, response))
 }
 
 export const config = {
